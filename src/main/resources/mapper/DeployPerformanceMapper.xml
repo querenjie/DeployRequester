@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployPerformanceDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployPerformancePO" >
+    <id column="deployperformanceid" property="deployperformanceid" jdbcType="VARCHAR" />
+    <result column="projectcode" property="projectcode" jdbcType="NUMERIC" />
+    <result column="modulecode" property="modulecode" jdbcType="NUMERIC" />
+    <result column="moduletypecode" property="moduletypecode" jdbcType="NUMERIC" />
+    <result column="deployduration" property="deployduration" jdbcType="NUMERIC" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deployperformanceid, modulecode, moduletypecode, deployduration, projectcode
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_performance
+    where deployperformanceid = #{deployperformanceid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByModulecodeAndModuletypecodeAndProjectcode" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.DeployPerformancePO" >
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_performance
+    where modulecode = #{modulecode,jdbcType=NUMERIC}
+    and moduletypecode = #{moduletypecode,jdbcType=NUMERIC}
+    and projectcode = #{projectcode,jdbcType=NUMERIC}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_performance
+    where deployperformanceid = #{deployperformanceid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployPerformancePO" >
+    insert into t_deploy_performance (deployperformanceid, modulecode, 
+      moduletypecode, deployduration, projectcode)
+    values (#{deployperformanceid,jdbcType=VARCHAR}, #{modulecode,jdbcType=NUMERIC}, 
+      #{moduletypecode,jdbcType=NUMERIC}, #{deployduration,jdbcType=NUMERIC},
+      #{projectcode,jdbcType=NUMERIC})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployPerformancePO" >
+    insert into t_deploy_performance
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deployperformanceid != null" >
+        deployperformanceid,
+      </if>
+      <if test="modulecode != null" >
+        modulecode,
+      </if>
+      <if test="moduletypecode != null" >
+        moduletypecode,
+      </if>
+      <if test="deployduration != null" >
+        deployduration,
+      </if>
+      <if test="projectcode != null" >
+        projectcode,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deployperformanceid != null" >
+        #{deployperformanceid,jdbcType=VARCHAR},
+      </if>
+      <if test="modulecode != null" >
+        #{modulecode,jdbcType=NUMERIC},
+      </if>
+      <if test="moduletypecode != null" >
+        #{moduletypecode,jdbcType=NUMERIC},
+      </if>
+      <if test="deployduration != null" >
+        #{deployduration,jdbcType=NUMERIC},
+      </if>
+      <if test="projectcode != null" >
+        #{projectcode,jdbcType=NUMERIC},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployPerformancePO" >
+    update t_deploy_performance
+    <set >
+      <if test="modulecode != null" >
+        modulecode = #{modulecode,jdbcType=NUMERIC},
+      </if>
+      <if test="moduletypecode != null" >
+        moduletypecode = #{moduletypecode,jdbcType=NUMERIC},
+      </if>
+      <if test="deployduration != null" >
+        deployduration = #{deployduration,jdbcType=NUMERIC},
+      </if>
+      <if test="projectcode != null" >
+        projectcode = #{projectcode,jdbcType=NUMERIC},
+      </if>
+    </set>
+    where deployperformanceid = #{deployperformanceid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployPerformancePO" >
+    update t_deploy_performance
+    set modulecode = #{modulecode,jdbcType=NUMERIC},
+      moduletypecode = #{moduletypecode,jdbcType=NUMERIC},
+      deployduration = #{deployduration,jdbcType=NUMERIC},
+      projectcode = #{projectcode,jdbcType=NUMERIC}
+    where deployperformanceid = #{deployperformanceid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateByModulecodeAndModuletypecodeAndProjectcode" parameterType="com.myself.deployrequester.po.DeployPerformancePO" >
+    update t_deploy_performance
+    set deployduration = #{deployduration,jdbcType=NUMERIC}
+    where modulecode = #{modulecode} and moduletypecode = #{moduletypecode} and projectcode = #{projectcode}
+  </update>
+
+</mapper>

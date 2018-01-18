@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployProdEnvDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployProdEnvPO" >
+    <id column="deployprodenvid" property="deployprodenvid" jdbcType="VARCHAR" />
+    <result column="projectcode" property="projectcode" jdbcType="NUMERIC" />
+    <result column="modulecode" property="modulecode" jdbcType="NUMERIC" />
+    <result column="moduletypecode" property="moduletypecode" jdbcType="NUMERIC" />
+    <result column="deploybegintime" property="deploybegintime" jdbcType="TIMESTAMP" />
+    <result column="deployendtime" property="deployendtime" jdbcType="TIMESTAMP" />
+    <result column="feedbackinfo" property="feedbackinfo" jdbcType="VARCHAR" />
+    <result column="issuccess" property="issuccess" jdbcType="NUMERIC" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deployprodenvid, projectcode, modulecode, moduletypecode, deploybegintime, deployendtime, 
+    feedbackinfo, issuccess
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_prodenv
+    where deployprodenvid = #{deployprodenvid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_prodenv
+    where deployprodenvid = #{deployprodenvid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployProdEnvPO" >
+    insert into t_deploy_prodenv (deployprodenvid, projectcode, modulecode, 
+      moduletypecode, deploybegintime, deployendtime, 
+      feedbackinfo, issuccess)
+    values (#{deployprodenvid,jdbcType=VARCHAR}, #{projectcode,jdbcType=NUMERIC}, #{modulecode,jdbcType=NUMERIC}, 
+      #{moduletypecode,jdbcType=NUMERIC}, #{deploybegintime,jdbcType=TIMESTAMP}, #{deployendtime,jdbcType=TIMESTAMP}, 
+      #{feedbackinfo,jdbcType=VARCHAR}, #{issuccess,jdbcType=NUMERIC})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployProdEnvPO" >
+    insert into t_deploy_prodenv
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deployprodenvid != null" >
+        deployprodenvid,
+      </if>
+      <if test="projectcode != null" >
+        projectcode,
+      </if>
+      <if test="modulecode != null" >
+        modulecode,
+      </if>
+      <if test="moduletypecode != null" >
+        moduletypecode,
+      </if>
+      <if test="deploybegintime != null" >
+        deploybegintime,
+      </if>
+      <if test="deployendtime != null" >
+        deployendtime,
+      </if>
+      <if test="feedbackinfo != null" >
+        feedbackinfo,
+      </if>
+      <if test="issuccess != null" >
+        issuccess,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deployprodenvid != null" >
+        #{deployprodenvid,jdbcType=VARCHAR},
+      </if>
+      <if test="projectcode != null" >
+        #{projectcode,jdbcType=NUMERIC},
+      </if>
+      <if test="modulecode != null" >
+        #{modulecode,jdbcType=NUMERIC},
+      </if>
+      <if test="moduletypecode != null" >
+        #{moduletypecode,jdbcType=NUMERIC},
+      </if>
+      <if test="deploybegintime != null" >
+        #{deploybegintime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deployendtime != null" >
+        #{deployendtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="feedbackinfo != null" >
+        #{feedbackinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="issuccess != null" >
+        #{issuccess,jdbcType=NUMERIC},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployProdEnvPO" >
+    update t_deploy_prodenv
+    <set >
+      <if test="projectcode != null" >
+        projectcode = #{projectcode,jdbcType=NUMERIC},
+      </if>
+      <if test="modulecode != null" >
+        modulecode = #{modulecode,jdbcType=NUMERIC},
+      </if>
+      <if test="moduletypecode != null" >
+        moduletypecode = #{moduletypecode,jdbcType=NUMERIC},
+      </if>
+      <if test="deploybegintime != null" >
+        deploybegintime = #{deploybegintime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deployendtime != null" >
+        deployendtime = #{deployendtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="feedbackinfo != null" >
+        feedbackinfo = #{feedbackinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="issuccess != null" >
+        issuccess = #{issuccess,jdbcType=NUMERIC},
+      </if>
+    </set>
+    where deployprodenvid = #{deployprodenvid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployProdEnvPO" >
+    update t_deploy_prodenv
+    set projectcode = #{projectcode,jdbcType=NUMERIC},
+      modulecode = #{modulecode,jdbcType=NUMERIC},
+      moduletypecode = #{moduletypecode,jdbcType=NUMERIC},
+      deploybegintime = #{deploybegintime,jdbcType=TIMESTAMP},
+      deployendtime = #{deployendtime,jdbcType=TIMESTAMP},
+      feedbackinfo = #{feedbackinfo,jdbcType=VARCHAR},
+      issuccess = #{issuccess,jdbcType=NUMERIC}
+    where deployprodenvid = #{deployprodenvid,jdbcType=VARCHAR}
+  </update>
+</mapper>

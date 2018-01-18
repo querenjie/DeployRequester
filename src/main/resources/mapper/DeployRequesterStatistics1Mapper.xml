@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployRequesterStatistics1DAO" >
+
+  <select id="select1ByQueryCriteriaStatistics1PO" resultType="com.myself.deployrequester.po.DeployRequesterStatistics1PO" parameterType="com.myself.deployrequester.po.QueryCriteriaStatistics1PO">
+    SELECT 	ROW_NUMBER() OVER (
+              PARTITION BY
+                projectcode
+              ORDER BY
+                projectcode,
+                passrate DESC
+            ) AS rankno,
+            projectcode,
+            developer,
+            nottested,
+            testsuccess,
+            testfailed,
+            donotneedtest,
+            testsuccessreally,
+            passrate
+    FROM
+    (
+      SELECT
+        projectcode,
+        developer,
+        nottested,
+        testsuccess,
+        testfailed,
+        donotneedtest,
+        testsuccessreally,
+        to_number(to_char(CASE WHEN (nottested + testsuccess + testfailed - testsuccessnotreally > 0) THEN (1.0 * testsuccessreally / (nottested + testsuccess + testfailed - testsuccessnotreally) * 100) ELSE 0 END, '999.99'), '999.99') AS passrate
+      FROM
+      (
+        SELECT 	projectcode,
+                developer,
+                SUM(nottested) AS nottested,
+                SUM(testsuccess) AS testsuccess,
+                SUM(testfailed) AS testfailed,
+                SUM(donotneedtest) AS donotneedtest,
+                SUM(testsuccessreally) AS testsuccessreally,
+                SUM(testsuccessnotreally) AS testsuccessnotreally
+        FROM
+        (
+          SELECT
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            testflagmodifier,
+            testflagmodifierip,
+            COALESCE(CASE WHEN istestok = 0 THEN COUNT(*)	END, 0) AS nottested,
+            COALESCE(CASE WHEN istestok = 1 THEN COUNT(*)	END, 0) AS testsuccess,
+            COALESCE(CASE WHEN istestok = - 1 THEN	COUNT(*) END, 0) AS testfailed,
+            COALESCE(CASE WHEN istestok = - 2 THEN	COUNT(*) END, 0) AS donotneedtest,
+            <![CDATA[
+            COALESCE(CASE WHEN testflagmodifier is not null AND testflagmodifier <> developer AND istestok = 1 THEN count(*) END, 0) AS testsuccessreally,
+            ]]>
+            COALESCE(CASE WHEN (testflagmodifier is null OR (testflagmodifier is not null AND testflagmodifier = developer)) AND istestok = 1 THEN count(*) END, 0) AS testsuccessnotreally
+          FROM
+            t_deploy_request
+          WHERE
+            1 = 1 AND deploystatusfortestenv = 2
+            <if test="projectcode != null">
+              AND projectcode = #{projectcode}
+            </if>
+            <if test="modulecode != null">
+              AND modulecode = #{modulecode}
+            </if>
+            <if test="moduletypecode != null">
+              AND moduletypecode = #{moduletypecode}
+            </if>
+            <if test="begindate != null and begindate != ''">
+              <![CDATA[
+              AND createtime >= to_date(#{begindate}, 'YYYY-MM-DD')
+              ]]>
+            </if>
+            <if test="enddate != null and enddate != ''">
+              <![CDATA[
+              AND createtime < to_date(#{enddate}, 'YYYY-MM-DD') + interval '1d'
+              ]]>
+            </if>
+          GROUP BY
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            testflagmodifier,
+            testflagmodifierip,
+            istestok
+        ) a
+        GROUP BY
+          projectcode,
+          developer
+      ) b
+    ) c
+    ORDER BY projectcode, passrate DESC
+  </select>
+
+  <select id="select2ByQueryCriteriaStatistics1PO" resultType="com.myself.deployrequester.po.DeployRequesterStatistics1PO" parameterType="com.myself.deployrequester.po.QueryCriteriaStatistics1PO">
+    SELECT 	ROW_NUMBER() OVER (
+              PARTITION BY
+                projectcode, modulecode
+              ORDER BY
+                projectcode, modulecode,
+                passrate DESC
+            ) AS rankno,
+            projectcode,
+            modulecode,
+            developer,
+            nottested,
+            testsuccess,
+            testfailed,
+            donotneedtest,
+            testsuccessreally,
+            passrate
+    FROM
+    (
+      SELECT
+        projectcode,
+        modulecode,
+        developer,
+        nottested,
+        testsuccess,
+        testfailed,
+        donotneedtest,
+        testsuccessreally,
+        to_number(to_char(CASE WHEN (nottested + testsuccess + testfailed - testsuccessnotreally > 0) THEN (1.0 * testsuccessreally / (nottested + testsuccess + testfailed - testsuccessnotreally) * 100) ELSE 0 END, '999.99'), '999.99') AS passrate
+      FROM
+      (
+        SELECT 	projectcode,
+                modulecode,
+                developer,
+                SUM(nottested) AS nottested,
+                SUM(testsuccess) AS testsuccess,
+                SUM(testfailed) AS testfailed,
+                SUM(donotneedtest) AS donotneedtest,
+                SUM(testsuccessreally) AS testsuccessreally,
+                SUM(testsuccessnotreally) AS testsuccessnotreally
+        FROM
+        (
+          SELECT
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            testflagmodifier,
+            testflagmodifierip,
+            COALESCE(CASE WHEN istestok = 0 THEN COUNT(*)	END, 0) AS nottested,
+            COALESCE(CASE WHEN istestok = 1 THEN COUNT(*)	END, 0) AS testsuccess,
+            COALESCE(CASE WHEN istestok = - 1 THEN	COUNT(*) END, 0) AS testfailed,
+            COALESCE(CASE WHEN istestok = - 2 THEN	COUNT(*) END, 0) AS donotneedtest,
+            <![CDATA[
+            COALESCE(CASE WHEN testflagmodifier is not null AND testflagmodifier <> developer AND istestok = 1 THEN count(*) END, 0) AS testsuccessreally,
+            ]]>
+            COALESCE(CASE WHEN (testflagmodifier is null OR (testflagmodifier is not null AND testflagmodifier = developer)) AND istestok = 1 THEN count(*) END, 0) AS testsuccessnotreally
+          FROM
+            t_deploy_request
+          WHERE
+            1 = 1 AND deploystatusfortestenv = 2
+            <if test="projectcode != null">
+              AND projectcode = #{projectcode}
+            </if>
+            <if test="modulecode != null">
+              AND modulecode = #{modulecode}
+            </if>
+            <if test="moduletypecode != null">
+              AND moduletypecode = #{moduletypecode}
+            </if>
+            <if test="begindate != null and begindate != ''">
+              <![CDATA[
+              AND createtime >= to_date(#{begindate}, 'YYYY-MM-DD')
+              ]]>
+            </if>
+            <if test="enddate != null and enddate != ''">
+              <![CDATA[
+              AND createtime < to_date(#{enddate}, 'YYYY-MM-DD') + interval '1d'
+              ]]>
+            </if>
+          GROUP BY
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            testflagmodifier,
+            testflagmodifierip,
+            istestok
+        ) a
+        GROUP BY
+          projectcode,
+          modulecode,
+          developer
+      ) b
+    ) c
+    ORDER BY projectcode, modulecode, passrate DESC
+  </select>
+
+  <select id="select3ByQueryCriteriaStatistics1PO" resultType="com.myself.deployrequester.po.DeployRequesterStatistics1PO" parameterType="com.myself.deployrequester.po.QueryCriteriaStatistics1PO">
+    SELECT 	ROW_NUMBER() OVER (
+              PARTITION BY
+                projectcode, modulecode, moduletypecode
+              ORDER BY
+                projectcode, modulecode, moduletypecode,
+                passrate DESC
+            ) AS rankno,
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            nottested,
+            testsuccess,
+            testfailed,
+            donotneedtest,
+            testsuccessreally,
+            passrate
+    FROM
+    (
+      SELECT
+        projectcode,
+        modulecode,
+        moduletypecode,
+        developer,
+        nottested,
+        testsuccess,
+        testfailed,
+        donotneedtest,
+        testsuccessreally,
+        to_number(to_char(CASE WHEN (nottested + testsuccess + testfailed - testsuccessnotreally > 0) THEN (1.0 * testsuccessreally / (nottested + testsuccess + testfailed - testsuccessnotreally) * 100) ELSE 0 END, '999.99'), '999.99') AS passrate
+      FROM
+      (
+        SELECT 	projectcode,
+                modulecode,
+                moduletypecode,
+                developer,
+                SUM(nottested) AS nottested,
+                SUM(testsuccess) AS testsuccess,
+                SUM(testfailed) AS testfailed,
+                SUM(donotneedtest) AS donotneedtest,
+                SUM(testsuccessreally) AS testsuccessreally,
+                SUM(testsuccessnotreally) AS testsuccessnotreally
+        FROM
+        (
+          SELECT
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            testflagmodifier,
+            testflagmodifierip,
+            COALESCE(CASE WHEN istestok = 0 THEN COUNT(*)	END, 0) AS nottested,
+            COALESCE(CASE WHEN istestok = 1 THEN COUNT(*)	END, 0) AS testsuccess,
+            COALESCE(CASE WHEN istestok = - 1 THEN	COUNT(*) END, 0) AS testfailed,
+            COALESCE(CASE WHEN istestok = - 2 THEN	COUNT(*) END, 0) AS donotneedtest,
+            <![CDATA[
+            COALESCE(CASE WHEN testflagmodifier is not null AND testflagmodifier <> developer AND istestok = 1 THEN count(*) END, 0) AS testsuccessreally,
+            ]]>
+            COALESCE(CASE WHEN (testflagmodifier is null OR (testflagmodifier is not null AND testflagmodifier = developer)) AND istestok = 1 THEN count(*) END, 0) AS testsuccessnotreally
+          FROM
+            t_deploy_request
+          WHERE
+            1 = 1 AND deploystatusfortestenv = 2
+            <if test="projectcode != null">
+              AND projectcode = #{projectcode}
+            </if>
+            <if test="modulecode != null">
+              AND modulecode = #{modulecode}
+            </if>
+            <if test="moduletypecode != null">
+              AND moduletypecode = #{moduletypecode}
+            </if>
+            <if test="begindate != null and begindate != ''">
+              <![CDATA[
+              AND createtime >= to_date(#{begindate}, 'YYYY-MM-DD')
+              ]]>
+            </if>
+            <if test="enddate != null and enddate != ''">
+              <![CDATA[
+              AND createtime < to_date(#{enddate}, 'YYYY-MM-DD') + interval '1d'
+              ]]>
+            </if>
+          GROUP BY
+            projectcode,
+            modulecode,
+            moduletypecode,
+            developer,
+            testflagmodifier,
+            testflagmodifierip,
+            istestok
+        ) a
+        GROUP BY
+          projectcode,
+          modulecode,
+          moduletypecode,
+          developer
+      ) b
+    ) c
+    ORDER BY projectcode, modulecode, moduletypecode, passrate DESC
+  </select>
+
+</mapper>

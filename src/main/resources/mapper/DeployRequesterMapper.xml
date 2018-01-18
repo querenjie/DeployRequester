@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployRequesterDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployRequesterPO" >
+    <id column="deployrequestid" property="deployrequestid" jdbcType="VARCHAR" />
+    <result column="projectcode" property="projectcode" jdbcType="NUMERIC" />
+    <result column="modulecode" property="modulecode" jdbcType="NUMERIC" />
+    <result column="moduletypecode" property="moduletypecode" jdbcType="NUMERIC" />
+    <result column="modifytype" property="modifytype" jdbcType="NUMERIC" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="developer" property="developer" jdbcType="VARCHAR" />
+    <result column="isautodeploytotestenv" property="isautodeploytotestenv" jdbcType="NUMERIC" />
+    <result column="deploystatusfortestenv" property="deploystatusfortestenv" jdbcType="NUMERIC" />
+    <result column="istestok" property="istestok" jdbcType="NUMERIC" />
+    <result column="deploystatusforprodenv" property="deploystatusforprodenv" jdbcType="NUMERIC" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="menuname" property="menuname" jdbcType="VARCHAR" />
+    <result column="testflagmodifier" property="testflagmodifier" jdbcType="VARCHAR" />
+    <result column="testflagmodifierip" property="testflagmodifierip" jdbcType="VARCHAR" />
+    <result column="testflagmodifytime" property="testflagmodifytime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deployrequestid, projectcode, modulecode, moduletypecode, modifytype, description, 
+    developer, isautodeploytotestenv, deploystatusfortestenv, istestok, deploystatusforprodenv, 
+    createtime, menuname, testflagmodifier, testflagmodifierip, testflagmodifytime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_request
+    where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_request
+    where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployRequesterPO" >
+    insert into t_deploy_request (deployrequestid, projectcode, modulecode, 
+      moduletypecode, modifytype, description, 
+      developer, isautodeploytotestenv, deploystatusfortestenv, 
+      istestok, deploystatusforprodenv, createtime, menuname
+      )
+    values (#{deployrequestid,jdbcType=VARCHAR}, #{projectcode,jdbcType=NUMERIC}, #{modulecode,jdbcType=NUMERIC}, 
+      #{moduletypecode,jdbcType=NUMERIC}, #{modifytype,jdbcType=NUMERIC}, #{description,jdbcType=VARCHAR}, 
+      #{developer,jdbcType=VARCHAR}, #{isautodeploytotestenv,jdbcType=NUMERIC}, #{deploystatusfortestenv,jdbcType=NUMERIC}, 
+      #{istestok,jdbcType=NUMERIC}, #{deploystatusforprodenv,jdbcType=NUMERIC}, cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE),
+      #{menuname,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployRequesterPO" >
+    insert into t_deploy_request
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deployrequestid != null" >
+        deployrequestid,
+      </if>
+      <if test="projectcode != null" >
+        projectcode,
+      </if>
+      <if test="modulecode != null" >
+        modulecode,
+      </if>
+      <if test="moduletypecode != null" >
+        moduletypecode,
+      </if>
+      <if test="modifytype != null" >
+        modifytype,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="developer != null" >
+        developer,
+      </if>
+      <if test="isautodeploytotestenv != null" >
+        isautodeploytotestenv,
+      </if>
+      <if test="deploystatusfortestenv != null" >
+        deploystatusfortestenv,
+      </if>
+      <if test="istestok != null" >
+        istestok,
+      </if>
+      <if test="deploystatusforprodenv != null" >
+        deploystatusforprodenv,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="menuname != null">
+        menuname,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deployrequestid != null" >
+        #{deployrequestid,jdbcType=VARCHAR},
+      </if>
+      <if test="projectcode != null" >
+        #{projectcode,jdbcType=NUMERIC},
+      </if>
+      <if test="modulecode != null" >
+        #{modulecode,jdbcType=NUMERIC},
+      </if>
+      <if test="moduletypecode != null" >
+        #{moduletypecode,jdbcType=NUMERIC},
+      </if>
+      <if test="modifytype != null" >
+        #{modifytype,jdbcType=NUMERIC},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="developer != null" >
+        #{developer,jdbcType=VARCHAR},
+      </if>
+      <if test="isautodeploytotestenv != null" >
+        #{isautodeploytotestenv,jdbcType=NUMERIC},
+      </if>
+      <if test="deploystatusfortestenv != null" >
+        #{deploystatusfortestenv,jdbcType=NUMERIC},
+      </if>
+      <if test="istestok != null" >
+        #{istestok,jdbcType=NUMERIC},
+      </if>
+      <if test="deploystatusforprodenv != null" >
+        #{deploystatusforprodenv,jdbcType=NUMERIC},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="menuname != null">
+        #{menuname, jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployRequesterPO" >
+    update t_deploy_request
+    <set >
+      <if test="projectcode != null" >
+        projectcode = #{projectcode,jdbcType=NUMERIC},
+      </if>
+      <if test="modulecode != null" >
+        modulecode = #{modulecode,jdbcType=NUMERIC},
+      </if>
+      <if test="moduletypecode != null" >
+        moduletypecode = #{moduletypecode,jdbcType=NUMERIC},
+      </if>
+      <if test="modifytype != null" >
+        modifytype = #{modifytype,jdbcType=NUMERIC},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="developer != null" >
+        developer = #{developer,jdbcType=VARCHAR},
+      </if>
+      <if test="isautodeploytotestenv != null" >
+        isautodeploytotestenv = #{isautodeploytotestenv,jdbcType=NUMERIC},
+      </if>
+      <if test="deploystatusfortestenv != null" >
+        deploystatusfortestenv = #{deploystatusfortestenv,jdbcType=NUMERIC},
+      </if>
+      <if test="istestok != null" >
+        istestok = #{istestok,jdbcType=NUMERIC},
+      </if>
+      <if test="deploystatusforprodenv != null" >
+        deploystatusforprodenv = #{deploystatusforprodenv,jdbcType=NUMERIC},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="menuname != null" >
+        menuname = #{menuname,jdbcType=VARCHAR},
+      </if>
+      <if test="testflagmodifier != null" >
+        testflagmodifier = #{testflagmodifier,jdbcType=VARCHAR},
+      </if>
+      <if test="testflagmodifierip != null" >
+        testflagmodifierip = #{testflagmodifierip,jdbcType=VARCHAR},
+      </if>
+      <if test="testflagmodifytime != null" >
+        testflagmodifytime = cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE),
+      </if>
+    </set>
+    where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployRequesterPO" >
+    update t_deploy_request
+    set projectcode = #{projectcode,jdbcType=NUMERIC},
+      modulecode = #{modulecode,jdbcType=NUMERIC},
+      moduletypecode = #{moduletypecode,jdbcType=NUMERIC},
+      modifytype = #{modifytype,jdbcType=NUMERIC},
+      description = #{description,jdbcType=VARCHAR},
+      developer = #{developer,jdbcType=VARCHAR},
+      isautodeploytotestenv = #{isautodeploytotestenv,jdbcType=NUMERIC},
+      deploystatusfortestenv = #{deploystatusfortestenv,jdbcType=NUMERIC},
+      istestok = #{istestok,jdbcType=NUMERIC},
+      deploystatusforprodenv = #{deploystatusforprodenv,jdbcType=NUMERIC},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      menuname = #{menuname,jdbcType=VARCHAR},
+      testflagmodifier = #{testflagmodifier,jdbcType=VARCHAR},
+      testflagmodifierip = #{testflagmodifierip,jdbcType=VARCHAR},
+      testflagmodifytime = #{testflagmodifytime,jdbcType=TIMESTAMP}
+    where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectByQueryCriteriaPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.QueryCriteriaPO">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_request
+    where 1 = 1 and deploystatusfortestenv = 2
+    <if test="projectcode != null">
+      and projectcode = #{projectcode}
+    </if>
+    <if test="modulecode != null">
+      and modulecode = #{modulecode}
+    </if>
+    <if test="moduletypecode != null">
+      and moduletypecode = #{moduletypecode}
+    </if>
+    <if test="istestok != null">
+      and istestok = #{istestok}
+    </if>
+    <if test="developer != null and developer != ''">
+      and developer = #{developer}
+    </if>
+    <if test="isdeployedtoproduct != null">
+      and deploystatusforprodenv = #{isdeployedtoproduct}
+    </if>
+    <if test="begindate != null and begindate != ''">
+    <![CDATA[
+      and createtime >= to_date(#{begindate}, 'YYYY-MM-DD')
+    ]]>
+    </if>
+    <if test="enddate != null and enddate != ''">
+    <![CDATA[
+      and createtime < to_date(#{enddate}, 'YYYY-MM-DD') + interval '1d'
+    ]]>
+    </if>
+    order by modulecode, createtime
+  </select>
+
+  <update id="updateIsTestOk" parameterType="com.myself.deployrequester.po.DeployRequesterPO" >
+    update t_deploy_request
+    <set >
+      <if test="istestok != null" >
+        istestok = #{istestok,jdbcType=NUMERIC},
+      </if>
+      <if test="testflagmodifier != null" >
+        testflagmodifier = #{testflagmodifier,jdbcType=VARCHAR},
+      </if>
+      <if test="testflagmodifierip != null" >
+        testflagmodifierip = #{testflagmodifierip,jdbcType=VARCHAR},
+      </if>
+      testflagmodifytime = cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE)
+    </set>
+    where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="markDeployedToProd" parameterType="com.myself.deployrequester.po.QueryCriteriaPO">
+    update t_deploy_request set deploystatusforprodenv=#{deploystatusforprodenv,jdbcType=NUMERIC}
+    where deploystatusfortestenv = 2
+    <if test='deploystatusforprodenv == "3"'>
+      and deploystatusforprodenv = 0
+    </if>
+    <if test='deploystatusforprodenv == "2"'>
+      and (deploystatusforprodenv = 0 or deploystatusforprodenv = 3)
+    </if>
+    <if test="projectcode != null">
+      and projectcode = #{projectcode}
+    </if>
+    <if test="modulecode != null">
+      and modulecode = #{modulecode}
+    </if>
+    <if test="moduletypecode != null">
+      and moduletypecode = #{moduletypecode}
+    </if>
+    <if test="deployToProdEnvTime != null and deployToProdEnvTime != ''">
+      <![CDATA[
+      and to_char(createtime, 'YYYY-MM-DD HH24:MI:SS') < #{deployToProdEnvTime}
+      ]]>
+    </if>
+  </update>
+
+  <select id="selectByProduceApplicationQueryCriteriaPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.ProduceApplicationQueryCriteriaPO">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_request
+    where 1 = 1 and deploystatusfortestenv = 2
+    <if test="projectcode != null">
+      and projectcode = #{projectcode}
+    </if>
+    <if test="modulecode != null">
+      and modulecode = #{modulecode}
+    </if>
+    <if test="moduletypecode != null">
+      and moduletypecode = #{moduletypecode}
+    </if>
+    <if test='deployToWhere == "product"'>
+      and (deploystatusforprodenv = 0 or deploystatusforprodenv = 3)
+    </if>
+    <if test='deployToWhere == "preproduct"'>
+      and deploystatusforprodenv = 0
+    </if>
+    order by modulecode, createtime
+  </select>
+
+</mapper>

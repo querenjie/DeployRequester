@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployDbserversDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployDbserversPO" >
+    <id column="deploydbserversid" property="deploydbserversid" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="port" property="port" jdbcType="NUMERIC" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="belong" property="belong" jdbcType="NUMERIC" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="needrecpwd" property="needrecpwd" jdbcType="NUMERIC" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deploydbserversid, ip, port, username, belong, password, needrecpwd
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_dbservers
+    where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_dbservers
+    where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
+    insert into t_deploy_dbservers (deploydbserversid, ip, port, 
+      username, belong, password, 
+      needrecpwd)
+    values (#{deploydbserversid,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{port,jdbcType=NUMERIC}, 
+      #{username,jdbcType=VARCHAR}, #{belong,jdbcType=NUMERIC}, #{password,jdbcType=VARCHAR}, 
+      #{needrecpwd,jdbcType=NUMERIC})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
+    insert into t_deploy_dbservers
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deploydbserversid != null" >
+        deploydbserversid,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="port != null" >
+        port,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="belong != null" >
+        belong,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="needrecpwd != null" >
+        needrecpwd,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deploydbserversid != null" >
+        #{deploydbserversid,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        #{port,jdbcType=NUMERIC},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="belong != null" >
+        #{belong,jdbcType=NUMERIC},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="needrecpwd != null" >
+        #{needrecpwd,jdbcType=NUMERIC},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
+    update t_deploy_dbservers
+    <set >
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        port = #{port,jdbcType=NUMERIC},
+      </if>
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="belong != null" >
+        belong = #{belong,jdbcType=NUMERIC},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="needrecpwd != null" >
+        needrecpwd = #{needrecpwd,jdbcType=NUMERIC},
+      </if>
+    </set>
+    where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
+    update t_deploy_dbservers
+    set ip = #{ip,jdbcType=VARCHAR},
+      port = #{port,jdbcType=NUMERIC},
+      username = #{username,jdbcType=VARCHAR},
+      belong = #{belong,jdbcType=NUMERIC},
+      password = #{password,jdbcType=VARCHAR},
+      needrecpwd = #{needrecpwd,jdbcType=NUMERIC}
+    where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="update1" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
+    update t_deploy_dbservers
+    <set >
+      <if test="needrecpwd != null and needrecpwd == 0">
+        needrecpwd = 0,
+        password = null,
+      </if>
+      <if test="needrecpwd != null and needrecpwd == 1">
+        needrecpwd = 1,
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where belong = #{belong,jdbcType=NUMERIC}
+    AND   ip = #{ip,jdbcType=VARCHAR}
+    AND   port = #{port,jdbcType=NUMERIC}
+    AND   username = #{username,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectByDeployDbserversPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.DeployDbserversPO">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbservers
+    where 1 = 1
+    <if test="belong != null">
+      and belong = #{belong}
+    </if>
+    <if test="ip != null and ip != '' ">
+      and ip = #{ip}
+    </if>
+    <if test="port != null">
+      and port = #{port}
+    </if>
+    <if test="username != null and username != '' ">
+      and username = #{username}
+    </if>
+    order by belong, ip
+  </select>
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployTestEnvDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployTestEnvPO" >
+    <id column="deploytestenvid" property="deploytestenvid" jdbcType="VARCHAR" />
+    <result column="deployrequestid" property="deployrequestid" jdbcType="VARCHAR" />
+    <result column="deploybegintime" property="deploybegintime" jdbcType="TIMESTAMP" />
+    <result column="deployendtime" property="deployendtime" jdbcType="TIMESTAMP" />
+    <result column="duration" property="duration" jdbcType="NUMERIC" />
+    <result column="feedbackinfo" property="feedbackinfo" jdbcType="VARCHAR" />
+    <result column="issuccess" property="issuccess" jdbcType="NUMERIC" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deploytestenvid, deployrequestid, deploybegintime, deployendtime, duration, feedbackinfo, issuccess
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_testenv
+    where deploytestenvid = #{deploytestenvid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_testenv
+    where deploytestenvid = #{deploytestenvid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployTestEnvPO" >
+    insert into t_deploy_testenv (deploytestenvid, deployrequestid, 
+      deploybegintime, deployendtime, duration, feedbackinfo,
+      issuccess)
+    values (#{deploytestenvid,jdbcType=VARCHAR}, #{deployrequestid,jdbcType=VARCHAR}, 
+      cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE), #{deployendtime,jdbcType=TIMESTAMP},
+      #{duration,jdbcType=NUMERIC}, #{feedbackinfo,jdbcType=VARCHAR},
+      #{issuccess,jdbcType=NUMERIC})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployTestEnvPO" >
+    insert into t_deploy_testenv
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deploytestenvid != null" >
+        deploytestenvid,
+      </if>
+      <if test="deployrequestid != null" >
+        deployrequestid,
+      </if>
+      <if test="deploybegintime != null" >
+        deploybegintime,
+      </if>
+      <if test="deployendtime != null" >
+        deployendtime,
+      </if>
+      <if test="duration != null">
+        duration,
+      </if>
+      <if test="feedbackinfo != null" >
+        feedbackinfo,
+      </if>
+      <if test="issuccess != null" >
+        issuccess,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deploytestenvid != null" >
+        #{deploytestenvid,jdbcType=VARCHAR},
+      </if>
+      <if test="deployrequestid != null" >
+        #{deployrequestid,jdbcType=VARCHAR},
+      </if>
+      <if test="deploybegintime != null" >
+        #{deploybegintime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deployendtime != null" >
+        #{deployendtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="duration != null" >
+        #{duration,jdbcType=NUMERIC},
+      </if>
+      <if test="feedbackinfo != null" >
+        #{feedbackinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="issuccess != null" >
+        #{issuccess,jdbcType=NUMERIC},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployTestEnvPO" >
+    update t_deploy_testenv
+    <set >
+      <if test="deployrequestid != null" >
+        deployrequestid = #{deployrequestid,jdbcType=VARCHAR},
+      </if>
+      <if test="deploybegintime != null" >
+        deploybegintime = #{deploybegintime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deployendtime != null" >
+        deployendtime = cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE),
+      </if>
+      <if test="duration != null" >
+        duration = #{duration,jdbcType=NUMERIC},
+      </if>
+      <if test="feedbackinfo != null" >
+        feedbackinfo = #{feedbackinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="issuccess != null" >
+        issuccess = #{issuccess,jdbcType=NUMERIC},
+      </if>
+    </set>
+    where deploytestenvid = #{deploytestenvid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployTestEnvPO" >
+    update t_deploy_testenv
+    set deployrequestid = #{deployrequestid,jdbcType=VARCHAR},
+      deploybegintime = #{deploybegintime,jdbcType=TIMESTAMP},
+      deployendtime = cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE),
+      duration = #{duration,jdbcType=NUMERIC},
+      feedbackinfo = #{feedbackinfo,jdbcType=VARCHAR},
+      issuccess = #{issuccess,jdbcType=NUMERIC}
+    where deploytestenvid = #{deploytestenvid,jdbcType=VARCHAR}
+  </update>
+</mapper>

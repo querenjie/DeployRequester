@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployProdEnvDetailDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployProdEnvDetailPO" >
+    <id column="deployprodenvdetailid" property="deployprodenvdetailid" jdbcType="VARCHAR" />
+    <result column="deployprodenvid" property="deployprodenvid" jdbcType="VARCHAR" />
+    <result column="deployrequestid" property="deployrequestid" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deployprodenvdetailid, deployprodenvid, deployrequestid
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_prodenv_detail
+    where deployprodenvdetailid = #{deployprodenvdetailid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_prodenv_detail
+    where deployprodenvdetailid = #{deployprodenvdetailid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployProdEnvDetailPO" >
+    insert into t_deploy_prodenv_detail (deployprodenvdetailid, deployprodenvid, 
+      deployrequestid)
+    values (#{deployprodenvdetailid,jdbcType=VARCHAR}, #{deployprodenvid,jdbcType=VARCHAR}, 
+      #{deployrequestid,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployProdEnvDetailPO" >
+    insert into t_deploy_prodenv_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deployprodenvdetailid != null" >
+        deployprodenvdetailid,
+      </if>
+      <if test="deployprodenvid != null" >
+        deployprodenvid,
+      </if>
+      <if test="deployrequestid != null" >
+        deployrequestid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deployprodenvdetailid != null" >
+        #{deployprodenvdetailid,jdbcType=VARCHAR},
+      </if>
+      <if test="deployprodenvid != null" >
+        #{deployprodenvid,jdbcType=VARCHAR},
+      </if>
+      <if test="deployrequestid != null" >
+        #{deployrequestid,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployProdEnvDetailPO" >
+    update t_deploy_prodenv_detail
+    <set >
+      <if test="deployprodenvid != null" >
+        deployprodenvid = #{deployprodenvid,jdbcType=VARCHAR},
+      </if>
+      <if test="deployrequestid != null" >
+        deployrequestid = #{deployrequestid,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where deployprodenvdetailid = #{deployprodenvdetailid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployProdEnvDetailPO" >
+    update t_deploy_prodenv_detail
+    set deployprodenvid = #{deployprodenvid,jdbcType=VARCHAR},
+      deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+    where deployprodenvdetailid = #{deployprodenvdetailid,jdbcType=VARCHAR}
+  </update>
+</mapper>

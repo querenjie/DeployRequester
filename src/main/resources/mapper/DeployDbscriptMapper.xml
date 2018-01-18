@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployDbscriptDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployDbscriptPO" >
+    <id column="deploydbscriptid" property="deploydbscriptid" jdbcType="VARCHAR" />
+    <result column="deploydbserversid" property="deploydbserversid" jdbcType="VARCHAR" />
+    <result column="projectid" property="projectid" jdbcType="NUMERIC" />
+    <result column="moduleid" property="moduleid" jdbcType="NUMERIC" />
+    <result column="dbscript" property="dbscript" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="applier" property="applier" jdbcType="VARCHAR" />
+    <result column="applierip" property="applierip" jdbcType="VARCHAR" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="executor" property="executor" jdbcType="VARCHAR" />
+    <result column="executorip" property="executorip" jdbcType="VARCHAR" />
+    <result column="executetime" property="executetime" jdbcType="TIMESTAMP" />
+    <result column="executestatus" property="executestatus" jdbcType="NUMERIC" />
+    <result column="failuremsg" property="failuremsg" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deploydbscriptid, deploydbserversid, projectid, moduleid, dbscript, description, 
+    applier, applierip, createtime, executor, executorip, executetime, executestatus, 
+    failuremsg
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_dbscript
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
+    insert into t_deploy_dbscript (deploydbscriptid, deploydbserversid, 
+      projectid, moduleid, dbscript, 
+      description, applier, applierip, 
+      createtime, executor, executorip, 
+      executetime, executestatus, failuremsg
+      )
+    values (#{deploydbscriptid,jdbcType=VARCHAR}, #{deploydbserversid,jdbcType=VARCHAR}, 
+      #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC}, #{dbscript,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{applier,jdbcType=VARCHAR}, #{applierip,jdbcType=VARCHAR}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{executor,jdbcType=VARCHAR}, #{executorip,jdbcType=VARCHAR}, 
+      #{executetime,jdbcType=TIMESTAMP}, #{executestatus,jdbcType=NUMERIC}, #{failuremsg,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
+    insert into t_deploy_dbscript
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deploydbscriptid != null" >
+        deploydbscriptid,
+      </if>
+      <if test="deploydbserversid != null" >
+        deploydbserversid,
+      </if>
+      <if test="projectid != null" >
+        projectid,
+      </if>
+      <if test="moduleid != null" >
+        moduleid,
+      </if>
+      <if test="dbscript != null" >
+        dbscript,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="applier != null" >
+        applier,
+      </if>
+      <if test="applierip != null" >
+        applierip,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="executor != null" >
+        executor,
+      </if>
+      <if test="executorip != null" >
+        executorip,
+      </if>
+      <if test="executetime != null" >
+        executetime,
+      </if>
+      <if test="executestatus != null" >
+        executestatus,
+      </if>
+      <if test="failuremsg != null" >
+        failuremsg,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deploydbscriptid != null" >
+        #{deploydbscriptid,jdbcType=VARCHAR},
+      </if>
+      <if test="deploydbserversid != null" >
+        #{deploydbserversid,jdbcType=VARCHAR},
+      </if>
+      <if test="projectid != null" >
+        #{projectid,jdbcType=NUMERIC},
+      </if>
+      <if test="moduleid != null" >
+        #{moduleid,jdbcType=NUMERIC},
+      </if>
+      <if test="dbscript != null" >
+        #{dbscript,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="applier != null" >
+        #{applier,jdbcType=VARCHAR},
+      </if>
+      <if test="applierip != null" >
+        #{applierip,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executor != null" >
+        #{executor,jdbcType=VARCHAR},
+      </if>
+      <if test="executorip != null" >
+        #{executorip,jdbcType=VARCHAR},
+      </if>
+      <if test="executetime != null" >
+        #{executetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executestatus != null" >
+        #{executestatus,jdbcType=NUMERIC},
+      </if>
+      <if test="failuremsg != null" >
+        #{failuremsg,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
+    update t_deploy_dbscript
+    <set >
+      <if test="deploydbserversid != null" >
+        deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR},
+      </if>
+      <if test="projectid != null" >
+        projectid = #{projectid,jdbcType=NUMERIC},
+      </if>
+      <if test="moduleid != null" >
+        moduleid = #{moduleid,jdbcType=NUMERIC},
+      </if>
+      <if test="dbscript != null" >
+        dbscript = #{dbscript,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="applier != null" >
+        applier = #{applier,jdbcType=VARCHAR},
+      </if>
+      <if test="applierip != null" >
+        applierip = #{applierip,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executor != null" >
+        executor = #{executor,jdbcType=VARCHAR},
+      </if>
+      <if test="executorip != null" >
+        executorip = #{executorip,jdbcType=VARCHAR},
+      </if>
+      <if test="executetime != null" >
+        executetime = #{executetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executestatus != null" >
+        executestatus = #{executestatus,jdbcType=NUMERIC},
+      </if>
+      <if test="failuremsg != null" >
+        failuremsg = #{failuremsg,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
+    update t_deploy_dbscript
+    set deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR},
+      projectid = #{projectid,jdbcType=NUMERIC},
+      moduleid = #{moduleid,jdbcType=NUMERIC},
+      dbscript = #{dbscript,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      applier = #{applier,jdbcType=VARCHAR},
+      applierip = #{applierip,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      executor = #{executor,jdbcType=VARCHAR},
+      executorip = #{executorip,jdbcType=VARCHAR},
+      executetime = #{executetime,jdbcType=TIMESTAMP},
+      executestatus = #{executestatus,jdbcType=NUMERIC},
+      failuremsg = #{failuremsg,jdbcType=VARCHAR}
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectByQueryDbscriptPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.QueryDbscriptPO">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript
+    where 1 = 1
+    <if test="projectid != null">
+      and projectid = #{projectid}
+    </if>
+    <if test="moduleid != null">
+      and moduleid = #{moduleid}
+    </if>
+    <if test="dbscript != null and dbscript != ''">
+      and dbscript like concat('%',#{dbscript},'%')
+    </if>
+    <if test="description != null and description != ''">
+      and description like concat('%', #{description}, '%')
+    </if>
+    <if test="applier != null and applier != ''">
+      and applier = #{applier}
+    </if>
+    <if test="applierip != null and applierip != ''">
+      and applierip = #{applierip}
+    </if>
+    <if test="formatedCreatetimeBegin != null and formatedCreatetimeBegin != ''">
+      <![CDATA[
+      and createtime >= to_date(#{formatedCreatetimeBegin}, 'YYYY-MM-DD')
+    ]]>
+    </if>
+    <if test="formatedCreatetimeEnd != null and formatedCreatetimeEnd != ''">
+      <![CDATA[
+      and createtime < to_date(#{formatedCreatetimeEnd}, 'YYYY-MM-DD') + interval '1d'
+    ]]>
+    </if>
+    <if test="executor != null and executor != ''">
+      and executor = #{executor}
+    </if>
+    <if test="executorip != null and executorip != ''">
+      and executorip = #{executorip}
+    </if>
+    <if test="formatedExecutetimeBegin != null and formatedExecutetimeBegin != ''">
+      <![CDATA[
+      and executetime >= to_date(#{formatedExecutetimeBegin}, 'YYYY-MM-DD')
+    ]]>
+    </if>
+    <if test="formatedExecutetimeEnd != null and formatedExecutetimeEnd != ''">
+      <![CDATA[
+      and executetime < to_date(#{formatedExecutetimeEnd}, 'YYYY-MM-DD') + interval '1d'
+    ]]>
+    </if>
+    <if test="executestatus != null">
+      and executestatus = #{executestatus}
+    </if>
+    <if test="failuremsg != null and failuremsg != ''">
+      and failuremsg like concat('%',#{failuremsg},'%')
+    </if>
+
+  </select>
+</mapper>
