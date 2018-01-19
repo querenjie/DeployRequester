@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Created by QueRenJie on ${date}
@@ -172,6 +173,22 @@ public class DeployQueryController extends CommonMethodWrapper {
         } catch (Exception e) {
             Log4jUtil.error(logger, "查询出现问题", e);
             e.printStackTrace();
+            result = JsonResult.createFailed("query data failed");
+        }
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getLockedDeployRequest", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult getLockedDeployRequest() {
+        JsonResult result;
+        try {
+            List<DeployRequest> deployRequestList = deployRequesterService.getLockedDeployRequest();
+            result = JsonResult.createSuccess("query data successfully");
+            result.addData(deployRequestList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "查询出现问题", e);
             result = JsonResult.createFailed("query data failed");
         }
         return result;

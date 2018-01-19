@@ -46,6 +46,8 @@
     <script src="<%=basePath%>resources/core/js/remodal/remodal.js"></script>
     <script src="<%=basePath%>resources/core/js/remodal/remodal_test.js"></script>
     <script type="text/javascript">
+        var gIsDeployRequestLocked = "";        //本页面的全局变量,标记发布申请是否被锁住.
+
         $(document).ready(function() {
             getProjects();
             getModuleTypes();
@@ -59,6 +61,7 @@
         function doRetrieveMsg() {
             retrieveNotice();
             retrieveSpeech();
+            checkIfDeployRequestLocked();
         }
 
         function validateDatas() {
@@ -272,6 +275,10 @@
             judgeUsable();
             if (!validateDatas()) {
                 $("#submitButton").removeAttr("disabled");
+                return;
+            }
+            if (gIsDeployRequestLocked == "yes") {
+                alert("由于此模块和类型正在发布生产，所以发布测试暂时被禁止了。请耐心等待其解禁。");
                 return;
             }
             if (confirm("确认要发布到测试环境吗？")) {
@@ -524,6 +531,44 @@
             });
 
             judgeUsable();
+        }
+
+        function checkIfDeployRequestLocked() {
+            var projectId = $("#projectcode").val();
+            var moduleId = $("#modulecode").val();
+            var moduleTypeId = $("#moduletypecode").val();
+            if (projectId == "" || moduleId == "" || moduleTypeId == "") {
+                gIsDeployRequestLocked = "";
+                return;
+            }
+            var deployRequesterDTO = {};
+            deployRequesterDTO.projectcode = $("#projectcode").val();
+            deployRequesterDTO.modulecode = $("#modulecode").val();
+            deployRequesterDTO.moduletypecode = $("#moduletypecode").val();
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>configdata/judgeIfDeployRequestLocked",
+                data:JSON.stringify(deployRequesterDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(data){
+                    if (data != null) {
+                        if (data.msg == "yes") {
+                            gIsDeployRequestLocked = "yes";
+                            $("#serverStatus").html("您选定的模块正在申请发布生产中，所以现在被禁止发布测试环境了，等发布生产结束后会解禁的。");
+                            $("#submitButton").attr("disabled", true);
+                        } else {
+                            gIsDeployRequestLocked = "";
+                            $("#serverStatus").html("");
+                            $("#submitButton").removeAttr("disabled");
+                        }
+                    }
+                },
+                error:function(data){
+                    //$("#taStatus").val("发布系统停止运行，请耐心等待。。。");
+                    $("#submitButton").removeAttr("disabled");
+                }
+            });
         }
 
         function reloadPage() {

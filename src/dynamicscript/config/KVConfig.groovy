@@ -414,6 +414,7 @@ class KVConfig extends AbstractConfig {
         addIpAndCrewNameMapping("172.19.14.174", "唐意", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.181", "彭超伟", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.247", "恒砺", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.212", "承宇", RoleEnum.DEVELOPER);
 
         addIpAndCrewNameMapping("172.19.14.211", "王志超", RoleEnum.TESTER);
         addIpAndCrewNameMapping("172.19.14.151", "宋伟", RoleEnum.TESTER);
@@ -447,6 +448,7 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.174", Config.USE_DEPLOY_URL);     //唐意
         addAllowedIpConfig("172.19.14.181", Config.USE_DEPLOY_URL);     //彭超伟
         addAllowedIpConfig("172.19.14.247", Config.USE_DEPLOY_URL);     //恒砺
+        addAllowedIpConfig("172.19.14.212", Config.USE_DEPLOY_URL);     //承宇
 
         //显示发布路径的权限配置
         addAllowedIpConfig("172.19.14.144", Config.VIEW_DEPLOY_URL);
@@ -473,6 +475,9 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.144", Config.MARK_PRODUCT_DEPLOY);
         addAllowedIpConfig("172.19.14.236", Config.MARK_PRODUCT_DEPLOY);    //正卯
 
+        //锁定发布申请的权限配置
+        addAllowedIpConfig("172.19.14.144", Config.LOCK_DEPLOY_REQUEST);
+        addAllowedIpConfig("172.19.14.236", Config.LOCK_DEPLOY_REQUEST);    //正卯
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
     }
 }

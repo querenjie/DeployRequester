@@ -1,6 +1,7 @@
 package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.biz.config.sharedata.ConfigData;
+import com.myself.deployrequester.biz.config.sharedata.LockElement;
 import com.myself.deployrequester.biz.config.spi.Config;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.controller.ConfigdataController;
@@ -200,6 +201,45 @@ public class CommonDataService {
         }
         if (ConfigData.ALLOWED_IP_CONFIG_MARK_PRODUCT_DEPLOY.contains(ipAddr)) {
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断此ip地址是否可以锁定发布申请
+     * @param ipAddr
+     * @return
+     */
+    public boolean canLockProductDeploy(String ipAddr) {
+        if (ConfigData.ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST == null) {
+            return false;
+        }
+        if (ConfigData.ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST.contains(ipAddr)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断此发布申请是否已经锁定.锁定就是禁止发布。
+     * @param projectId
+     * @param moduleId
+     * @param moduleTypeId
+     * @return
+     */
+    public boolean isDeployRequestLocked(Short projectId, Short moduleId, Short moduleTypeId) {
+        if (projectId == null || moduleId == null || moduleTypeId == null) {
+            return true;
+        }
+        if (ConfigData.LOCK_ELEMENT_LIST != null) {
+            for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+                if (lockElement.getProjectId().shortValue() == projectId.shortValue()
+                        && lockElement.getModuleId().shortValue() == moduleId.shortValue()
+                        && lockElement.getModuleTypeId().shortValue() == moduleTypeId.shortValue()
+                        && lockElement.isLocked()) {
+                    return true;
+                }
+            }
         }
         return false;
     }

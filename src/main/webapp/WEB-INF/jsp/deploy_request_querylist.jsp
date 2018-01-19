@@ -96,6 +96,7 @@
             });
 
             judgeUsableForMarkProductDeploy();
+            judgeCanLockDeployRequest();
         }
 
         function reloadPage() {
@@ -112,7 +113,7 @@
                 contentType: "application/json; charset=utf-8",//此处不能省略
                 success:function(resultData){
                     $("#projectcode").empty();
-                    $("#projectcode").append("<option value=\"\">全部</option>")
+                    $("#projectcode").append("<option value=\"\"></option>")
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
                             $.each(resultData.data, function(index) {
@@ -195,6 +196,10 @@
             var isTestOk = $("#istestok").val();
             var isDeployedToProduct = $("#isdeployedtoproduct").val();
 
+            if (projectCode == "") {
+                alert("必须选择项目");
+                return;
+            }
             if (applyBeginDate == "") {
                 alert("查询条件中的起始日期不能为空");
                 return;
@@ -512,6 +517,10 @@
             window.open("<%=basePath%>depquery/gotoMarkProdRecord", "_blank");
         }
 
+        function openDeployRequestLockPage() {
+            window.open("<%=basePath%>depreq/deploy_request_lock", "_blank");
+        }
+
         function produceApplication(deployToWhere) {
             var projectCode = $("#projectcode").val();
             var moduleCode = $("#modulecode").val();
@@ -572,6 +581,33 @@
                                     $("#btnMarkProductDeploy").removeAttr("disabled");
                                 } else {
                                     $("#btnMarkProductDeploy").attr("disabled", true);
+                                }
+                            });
+                        }
+                    }
+                },
+                error:function(resultData){
+                    //alert(resultData)
+                }
+            });
+        }
+
+        function judgeCanLockDeployRequest() {
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>configdata/judgeCanLockDeployRequest",
+                async: false,       //false:同步
+                data:"",//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            $.each(resultData.data, function(index) {
+                                if (resultData.data[0] == "ok") {
+                                    $("#btnLockDeployRequest").removeAttr("disabled");
+                                } else {
+                                    $("#btnLockDeployRequest").attr("disabled", true);
                                 }
                             });
                         }
@@ -660,11 +696,12 @@
                 <input type="button" value="打开发布公告的页面" onclick="openNoticeBoardPage();">
                 <input id="btnMarkProductDeploy" type="button" value="设置已经上生产的标志" onclick="openAlreadyDeployedToProdDiv();">
                 <input type="button" value="打开统计测试情况的页面" onclick="openStatistics1Page();">
+                <input id="btnLockDeployRequest" type="button" value="禁止模块发布操作" onclick="openDeployRequestLockPage();">
             </td>
         </tr>
         <tr bgcolor="#5f9ea0"><td align="left" colspan="4">条件区域</td></tr>
         <tr>
-            <td>项目名称：
+            <td><font color="red">项目名称：</font>
                 <select id="projectcode" onchange="initModules();">
                 </select>
             </td>

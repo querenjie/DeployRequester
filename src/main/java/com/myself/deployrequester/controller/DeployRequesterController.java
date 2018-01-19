@@ -33,6 +33,11 @@ public class DeployRequesterController {
         return "deploy_request";
     }
 
+    @RequestMapping("/deploy_request_lock")
+    public String gotoRequestLockForm() {
+        return "deploy_request_lock";
+    }
+
     @ResponseBody
     @RequestMapping(value="/addDeployRequest", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult addDeployRequest(@RequestBody DeployRequesterDTO deployRequesterDTO, HttpSession session) {
@@ -61,6 +66,36 @@ public class DeployRequesterController {
             result = JsonResult.createFailed("提交发布申请异常:" + e.getStackTrace().toString());
         }
         return  result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/lockDeployRequest", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult lockDeployRequest(@RequestBody DeployRequesterDTO deployRequesterDTO) {
+        JsonResult result = null;
+        DeployRequesterDO deployRequesterDO = new DeployRequesterDO();
+        BeanUtils.copyProperties(deployRequesterDTO, deployRequesterDO, true);
+        Short projectId = deployRequesterDO.getProjectcode();
+        Short moduleId = deployRequesterDO.getModulecode();
+        Short moduleTypeId = deployRequesterDO.getModuletypecode();
+        deployRequesterService.lockDeployRequest(projectId, moduleId, moduleTypeId);
+
+        result = JsonResult.createSuccess("ok");
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/unlockDeployRequest", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult unlockDeployRequest(@RequestBody DeployRequesterDTO deployRequesterDTO) {
+        JsonResult result = null;
+        DeployRequesterDO deployRequesterDO = new DeployRequesterDO();
+        BeanUtils.copyProperties(deployRequesterDTO, deployRequesterDO, true);
+        Short projectId = deployRequesterDO.getProjectcode();
+        Short moduleId = deployRequesterDO.getModulecode();
+        Short moduleTypeId = deployRequesterDO.getModuletypecode();
+        deployRequesterService.unlockDeployRequest(projectId, moduleId, moduleTypeId);
+
+        result = JsonResult.createSuccess("ok");
+        return result;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.myself.deployrequester.biz.config.impl;
 
 import com.myself.deployrequester.biz.config.sharedata.ConfigData;
+import com.myself.deployrequester.biz.config.sharedata.LockElement;
 import com.myself.deployrequester.biz.config.sharedata.RoleEnum;
 import com.myself.deployrequester.biz.config.spi.Config;
 import com.myself.deployrequester.bo.*;
@@ -77,6 +78,11 @@ public abstract class AbstractConfig implements Config {
     protected Set<String> allowedIpForMarkProductDeploy;
 
     /**
+     * 允许锁定发布申请的操作人员的ip地址
+     */
+    protected Set<String> allowedIpForLockDeployRequest;
+
+    /**
      * 客户端ip地址和对应的开发人员姓名
      */
     protected Map<String, String> ipAndCrewNameMap;
@@ -85,6 +91,11 @@ public abstract class AbstractConfig implements Config {
      * 客户端ip地址和角色的对应关系
      */
     protected Map<String, RoleEnum> ipAndRoleMap;
+
+    /**
+     * 存放所有项目、模块、类型的锁定情况
+     */
+    protected List<LockElement> lockElementList;
 
     /**
      * 构建配置
@@ -102,8 +113,10 @@ public abstract class AbstractConfig implements Config {
         allowedIpForUseDeployUrl = new HashSet<String>();
         allowedIpForViewDeployUrl = new HashSet<String>();
         allowedIpForMarkProductDeploy = new HashSet<String>();
+        allowedIpForLockDeployRequest = new HashSet<String>();
         ipAndCrewNameMap = new HashMap<String, String>();
         ipAndRoleMap = new HashMap<String, RoleEnum>();
+        lockElementList = new ArrayList<LockElement>();
         this.buildConfig();
         ConfigData.MODULE_CONFIG = moduleList;
         ConfigData.MODULE_DEPLOY_URL_CONFIG = moduleDeployURLConfig;
@@ -117,8 +130,10 @@ public abstract class AbstractConfig implements Config {
         ConfigData.ALLOWED_IP_CONFIG_USE_DEPLOY_URL = allowedIpForUseDeployUrl;
         ConfigData.ALLOWED_IP_CONFIG_VIEW_DEPLOY_URL = allowedIpForViewDeployUrl;
         ConfigData.ALLOWED_IP_CONFIG_MARK_PRODUCT_DEPLOY = allowedIpForMarkProductDeploy;
+        ConfigData.ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST = allowedIpForLockDeployRequest;
         ConfigData.IP_CREWNAME_MAPPING = ipAndCrewNameMap;
         ConfigData.IP_ROLE_MAPPING = ipAndRoleMap;
+        ConfigData.LOCK_ELEMENT_LIST = lockElementList;
     }
 
     public abstract void buildConfig();
@@ -216,12 +231,59 @@ public abstract class AbstractConfig implements Config {
         String projectId = String.valueOf(config[0]);
         DeployURL deployURL = new DeployURL();
         deployURL.setProjectId(projectId);
-        deployURL.setModuleCode((String)config[1]);
+        deployURL.setModuleCode((String)config[1]);     //这里的moduleCode是英文字符,不是数字
         deployURL.setModuleName(moduleName);
-        deployURL.setType((String)config[3]);
+        deployURL.setType((String)config[3]);           //这里的type是英文字符,不是数字
         deployURL.setDeployUrlForTestEnv((String)config[4]);
         deployURL.setDeployUrlForProductEnv((String)config[5]);
+
         moduleDeployURLConfig.put(deployURL.getProjectId()+"_"+deployURL.getModuleCode()+"_"+deployURL.getType(), deployURL);
+
+        //初始项目、模块、类型的锁定标识为不锁定
+        LockElement lockElement = new LockElement();
+        lockElement.setProjectId(Short.parseShort(deployURL.getProjectId()));
+        lockElement.setModuleId(getModuleIdByModuleCode(deployURL.getModuleCode()));
+        lockElement.setModuleTypeId(getModuleTypeIdByModuleTypeName(deployURL.getType()));
+        lockElement.setLocked(false);
+        lockElementList.add(lockElement);
+    }
+
+    /**
+     * 根据模块的英文名称获取他的Id
+     * @param moduleCode
+     * @return
+     */
+    private Short getModuleIdByModuleCode(String moduleCode) {
+        if (StringUtils.isBlank(moduleCode)) {
+            return null;
+        }
+        if (moduleList != null) {
+            for (Module module : moduleList) {
+                if (moduleCode.equals(module.getCode())) {
+                    return module.getId();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据模块类型的名称获取他的Id
+     * @param moduleTypeName
+     * @return
+     */
+    private Short getModuleTypeIdByModuleTypeName(String moduleTypeName) {
+        if (StringUtils.isBlank(moduleTypeName)) {
+            return null;
+        }
+        if (modifyTypeList != null) {
+            for (ModuleType moduleType : moduleTypeList) {
+                if (moduleTypeName.equals(moduleType.getTypeName())) {
+                    return moduleType.getId();
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -278,6 +340,9 @@ public abstract class AbstractConfig implements Config {
         }
         if (whichPrivilege == Config.MARK_PRODUCT_DEPLOY) {
             allowedIpForMarkProductDeploy.add(ipAddr);
+        }
+        if (whichPrivilege == Config.LOCK_DEPLOY_REQUEST) {
+            allowedIpForLockDeployRequest.add(ipAddr);
         }
     }
 

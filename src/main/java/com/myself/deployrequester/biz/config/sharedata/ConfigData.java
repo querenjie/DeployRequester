@@ -82,4 +82,15 @@ public class ConfigData {
      * 客户端ip地址和角色的对应关系
      */
     public static Map<String, RoleEnum> IP_ROLE_MAPPING = new HashMap<String, RoleEnum>();
+
+    /**
+     * 用于反映所有项目、模块、类型的锁定情况
+     */
+    public static List<LockElement> LOCK_ELEMENT_LIST = new ArrayList<LockElement>();
+
+    /**
+     * 允许锁定发布的操作人员的ip地址
+     */
+    public static Set<String> ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST = new HashSet<String>();
+
 }

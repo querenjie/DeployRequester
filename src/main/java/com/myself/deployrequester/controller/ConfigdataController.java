@@ -1,10 +1,13 @@
 package com.myself.deployrequester.controller;
 
 import com.myself.deployrequester.bo.*;
+import com.myself.deployrequester.dto.DeployRequesterDTO;
 import com.myself.deployrequester.dto.ModuleDTO;
+import com.myself.deployrequester.model.DeployRequesterDO;
 import com.myself.deployrequester.service.CommonDataService;
 import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.json.JsonResult;
+import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +38,7 @@ public class ConfigdataController extends CommonMethodWrapper {
     public JsonResult getProjects() {
         JsonResult result = null;
         List<Project> projectList = commonDataService.getAllProjects();
-        Log4jUtil.info(logger, "size of projectList is " + projectList.size());
+//        Log4jUtil.info(logger, "size of projectList is " + projectList.size());
         if (projectList != null && projectList.size() > 0) {
             result = JsonResult.createSuccess("获取项目正常");
             result.addDataAll(projectList);
@@ -50,7 +53,7 @@ public class ConfigdataController extends CommonMethodWrapper {
     public JsonResult getModules() {
         JsonResult result = null;
         List<Module> moduleList = commonDataService.getAllModules();
-        Log4jUtil.info(logger, "size of moduleList is " + moduleList.size());
+//        Log4jUtil.info(logger, "size of moduleList is " + moduleList.size());
         if (moduleList != null && moduleList.size() > 0) {
             result = JsonResult.createSuccess("获取模块内容正常");
             result.addDataAll(moduleList);
@@ -177,6 +180,45 @@ public class ConfigdataController extends CommonMethodWrapper {
 
         result = JsonResult.createSuccess("ok");
         result.addDataAll(resultList);
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/judgeCanLockDeployRequest", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult judgeCanLockDeployRequest(HttpServletRequest request) {
+        JsonResult result;
+        List<String> resultList = new ArrayList<String>();
+
+        String ipAddr = getIpAddr(request);
+        boolean canLockDeployRequest = commonDataService.canLockProductDeploy(ipAddr);
+        if (canLockDeployRequest == false) {
+            resultList.add("Sorry, you have no privilege to lock deploy request.");
+        } else {
+            resultList.add("ok");
+        }
+
+        result = JsonResult.createSuccess("ok");
+        result.addDataAll(resultList);
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/judgeIfDeployRequestLocked", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult judgeIfDeployRequestLocked(@RequestBody DeployRequesterDTO deployRequesterDTO) {
+        JsonResult result;
+
+        DeployRequesterDO deployRequesterDO = new DeployRequesterDO();
+        BeanUtils.copyProperties(deployRequesterDTO, deployRequesterDO, true);
+        Short projectId = deployRequesterDO.getProjectcode();
+        Short moduleId = deployRequesterDO.getModulecode();
+        Short moduleTypeId = deployRequesterDO.getModuletypecode();
+        boolean isDeployRequestLocked = commonDataService.isDeployRequestLocked(projectId, moduleId, moduleTypeId);
+        if (isDeployRequestLocked) {
+            result = JsonResult.createSuccess("yes");
+        } else {
+            result = JsonResult.createSuccess("no");
+        }
+
         return result;
     }
 

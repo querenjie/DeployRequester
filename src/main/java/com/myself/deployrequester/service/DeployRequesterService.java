@@ -2,6 +2,7 @@ package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.biz.config.sharedata.ConfigData;
 import com.myself.deployrequester.biz.config.sharedata.DeployStatusForProdEnvEnum;
+import com.myself.deployrequester.biz.config.sharedata.LockElement;
 import com.myself.deployrequester.biz.config.sharedata.TestStatusEnum;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.controller.NoticeBoardController;
@@ -37,6 +38,96 @@ public class DeployRequesterService extends CommonDataService {
 
     private final short REST = 1;
     private final short PROVIDER = 2;
+
+    /**
+     * 锁定发布申请，使其不能发布.
+     * @param projectId
+     * @param moduleId
+     * @param moduleTypeId
+     */
+    public void lockDeployRequest(Short projectId, Short moduleId, Short moduleTypeId) {
+        if (projectId != null && moduleId != null && moduleTypeId != null) {
+            if (ConfigData.LOCK_ELEMENT_LIST != null) {
+                for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+                    if (lockElement.getProjectId().shortValue() == projectId.shortValue()
+                            && lockElement.getModuleId().shortValue() == moduleId.shortValue()
+                            && lockElement.getModuleTypeId().shortValue() == moduleTypeId.shortValue()) {
+                        lockElement.setLocked(true);
+                    }
+                }
+            }
+        } else if (projectId != null && moduleId != null && moduleTypeId == null) {
+            if (ConfigData.LOCK_ELEMENT_LIST != null) {
+                for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+                    if (lockElement.getProjectId().shortValue() == projectId.shortValue()
+                            && lockElement.getModuleId().shortValue() == moduleId.shortValue()) {
+                        lockElement.setLocked(true);
+                    }
+                }
+            }
+        } else if (projectId != null && moduleId == null && moduleTypeId == null) {
+            if (ConfigData.LOCK_ELEMENT_LIST != null) {
+                for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+                    if (lockElement.getProjectId().shortValue() == projectId.shortValue()) {
+                        lockElement.setLocked(true);
+                    }
+                }
+            }
+        } else if (projectId != null && moduleId == null && moduleTypeId != null) {
+            if (ConfigData.LOCK_ELEMENT_LIST != null) {
+                for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+                    if (lockElement.getProjectId().shortValue() == projectId.shortValue()
+                            && lockElement.getModuleTypeId().shortValue() == moduleTypeId.shortValue()) {
+                        lockElement.setLocked(true);
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * 解锁发布申请，使其可以继续发布.
+     * @param projectId
+     * @param moduleId
+     * @param moduleTypeId
+     */
+    public void unlockDeployRequest(Short projectId, Short moduleId, Short moduleTypeId) {
+        if (projectId != null && moduleId != null && moduleTypeId != null) {
+            if (ConfigData.LOCK_ELEMENT_LIST != null) {
+                for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+                    if (lockElement.getProjectId().shortValue() == projectId.shortValue()
+                            && lockElement.getModuleId().shortValue() == moduleId.shortValue()
+                            && lockElement.getModuleTypeId().shortValue() == moduleTypeId.shortValue()) {
+                        lockElement.setLocked(false);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取所有被锁定的模块
+     * @return
+     * @throws Exception
+     */
+    public List<DeployRequest> getLockedDeployRequest() throws Exception {
+        if (ConfigData.LOCK_ELEMENT_LIST == null) {
+            return null;
+        }
+        List<DeployRequest> lockedDeployRequestList = new ArrayList<DeployRequest>();
+        for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
+            if (lockElement.isLocked()) {
+                DeployRequest deployRequest = new DeployRequest();
+                deployRequest.setProjectcode(lockElement.getProjectId());
+                deployRequest.setModulecode(lockElement.getModuleId());
+                deployRequest.setModuletypecode(lockElement.getModuleTypeId());
+                fillDeployRequest(deployRequest);
+                lockedDeployRequestList.add(deployRequest);
+            }
+        }
+        return lockedDeployRequestList;
+    }
 
     /**
      * insert deployment request information into table t_deploy_request
@@ -212,17 +303,29 @@ public class DeployRequesterService extends CommonDataService {
         Project project = getProjectById(Integer.valueOf(deployRequest.getProjectcode()).intValue());
         deployRequest.setProjectName(project.getProjectName());
 
-        Module module = getModuleById(deployRequest.getModulecode());
-        deployRequest.setModuleCodeName(module.getCode());
-        deployRequest.setModuleDesc(module.getName());
-        deployRequest.setModuleTypeName(getModuleTypeNameById(deployRequest.getModuletypecode()));
-        deployRequest.setModifyTypeName(getModifyTypeNameById(Integer.parseInt(String.valueOf(deployRequest.getModifytype()))));
-        deployRequest.setIsTestOkDesc(TestStatusEnum.getDescByCode(deployRequest.getIstestok()));
-        deployRequest.setDeployStatusForProdEnvDesc(DeployStatusForProdEnvEnum.getDescByCode(deployRequest.getDeploystatusforprodenv().intValue()));
+        if (deployRequest.getModulecode() != null) {
+            Module module = getModuleById(deployRequest.getModulecode());
+            deployRequest.setModuleCodeName(module.getCode());
+            deployRequest.setModuleDesc(module.getName());
+        }
+        if (deployRequest.getModuletypecode() != null) {
+            deployRequest.setModuleTypeName(getModuleTypeNameById(deployRequest.getModuletypecode()));
+        }
+        if (deployRequest.getModifytype() != null) {
+            deployRequest.setModifyTypeName(getModifyTypeNameById(Integer.parseInt(String.valueOf(deployRequest.getModifytype()))));
+        }
+        if (deployRequest.getIstestok() != null) {
+            deployRequest.setIsTestOkDesc(TestStatusEnum.getDescByCode(deployRequest.getIstestok()));
+        }
+        if (deployRequest.getDeploystatusforprodenv() != null) {
+            deployRequest.setDeployStatusForProdEnvDesc(DeployStatusForProdEnvEnum.getDescByCode(deployRequest.getDeploystatusforprodenv().intValue()));
+        }
 
         SimpleDateFormat formatter;
         formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
-        deployRequest.setFormatedCreateDate(formatter.format(deployRequest.getCreatetime()));
+        if (deployRequest.getCreatetime() != null) {
+            deployRequest.setFormatedCreateDate(formatter.format(deployRequest.getCreatetime()));
+        }
         if (deployRequest.getTestflagmodifytime() != null) {
             deployRequest.setFormatedTestflagmodifytime(formatter.format(deployRequest.getTestflagmodifytime()));
         }
