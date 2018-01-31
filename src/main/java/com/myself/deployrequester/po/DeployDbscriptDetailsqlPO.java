@@ -3,9 +3,6 @@ package com.myself.deployrequester.po;
 import java.util.Date;
 import java.util.UUID;
 
-/**
-*aaaaaaaaaaaaaa
-*/
 public class DeployDbscriptDetailsqlPO {
     private String deploydbscriptdetailsqlid = UUID.randomUUID().toString();
 
