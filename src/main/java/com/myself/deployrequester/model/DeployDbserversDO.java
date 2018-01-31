@@ -6,6 +6,10 @@ package com.myself.deployrequester.model;
 public class DeployDbserversDO {
     private String deploydbserversid;
 
+    private String linkname;
+
+    private String linknamedesc;
+
     private String ip;
 
     private Integer port;
@@ -18,12 +22,30 @@ public class DeployDbserversDO {
 
     private Short needrecpwd;
 
+    private String dbname;
+
     public String getDeploydbserversid() {
         return deploydbserversid;
     }
 
     public void setDeploydbserversid(String deploydbserversid) {
         this.deploydbserversid = deploydbserversid;
+    }
+
+    public String getLinkname() {
+        return linkname;
+    }
+
+    public void setLinkname(String linkname) {
+        this.linkname = linkname;
+    }
+
+    public String getLinknamedesc() {
+        return linknamedesc;
+    }
+
+    public void setLinknamedesc(String linknamedesc) {
+        this.linknamedesc = linknamedesc;
     }
 
     public String getIp() {
@@ -72,5 +94,13 @@ public class DeployDbserversDO {
 
     public void setNeedrecpwd(Short needrecpwd) {
         this.needrecpwd = needrecpwd;
+    }
+
+    public String getDbname() {
+        return dbname;
+    }
+
+    public void setDbname(String dbname) {
+        this.dbname = dbname;
     }
 }

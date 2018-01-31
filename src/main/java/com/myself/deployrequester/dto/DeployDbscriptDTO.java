@@ -18,8 +18,9 @@ public class DeployDbscriptDTO {
     private String executor;
     private String executorip;
     private Date executetime;
-    private Short executestatus;
+    private Short executestatus = 0;        //执行是否成功。0：未执行；1：成功；-1：失败
     private String failuremsg;
+    private Short belong;
 
     public String getDeploydbscriptid() {
         return deploydbscriptid;
@@ -131,5 +132,13 @@ public class DeployDbscriptDTO {
 
     public void setFailuremsg(String failuremsg) {
         this.failuremsg = failuremsg;
+    }
+
+    public Short getBelong() {
+        return belong;
+    }
+
+    public void setBelong(Short belong) {
+        this.belong = belong;
     }
 }

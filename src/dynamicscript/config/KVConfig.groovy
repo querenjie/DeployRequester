@@ -100,8 +100,8 @@ class KVConfig extends AbstractConfig {
         addModuleDeployURL(2, "market", "市场营销(vr-wnnj-market)", "provider", "http://172.16.36.69:8081/deploy/njxs/market/provider/v1.0.0/20895/20895/test/172.16.36.68/172.16.44.16", "");
 //        addModuleDeployURL(2, "wholesale", "批发管理(vr-wnnj-wholesale)", "rest", "http://172.16.36.69:8081/deploy/vr-wnnj/wholesale/rest/v1.0.0/40891/8111/test/172.16.44.16/172.16.44.16", "");
 //        addModuleDeployURL(2, "wholesale", "批发管理(vr-wnnj-wholesale)", "provider", "http://172.16.36.69:8081/deploy/vr-wnnj/wholesale/provider/v1.0.0/20891/20891/test/172.16.44.16/host", "");
-        addModuleDeployURL(2, "wholesale", "批发管理(vr-wnnj-wholesale)", "rest", "http://172.16.36.69:8081/deploy/market/wholesale/rest/v1.0.0/40890/8108/test/172.16.36.71/172.16.44.16", "");
-        addModuleDeployURL(2, "wholesale", "批发管理(vr-wnnj-wholesale)", "provider", "http://172.16.36.69:8081/deploy/market/wholesale/provider/v1.0.0/20890/20890/test/172.16.36.68/172.16.44.16", "");
+        addModuleDeployURL(2, "wholesale", "批发管理(vr-wnnj-wholesale)", "rest", "http://172.16.36.69:8081/deploy/vr-wnnj/wholesale/rest/v1.0.0/40890/8108/test/172.16.44.16/172.16.44.16", "");
+        addModuleDeployURL(2, "wholesale", "批发管理(vr-wnnj-wholesale)", "provider", "http://172.16.36.69:8081/deploy/vr-wnnj/wholesale/provider/v1.0.0/20890/20890/test/172.16.44.16/host", "");
         addModuleDeployURL(2, "storage", "仓储管理(vr-wnnj-storage)", "rest", "http://172.16.36.69:8081/deploy/vr-wnnj/storage/rest/v1.0.0/40891/8111/test/172.16.44.16/172.16.44.16", "");
         addModuleDeployURL(2, "storage", "仓储管理(vr-wnnj-storage)", "provider", "http://172.16.36.69:8081/deploy/vr-wnnj/storage/provider/v1.0.0/20891/20891/test/172.16.44.16/host", "");
 
@@ -316,22 +316,22 @@ class KVConfig extends AbstractConfig {
         addProductLogURL(2, "storage", "仓储管理", "provider", "http://172.16.36.69:8081/logs/vr-wnnj/storage/provider/v1.0.0/produce/172.16.51.8,172.16.51.12", "http://172.16.36.69:8081/slogs/vr-wnnj/storage/provider/v1.0.0/produce/172.16.51.8,172.16.51.12", "");
 
         //3:大宗交易
-        addProductLogURL(3, "bkcontract", "大宗交易合同管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/contract/rest/v1.0.0/produce/172.16.41.11,172.16.41.15", "http://172.16.36.69:8081/slogs/vr-bulkstock/contract/rest/v1.0.0/produce/172.16.41.11,172.16.41.15", "");
-        addProductLogURL(3, "bkcontract", "大宗交易合同管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/contract/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/contract/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bkfinance", "大宗交易财务管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/finance/rest/v1.0.0/produce/172.16.41.12,172.16.41.15", "http://172.16.36.69:8081/slogs/vr-bulkstock/finance/rest/v1.0.0/produce/172.16.41.12,172.16.41.15", "");
-        addProductLogURL(3, "bkfinance", "大宗交易财务管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/finance/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/finance/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bksale", "大宗交易零售管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/sale/rest/v1.0.0/produce/172.16.41.12,172.16.41.14", "http://172.16.36.69:8081/slogs/vr-bulkstock/sale/rest/v1.0.0/produce/172.16.41.12,172.16.41.14", "");
-        addProductLogURL(3, "bksale", "大宗交易零售管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/sale/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/sale/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bksettlement", "大宗交易结算管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/settlement/rest/v1.0.0/produce/172.16.41.11,172.16.41.13", "http://172.16.36.69:8081/slogs/vr-bulkstock/settlement/rest/v1.0.0/produce/172.16.41.11,172.16.41.13", "");
-        addProductLogURL(3, "bksettlement", "大宗交易结算管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/settlement/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/settlement/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bktender", "大宗交易招投标管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/tender/rest/v1.0.0/produce/172.16.41.13,172.16.41.14", "http://172.16.36.69:8081/slogs/vr-bulkstock/tender/rest/v1.0.0/produce/172.16.41.13,172.16.41.14", "");
-        addProductLogURL(3, "bktender", "大宗交易招投标管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/tender/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/tender/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bktransportmanage", "大宗交易运输管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/transportmanage/rest/v1.0.0/produce/172.16.41.13,172.16.41.14", "http://172.16.36.69:8081/slogs/vr-bulkstock/transportmanage/rest/v1.0.0/produce/172.16.41.13,172.16.41.14", "");
-        addProductLogURL(3, "bktransportmanage", "大宗交易运输管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/transportmanage/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/transportmanage/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bkstorage", "大宗交易仓储管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/storage/rest/v1.0.0/produce/172.16.41.11,172.16.41.14", "http://172.16.36.69:8081/slogs/vr-bulkstock/storage/rest/v1.0.0/produce/172.16.41.11,172.16.41.14", "");
-        addProductLogURL(3, "bkstorage", "大宗交易仓储管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/storage/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/storage/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-        addProductLogURL(3, "bkreportform", "大宗交易报表模块", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/reportform/rest/v1.0.0/produce/172.16.41.12,172.16.41.15", "http://172.16.36.69:8081/slogs/vr-bulkstock/reportform/rest/v1.0.0/produce/172.16.41.12,172.16.41.15", "");
-        addProductLogURL(3, "bkreportform", "大宗交易报表模块", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/reportform/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/vr-bulkstock/reportform/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
+        addProductLogURL(3, "bkcontract", "大宗交易合同管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/contract/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/contract/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkcontract", "大宗交易合同管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/contract/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/contract/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkfinance", "大宗交易财务管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/finance/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/finance/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkfinance", "大宗交易财务管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/finance/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/finance/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bksale", "大宗交易零售管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/sale/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/sale/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bksale", "大宗交易零售管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/sale/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/sale/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bksettlement", "大宗交易结算管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/settlement/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/settlement/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bksettlement", "大宗交易结算管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/settlement/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/settlement/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bktender", "大宗交易招投标管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/tender/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/tender/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bktender", "大宗交易招投标管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/tender/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/tender/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bktransportmanage", "大宗交易运输管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/transportmanage/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/transportmanage/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bktransportmanage", "大宗交易运输管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/transportmanage/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/transportmanage/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkstorage", "大宗交易仓储管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/storage/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/storage/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkstorage", "大宗交易仓储管理", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/storage/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/storage/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkreportform", "大宗交易报表模块", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/reportform/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/reportform/rest/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
+        addProductLogURL(3, "bkreportform", "大宗交易报表模块", "provider", "http://172.16.36.69:8081/logs/vr-bulkstock/reportform/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "http://172.16.36.69:8081/slogs/vr-bulkstock/reportform/provider/v1.0.0/produce/172.16.54.72,172.16.54.73", "");
 
         addProductLogURL(3, "system", "系统管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/system/rest/v1.0.0/produce/172.16.53.9,172.16.53.10", "http://172.16.36.69:8081/slogs/vr-bulkstock/system/rest/v1.0.0/produce/172.16.53.9,172.16.53.10", "");
         addProductLogURL(3, "system", "系统管理", "rest", "http://172.16.36.69:8081/logs/vr-bulkstock/system/provider/v1.0.0/produce/172.16.53.9,172.16.53.10", "http://172.16.36.69:8081/slogs/vr-bulkstock/system/provider/v1.0.0/produce/172.16.53.9,172.16.53.10", "");
@@ -470,6 +470,7 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.218", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.131", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.174", Config.VIEW_DEPLOY_URL);
+        addAllowedIpConfig("172.19.14.212", Config.VIEW_DEPLOY_URL);
 
         //标识已经发布过生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.MARK_PRODUCT_DEPLOY);
@@ -478,6 +479,10 @@ class KVConfig extends AbstractConfig {
         //锁定发布申请的权限配置
         addAllowedIpConfig("172.19.14.144", Config.LOCK_DEPLOY_REQUEST);
         addAllowedIpConfig("172.19.14.236", Config.LOCK_DEPLOY_REQUEST);    //正卯
+
+        //发布数据库脚本到生产的权限配置
+        addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
+        addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
     }
 }

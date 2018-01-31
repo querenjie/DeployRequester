@@ -3,15 +3,18 @@
 <mapper namespace="com.myself.deployrequester.dao.DeployDbserversDAO" >
   <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployDbserversPO" >
     <id column="deploydbserversid" property="deploydbserversid" jdbcType="VARCHAR" />
+    <result column="linkname" property="linkname" jdbcType="VARCHAR" />
+    <result column="linknamedesc" property="linknamedesc" jdbcType="VARCHAR" />
     <result column="ip" property="ip" jdbcType="VARCHAR" />
     <result column="port" property="port" jdbcType="NUMERIC" />
     <result column="username" property="username" jdbcType="VARCHAR" />
     <result column="belong" property="belong" jdbcType="NUMERIC" />
     <result column="password" property="password" jdbcType="VARCHAR" />
     <result column="needrecpwd" property="needrecpwd" jdbcType="NUMERIC" />
+    <result column="dbname" property="dbname" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    deploydbserversid, ip, port, username, belong, password, needrecpwd
+    deploydbserversid, linkname, linknamedesc, ip, port, username, belong, password, needrecpwd, dbname
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -24,18 +27,25 @@
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
-    insert into t_deploy_dbservers (deploydbserversid, ip, port, 
+    insert into t_deploy_dbservers (deploydbserversid, linkname, linknamedesc, ip, port,
       username, belong, password, 
-      needrecpwd)
-    values (#{deploydbserversid,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{port,jdbcType=NUMERIC}, 
+      needrecpwd, dbname)
+    values (#{deploydbserversid,jdbcType=VARCHAR}, #{linkname,jdbcType=VARCHAR}, #{linknamedesc,jdbcType=VARCHAR},
+      #{ip,jdbcType=VARCHAR}, #{port,jdbcType=NUMERIC},
       #{username,jdbcType=VARCHAR}, #{belong,jdbcType=NUMERIC}, #{password,jdbcType=VARCHAR}, 
-      #{needrecpwd,jdbcType=NUMERIC})
+      #{needrecpwd,jdbcType=NUMERIC}, #{dbname,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     insert into t_deploy_dbservers
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="deploydbserversid != null" >
         deploydbserversid,
+      </if>
+      <if test="linkname != null" >
+        linkname,
+      </if>
+      <if test="linknamedesc != null" >
+        linknamedesc,
       </if>
       <if test="ip != null" >
         ip,
@@ -55,10 +65,19 @@
       <if test="needrecpwd != null" >
         needrecpwd,
       </if>
+      <if test="dbname != null" >
+        dbname,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbserversid != null" >
         #{deploydbserversid,jdbcType=VARCHAR},
+      </if>
+      <if test="linkname != null" >
+        #{linkname,jdbcType=VARCHAR},
+      </if>
+      <if test="linknamedesc != null" >
+        #{linknamedesc,jdbcType=VARCHAR},
       </if>
       <if test="ip != null" >
         #{ip,jdbcType=VARCHAR},
@@ -78,11 +97,20 @@
       <if test="needrecpwd != null" >
         #{needrecpwd,jdbcType=NUMERIC},
       </if>
+      <if test="dbname != null" >
+        #{dbname,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     update t_deploy_dbservers
     <set >
+      <if test="linkname != null" >
+        linkname = #{linkname,jdbcType=VARCHAR},
+      </if>
+      <if test="linknamedesc != null" >
+        linknamedesc = #{linknamedesc,jdbcType=VARCHAR},
+      </if>
       <if test="ip != null" >
         ip = #{ip,jdbcType=VARCHAR},
       </if>
@@ -101,17 +129,23 @@
       <if test="needrecpwd != null" >
         needrecpwd = #{needrecpwd,jdbcType=NUMERIC},
       </if>
+      <if test="dbname != null" >
+        dbname = #{dbname,jdbcType=VARCHAR},
+      </if>
     </set>
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     update t_deploy_dbservers
-    set ip = #{ip,jdbcType=VARCHAR},
+    set linkname = #{linkname,jdbcType=VARCHAR},
+      linknamedesc = #{linknamedesc,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
       port = #{port,jdbcType=NUMERIC},
       username = #{username,jdbcType=VARCHAR},
       belong = #{belong,jdbcType=NUMERIC},
       password = #{password,jdbcType=VARCHAR},
-      needrecpwd = #{needrecpwd,jdbcType=NUMERIC}
+      needrecpwd = #{needrecpwd,jdbcType=NUMERIC},
+      dbname = #{dbname,jdbcType=VARCHAR}
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </update>
 
@@ -126,11 +160,18 @@
         needrecpwd = 1,
         password = #{password,jdbcType=VARCHAR},
       </if>
+      <if test="linkname != null and linkname != ''">
+        linkname = #{linkname,jdbcType=VARCHAR},
+      </if>
+      <if test="linknamedesc != null and linknamedesc != ''">
+        linknamedesc = #{linknamedesc,jdbcType=VARCHAR},
+      </if>
     </set>
     where belong = #{belong,jdbcType=NUMERIC}
     AND   ip = #{ip,jdbcType=VARCHAR}
     AND   port = #{port,jdbcType=NUMERIC}
     AND   username = #{username,jdbcType=VARCHAR}
+    AND   dbname = #{dbname,jdbcType=VARCHAR}
   </update>
 
   <select id="selectByDeployDbserversPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.DeployDbserversPO">
@@ -141,6 +182,12 @@
     <if test="belong != null">
       and belong = #{belong}
     </if>
+    <if test="linkname != null and linkname != '' ">
+      and linkname = #{linkname}
+    </if>
+    <if test="linknamedesc != null and linknamedesc != '' ">
+      and linknamedesc = #{linknamedesc}
+    </if>
     <if test="ip != null and ip != '' ">
       and ip = #{ip}
     </if>
@@ -149,6 +196,9 @@
     </if>
     <if test="username != null and username != '' ">
       and username = #{username}
+    </if>
+    <if test="dbname != null and dbname != '' ">
+      and dbname = #{dbname}
     </if>
     order by belong, ip
   </select>

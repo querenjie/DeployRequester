@@ -21,6 +21,7 @@ public class DeployDbscriptDO {
     private Date executetime;
     private Short executestatus;
     private String failuremsg;
+    private Short belong;
 
     public String getDeploydbscriptid() {
         return deploydbscriptid;
@@ -132,5 +133,13 @@ public class DeployDbscriptDO {
 
     public void setFailuremsg(String failuremsg) {
         this.failuremsg = failuremsg;
+    }
+
+    public Short getBelong() {
+        return belong;
+    }
+
+    public void setBelong(Short belong) {
+        this.belong = belong;
     }
 }

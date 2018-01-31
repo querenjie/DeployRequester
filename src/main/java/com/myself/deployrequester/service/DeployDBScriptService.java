@@ -1,17 +1,22 @@
 package com.myself.deployrequester.service;
 
+import com.myself.deployrequester.biz.config.sharedata.DBExecuteStatusEnum;
 import com.myself.deployrequester.biz.config.sharedata.DeployStatusForProdEnvEnum;
 import com.myself.deployrequester.biz.config.sharedata.EnvOfDBEnum;
 import com.myself.deployrequester.biz.config.sharedata.TestStatusEnum;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.dao.DeployDbscriptDAO;
+import com.myself.deployrequester.dao.DeployDbscriptDetailsqlDAO;
 import com.myself.deployrequester.dao.DeployDbserversDAO;
 import com.myself.deployrequester.model.DeployDbscriptDO;
+import com.myself.deployrequester.model.DeployRequesterDO;
 import com.myself.deployrequester.model.QueryDbscriptDO;
 import com.myself.deployrequester.po.DeployDbscriptPO;
 import com.myself.deployrequester.po.DeployDbserversPO;
+import com.myself.deployrequester.po.DeployRequesterPO;
 import com.myself.deployrequester.po.QueryDbscriptPO;
 import com.myself.deployrequester.util.reflect.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +40,8 @@ public class DeployDBScriptService extends CommonDataService {
     private DeployDbscriptDAO deployDbscriptDAO;
     @Autowired
     private DeployDbserversDAO deployDbserversDAO;
+    @Autowired
+    private DeployDbscriptDetailsqlDAO deployDbscriptDetailsqlDAO;
 
     public int insert(DeployDbscriptDO deployDbscriptDO) throws Exception {
         DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
@@ -63,6 +71,58 @@ public class DeployDBScriptService extends CommonDataService {
         return deployDbscriptList;
     }
 
+    /**
+     * 根据脚本申请的主键获取脚本申请的对象
+     * @param deployDbscriptId
+     * @return
+     * @throws Exception
+     */
+    public DeployDbscript getDeployDbscriptById(String deployDbscriptId) throws Exception {
+        DeployDbscriptPO deployDbscriptPO = deployDbscriptDAO.selectByPrimaryKey(deployDbscriptId);
+        if (deployDbscriptPO == null) {
+            return null;
+        }
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        BeanUtils.copyProperties(deployDbscriptPO, deployDbscriptDO, true);
+        DeployDbscript deployDbscript = new DeployDbscript();
+        BeanUtils.copyProperties(deployDbscriptDO, deployDbscript, false);
+        fillDeployDbscript(deployDbscript);
+        return deployDbscript;
+    }
+
+    /**
+     * 根据脚本申请的主键删除该条记录
+     * @param deployDbscriptId
+     * @return
+     * @throws Exception
+     */
+    public int deleteById(String deployDbscriptId) throws Exception {
+        deployDbscriptDetailsqlDAO.deleteByDeployDbscriptId(deployDbscriptId);
+        int delRecCount = deployDbscriptDAO.deleteByPrimaryKey(deployDbscriptId);
+        return delRecCount;
+    }
+
+    /**
+     * 执行脚本并记录状态
+     * @param deployDbscriptDO
+     * @return
+     * @throws Exception
+     */
+    public boolean deployDbscript(DeployDbscriptDO deployDbscriptDO) throws Exception {
+        if (StringUtils.isBlank(deployDbscriptDO.getDbscript())) {
+            //如果脚本内容为空则表示执行失败
+            return false;
+        }
+        deployDbscriptDO.setExecutetime(new Date());
+
+
+
+
+
+
+        return false;
+    }
+
     private void fillDeployDbscript(DeployDbscript deployDbscript) {
         if (deployDbscript == null) {
             return;
@@ -78,7 +138,7 @@ public class DeployDBScriptService extends CommonDataService {
         if (deployDbscript.getDeploydbserversid() != null) {
             DeployDbserversPO deployDbserversPO = deployDbserversDAO.selectByPrimaryKey(deployDbscript.getDeploydbserversid());
             if (deployDbserversPO != null) {
-                String dbLinkDesc = EnvOfDBEnum.getDescByCode(deployDbserversPO.getBelong().intValue()) + "--" + deployDbserversPO.getIp() + ":" + deployDbserversPO.getPort();
+                String dbLinkDesc = deployDbserversPO.getLinkname() + "(" + deployDbserversPO.getLinknamedesc() + ")" + "[" + EnvOfDBEnum.getDescByCode(deployDbserversPO.getBelong().intValue()) + "--" + deployDbserversPO.getIp() + ":" + deployDbserversPO.getPort() + "/" + deployDbserversPO.getDbname() + "]";
                 deployDbscript.setDblinkDesc(dbLinkDesc);
             }
         }
@@ -88,69 +148,12 @@ public class DeployDBScriptService extends CommonDataService {
         if (deployDbscript.getExecutetime() != null) {
             deployDbscript.setFormatedExecutetime(formatter.format(deployDbscript.getExecutetime()));
         }
+
+        deployDbscript.setExecuteStatusDesc(DBExecuteStatusEnum.getDescByCode(deployDbscript.getExecutestatus().intValue()));
+        deployDbscript.setBelongDesc(EnvOfDBEnum.getDescByCode(deployDbscript.getBelong().intValue()));
         /********************补全deployDbscript中的属性值( end )*******************************/
 
     }
 
-
-    public static void main(String[] args) {
-        DeployDBScriptService deployDBScriptService = new DeployDBScriptService();
-        String ip = "172.19.14.200";
-        Integer port = 5432;
-        String username = "postgres";
-        String password = "postgres";
-        boolean canConnect = deployDBScriptService.checkConnection(ip, port, username, password);
-        if (canConnect) {
-            System.out.println("连接成功");
-        } else {
-            System.out.println("连接失败");
-        }
-    }
-
-    public boolean checkConnection(String ip, Integer port, String username, String password) {
-        Statement st = null;
-        ResultSet rs = null;
-        Connection conn = null;
-        Integer result;
-        try{
-            Class.forName("org.postgresql.Driver").newInstance();
-            String connectUrl ="jdbc:postgresql://" + ip + ":" + port + "/postgres";
-            conn = DriverManager.getConnection(connectUrl, username, password);
-            st = conn.createStatement();
-            String sql = "SELECT 1";
-            rs = st.executeQuery(sql);
-            while(rs.next()){
-                result = rs.getInt(1);
-                if (result != null && result.intValue() == 1) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (st != null) {
-                try {
-                    st.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return false;
-    }
 
 }

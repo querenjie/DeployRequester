@@ -221,6 +221,21 @@ public class CommonDataService {
     }
 
     /**
+     * 判断此ip地址是否可以发布数据库脚本
+     * @param ipAddr
+     * @return
+     */
+    public boolean canDeployDbscript(String ipAddr) {
+        if (ConfigData.ALLOWED_IP_CONFIG_DEPLOY_DBSCRIPT == null) {
+            return false;
+        }
+        if (ConfigData.ALLOWED_IP_CONFIG_DEPLOY_DBSCRIPT.contains(ipAddr)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 判断此发布申请是否已经锁定.锁定就是禁止发布。
      * @param projectId
      * @param moduleId

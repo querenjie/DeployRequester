@@ -16,11 +16,12 @@
     <result column="executetime" property="executetime" jdbcType="TIMESTAMP" />
     <result column="executestatus" property="executestatus" jdbcType="NUMERIC" />
     <result column="failuremsg" property="failuremsg" jdbcType="VARCHAR" />
+    <result column="belong" property="belong" jdbcType="NUMERIC" />
   </resultMap>
   <sql id="Base_Column_List" >
     deploydbscriptid, deploydbserversid, projectid, moduleid, dbscript, description, 
     applier, applierip, createtime, executor, executorip, executetime, executestatus, 
-    failuremsg
+    failuremsg, belong
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -37,13 +38,15 @@
       projectid, moduleid, dbscript, 
       description, applier, applierip, 
       createtime, executor, executorip, 
-      executetime, executestatus, failuremsg
+      executetime, executestatus, failuremsg,
+      belong
       )
     values (#{deploydbscriptid,jdbcType=VARCHAR}, #{deploydbserversid,jdbcType=VARCHAR}, 
       #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC}, #{dbscript,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{applier,jdbcType=VARCHAR}, #{applierip,jdbcType=VARCHAR}, 
       #{createtime,jdbcType=TIMESTAMP}, #{executor,jdbcType=VARCHAR}, #{executorip,jdbcType=VARCHAR}, 
-      #{executetime,jdbcType=TIMESTAMP}, #{executestatus,jdbcType=NUMERIC}, #{failuremsg,jdbcType=VARCHAR}
+      #{executetime,jdbcType=TIMESTAMP}, #{executestatus,jdbcType=NUMERIC}, #{failuremsg,jdbcType=VARCHAR},
+      #{belong,jdbcType=NUMERIC}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
@@ -91,6 +94,9 @@
       <if test="failuremsg != null" >
         failuremsg,
       </if>
+      <if test="belong != null" >
+        belong,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbscriptid != null" >
@@ -134,6 +140,9 @@
       </if>
       <if test="failuremsg != null" >
         #{failuremsg,jdbcType=VARCHAR},
+      </if>
+      <if test="belong != null" >
+        #{belong,jdbcType=NUMERIC},
       </if>
     </trim>
   </insert>
@@ -179,6 +188,9 @@
       <if test="failuremsg != null" >
         failuremsg = #{failuremsg,jdbcType=VARCHAR},
       </if>
+      <if test="belong != null" >
+        belong = #{belong,jdbcType=NUMERIC},
+      </if>
     </set>
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
@@ -197,6 +209,7 @@
       executetime = #{executetime,jdbcType=TIMESTAMP},
       executestatus = #{executestatus,jdbcType=NUMERIC},
       failuremsg = #{failuremsg,jdbcType=VARCHAR}
+      belong = #{belong,jdbcType=NUMERIC},
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
 
@@ -212,10 +225,10 @@
       and moduleid = #{moduleid}
     </if>
     <if test="dbscript != null and dbscript != ''">
-      and dbscript like concat('%',#{dbscript},'%')
+      and lower(dbscript) like concat('%',lower(#{dbscript}),'%')
     </if>
     <if test="description != null and description != ''">
-      and description like concat('%', #{description}, '%')
+      and lower(description) like concat('%', lower(#{description}), '%')
     </if>
     <if test="applier != null and applier != ''">
       and applier = #{applier}
@@ -253,7 +266,10 @@
       and executestatus = #{executestatus}
     </if>
     <if test="failuremsg != null and failuremsg != ''">
-      and failuremsg like concat('%',#{failuremsg},'%')
+      and lower(failuremsg) like concat('%',lower(#{failuremsg}),'%')
+    </if>
+    <if test="belong != null">
+      and belong = #{belong}
     </if>
 
   </select>

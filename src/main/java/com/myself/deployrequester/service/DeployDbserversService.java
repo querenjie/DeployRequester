@@ -11,6 +11,7 @@ import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
@@ -94,14 +95,14 @@ public class DeployDbserversService {
      * @param password
      * @return  返回连接报错的内容。如果能正常连接则返回空字符串。
      */
-    public String checkConnection(String ip, Integer port, String username, String password) {
+    public String checkConnection(String ip, Integer port, String username, String password, String dbname) {
         Statement st = null;
         ResultSet rs = null;
         Connection conn = null;
         Integer result;
         try{
             Class.forName("org.postgresql.Driver").newInstance();
-            String connectUrl ="jdbc:postgresql://" + ip + ":" + port + "/postgres";
+            String connectUrl ="jdbc:postgresql://" + ip + ":" + port + "/" + dbname;
             conn = DriverManager.getConnection(connectUrl, username, password);
             st = conn.createStatement();
             String sql = "SELECT 1";
@@ -155,6 +156,22 @@ public class DeployDbserversService {
             deployDbserversList.add(deployDbservers);
         }
         return deployDbserversList;
+    }
+
+    /**
+     * 根据主键获取数据库连接
+     * @param deploydbserversid
+     * @return
+     * @throws Exception
+     */
+    public DeployDbservers selectByPrimarykey(String deploydbserversid) throws Exception {
+        DeployDbserversPO deployDbserversPO = deployDbserversDAO.selectByPrimaryKey(deploydbserversid);
+        if (deployDbserversPO == null) {
+            return null;
+        }
+        DeployDbservers deployDbservers = new DeployDbservers();
+        BeanUtils.copyProperties(deployDbserversPO, deployDbservers, true);
+        return deployDbservers;
     }
 
     private void fillDeployDbservers(DeployDbservers deployDbservers) {

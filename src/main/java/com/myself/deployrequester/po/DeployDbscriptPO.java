@@ -32,6 +32,8 @@ public class DeployDbscriptPO {
 
     private String failuremsg;
 
+    private Short belong;
+
     public String getDeploydbscriptid() {
         return deploydbscriptid;
     }
@@ -142,5 +144,13 @@ public class DeployDbscriptPO {
 
     public void setFailuremsg(String failuremsg) {
         this.failuremsg = failuremsg == null ? null : failuremsg.trim();
+    }
+
+    public Short getBelong() {
+        return belong;
+    }
+
+    public void setBelong(Short belong) {
+        this.belong = belong;
     }
 }

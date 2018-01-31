@@ -1,6 +1,7 @@
 package com.myself.deployrequester.controller;
 
 import com.myself.deployrequester.bo.DeployDbservers;
+import com.myself.deployrequester.bo.DeployRequest;
 import com.myself.deployrequester.dto.DeployDbserversDTO;
 import com.myself.deployrequester.model.DeployDbserversDO;
 import com.myself.deployrequester.service.DeployDbserversService;
@@ -45,7 +46,7 @@ public class DeployDbserversController {
             result = JsonResult.createFailed("参数内容不能为空");
             result.addData(errorMsg);
         } else {
-            String returnMsg = deployDbserversService.checkConnection(deployDbserversDO.getIp(), deployDbserversDO.getPort(), deployDbserversDO.getUsername(), deployDbserversDO.getPassword());
+            String returnMsg = deployDbserversService.checkConnection(deployDbserversDO.getIp(), deployDbserversDO.getPort(), deployDbserversDO.getUsername(), deployDbserversDO.getPassword(), deployDbserversDO.getDbname());
             if (!StringUtils.isBlank(returnMsg)) {
                 result = JsonResult.createFailed("参数内容可能有问题，因为用这些参数连不上数据库");
                 result.addData(returnMsg);
@@ -61,7 +62,7 @@ public class DeployDbserversController {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log4jUtil.error(logger, "保存数据库连接配置的过程出现问题", e);
-                    result = JsonResult.createFailed("save data successfully");
+                    result = JsonResult.createFailed("save data failed");
                     result.addData("保存数据库连接配置的过程出现问题" + e);
                 }
             }
@@ -109,10 +110,32 @@ public class DeployDbserversController {
         return result;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/getById", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult getById(@RequestBody DeployDbserversDTO deployDbserversDTO) {
+        JsonResult result;
+        String deploydbserversid = deployDbserversDTO.getDeploydbserversid();
+        try {
+            DeployDbservers deployDbservers = deployDbserversService.selectByPrimarykey(deploydbserversid);
+            result = JsonResult.createSuccess("query data successfully");
+            if (deployDbservers != null) {
+                result.addData(deployDbservers);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "查询数据库连接配置出现问题", e);
+            result = JsonResult.createFailed("query data failed");
+        }
+        return result;
+    }
+
     private String checkAndGetErrMsg(DeployDbserversDO deployDbserversDO) {
         String errorMsg = "";
         if (StringUtils.isBlank(String.valueOf(deployDbserversDO.getBelong()))) {
             errorMsg += "数据库环境不能为空！" + "\n";
+        }
+        if (StringUtils.isBlank(deployDbserversDO.getLinkname())) {
+            errorMsg += "数据库链接名不能为空！" + "\n";
         }
         if (StringUtils.isBlank(deployDbserversDO.getIp())) {
             errorMsg += "数据库服务器的ip不能为空！" + "\n";

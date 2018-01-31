@@ -12,6 +12,9 @@ public class DeployDbscript extends DeployDbscriptDO {
     private String formatedCreateTime;  //格式化后的记录创建时间
     private String formatedExecutetime; //格式化后的脚本执行时间
     private String executeStatusDesc;   //脚本执行的状态描述
+    private String belongDesc;          //目标数据库服务器环境的描述
+
+    private String visitorIp;           //访问者的Ip地址
 
     public String getProjectName() {
         return projectName;
@@ -59,5 +62,21 @@ public class DeployDbscript extends DeployDbscriptDO {
 
     public void setExecuteStatusDesc(String executeStatusDesc) {
         this.executeStatusDesc = executeStatusDesc;
+    }
+
+    public String getBelongDesc() {
+        return belongDesc;
+    }
+
+    public void setBelongDesc(String belongDesc) {
+        this.belongDesc = belongDesc;
+    }
+
+    public String getVisitorIp() {
+        return visitorIp;
+    }
+
+    public void setVisitorIp(String visitorIp) {
+        this.visitorIp = visitorIp;
     }
 }

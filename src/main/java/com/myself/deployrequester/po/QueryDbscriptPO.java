@@ -18,6 +18,7 @@ public class QueryDbscriptPO {
     private String formatedExecutetimeEnd;
     private Short executestatus;
     private String failuremsg;
+    private Short belong;
 
     public Short getProjectid() {
         return projectid;
@@ -129,5 +130,13 @@ public class QueryDbscriptPO {
 
     public void setFailuremsg(String failuremsg) {
         this.failuremsg = failuremsg;
+    }
+
+    public Short getBelong() {
+        return belong;
+    }
+
+    public void setBelong(Short belong) {
+        this.belong = belong;
     }
 }

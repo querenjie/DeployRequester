@@ -203,6 +203,25 @@ public class ConfigdataController extends CommonMethodWrapper {
     }
 
     @ResponseBody
+    @RequestMapping(value="/judgeCanDeployDbscript", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult judgeCanDeployDbscript(HttpServletRequest request) {
+        JsonResult result;
+        List<String> resultList = new ArrayList<String>();
+
+        String ipAddr = getIpAddr(request);
+        boolean canDeployDbscript = commonDataService.canDeployDbscript(ipAddr);
+        if (canDeployDbscript == false) {
+            resultList.add("Sorry, you have no privilege to deploy dbscript and related actions.");
+        } else {
+            resultList.add("ok");
+        }
+
+        result = JsonResult.createSuccess("ok");
+        result.addDataAll(resultList);
+        return result;
+    }
+
+    @ResponseBody
     @RequestMapping(value="/judgeIfDeployRequestLocked", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult judgeIfDeployRequestLocked(@RequestBody DeployRequesterDTO deployRequesterDTO) {
         JsonResult result;

@@ -5,6 +5,10 @@ import java.util.UUID;
 public class DeployDbserversPO {
     private String deploydbserversid = UUID.randomUUID().toString();
 
+    private String linkname;
+
+    private String linknamedesc;
+
     private String ip;
 
     private Integer port;
@@ -17,12 +21,30 @@ public class DeployDbserversPO {
 
     private Short needrecpwd;
 
+    private String dbname;
+
     public String getDeploydbserversid() {
         return deploydbserversid;
     }
 
     public void setDeploydbserversid(String deploydbserversid) {
         this.deploydbserversid = deploydbserversid == null ? null : deploydbserversid.trim();
+    }
+
+    public String getLinkname() {
+        return linkname;
+    }
+
+    public void setLinkname(String linkname) {
+        this.linkname = linkname;
+    }
+
+    public String getLinknamedesc() {
+        return linknamedesc;
+    }
+
+    public void setLinknamedesc(String linknamedesc) {
+        this.linknamedesc = linknamedesc;
     }
 
     public String getIp() {
@@ -71,5 +93,13 @@ public class DeployDbserversPO {
 
     public void setNeedrecpwd(Short needrecpwd) {
         this.needrecpwd = needrecpwd;
+    }
+
+    public String getDbname() {
+        return dbname;
+    }
+
+    public void setDbname(String dbname) {
+        this.dbname = dbname;
     }
 }

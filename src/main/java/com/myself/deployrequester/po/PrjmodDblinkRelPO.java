@@ -1,15 +1,15 @@
 package com.myself.deployrequester.po;
 
+import java.util.UUID;
+
 public class PrjmodDblinkRelPO {
-    private String prjmoddblinkrelid;
+    private String prjmoddblinkrelid = UUID.randomUUID().toString();
 
     private Short projectid;
 
     private Short moduleid;
 
     private String deploydbserversid;
-
-    private String dbname;
 
     public String getPrjmoddblinkrelid() {
         return prjmoddblinkrelid;
@@ -41,13 +41,5 @@ public class PrjmodDblinkRelPO {
 
     public void setDeploydbserversid(String deploydbserversid) {
         this.deploydbserversid = deploydbserversid == null ? null : deploydbserversid.trim();
-    }
-
-    public String getDbname() {
-        return dbname;
-    }
-
-    public void setDbname(String dbname) {
-        this.dbname = dbname == null ? null : dbname.trim();
     }
 }
