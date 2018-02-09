@@ -1,5 +1,6 @@
 package com.myself.deployrequester.controller;
 
+import com.myself.deployrequester.biz.config.sharedata.ConfigData;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.dto.DeployRequesterDTO;
 import com.myself.deployrequester.dto.ModuleDTO;
@@ -212,6 +213,30 @@ public class ConfigdataController extends CommonMethodWrapper {
         boolean canDeployDbscript = commonDataService.canDeployDbscript(ipAddr);
         if (canDeployDbscript == false) {
             resultList.add("Sorry, you have no privilege to deploy dbscript and related actions.");
+        } else {
+            resultList.add("ok");
+        }
+
+        result = JsonResult.createSuccess("ok");
+        result.addDataAll(resultList);
+        return result;
+    }
+
+    /**
+     * 判断此ip地址是否可以提交数据库脚本申请
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value="/judgeCanApplyDbscript", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult judgeCanApplyDbscript(HttpServletRequest request) {
+        JsonResult result;
+        List<String> resultList = new ArrayList<String>();
+
+        String ipAddr = getIpAddr(request);
+        boolean canDeployDbscript = commonDataService.canApplyDbscript(ipAddr);
+        if (canDeployDbscript == false) {
+            resultList.add("Sorry, 您没有权限提交脚本申请记录.");
         } else {
             resultList.add("ok");
         }

@@ -11,6 +11,8 @@ public class PrjmodDblinkRelPO {
 
     private String deploydbserversid;
 
+    private Short belong;
+
     public String getPrjmoddblinkrelid() {
         return prjmoddblinkrelid;
     }
@@ -41,5 +43,13 @@ public class PrjmodDblinkRelPO {
 
     public void setDeploydbserversid(String deploydbserversid) {
         this.deploydbserversid = deploydbserversid == null ? null : deploydbserversid.trim();
+    }
+
+    public Short getBelong() {
+        return belong;
+    }
+
+    public void setBelong(Short belong) {
+        this.belong = belong;
     }
 }

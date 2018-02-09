@@ -6,9 +6,10 @@
     <result column="projectid" property="projectid" jdbcType="NUMERIC" />
     <result column="moduleid" property="moduleid" jdbcType="NUMERIC" />
     <result column="deploydbserversid" property="deploydbserversid" jdbcType="VARCHAR" />
+    <result column="belong" property="belong" jdbcType="NUMERIC" />
   </resultMap>
   <sql id="Base_Column_List" >
-    prjmoddblinkrelid, projectid, moduleid, deploydbserversid
+    prjmoddblinkrelid, projectid, moduleid, deploydbserversid, belong
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -22,9 +23,9 @@
   </delete>
   <insert id="insert" parameterType="com.myself.deployrequester.po.PrjmodDblinkRelPO" >
     insert into t_prjmod_dblink_rel (prjmoddblinkrelid, projectid, moduleid, 
-      deploydbserversid)
+      deploydbserversid, belong)
     values (#{prjmoddblinkrelid,jdbcType=VARCHAR}, #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC}, 
-      #{deploydbserversid,jdbcType=VARCHAR})
+      #{deploydbserversid,jdbcType=VARCHAR}, #{belong,jdbcType=NUMERIC})
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.PrjmodDblinkRelPO" >
     insert into t_prjmod_dblink_rel
@@ -41,6 +42,9 @@
       <if test="deploydbserversid != null" >
         deploydbserversid,
       </if>
+      <if test="belong != null">
+        belong,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="prjmoddblinkrelid != null" >
@@ -54,6 +58,9 @@
       </if>
       <if test="deploydbserversid != null" >
         #{deploydbserversid,jdbcType=VARCHAR},
+      </if>
+      <if test="belong != null">
+        #{belong,jdbcType=NUMERIC},
       </if>
     </trim>
   </insert>
@@ -69,6 +76,9 @@
       <if test="deploydbserversid != null" >
         deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR},
       </if>
+      <if test="belong != null">
+        belong = #{belong,jdbcType=NUMERIC},
+      </if>
     </set>
     where prjmoddblinkrelid = #{prjmoddblinkrelid,jdbcType=VARCHAR}
   </update>
@@ -76,7 +86,8 @@
     update t_prjmod_dblink_rel
     set projectid = #{projectid,jdbcType=NUMERIC},
       moduleid = #{moduleid,jdbcType=NUMERIC},
-      deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
+      deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR},
+      belong = #{belong,jdbcType=NUMERIC}
     where prjmoddblinkrelid = #{prjmoddblinkrelid,jdbcType=VARCHAR}
   </update>
 
@@ -91,6 +102,9 @@
     <if test="moduleid != null">
       and moduleid = #{moduleid,jdbcType=NUMERIC}
     </if>
+    <if test="belong != null">
+      and belong = #{belong,jdbcType=NUMERIC}
+    </if>
   </select>
 
   <update id="update1" parameterType="com.myself.deployrequester.po.PrjmodDblinkRelPO" >
@@ -102,6 +116,7 @@
     </set>
     where projectid = #{projectid,jdbcType=NUMERIC}
     AND   moduleid = #{moduleid,jdbcType=NUMERIC}
+    AND   belong = #{belong,jdbcType=NUMERIC}
   </update>
 
 </mapper>

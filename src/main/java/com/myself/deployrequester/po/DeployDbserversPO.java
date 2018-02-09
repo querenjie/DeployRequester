@@ -1,5 +1,6 @@
 package com.myself.deployrequester.po;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class DeployDbserversPO {
@@ -22,6 +23,15 @@ public class DeployDbserversPO {
     private Short needrecpwd;
 
     private String dbname;
+
+    private Date createtime = new Date();
+
+    private String creater;
+
+    private String createrip;
+
+    private Short issyncdb;         //是否为同步库。0：否；1：是。通常只有报表库才是同步库。
+
 
     public String getDeploydbserversid() {
         return deploydbserversid;
@@ -101,5 +111,37 @@ public class DeployDbserversPO {
 
     public void setDbname(String dbname) {
         this.dbname = dbname;
+    }
+
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    public String getCreater() {
+        return creater;
+    }
+
+    public void setCreater(String creater) {
+        this.creater = creater;
+    }
+
+    public String getCreaterip() {
+        return createrip;
+    }
+
+    public void setCreaterip(String createrip) {
+        this.createrip = createrip;
+    }
+
+    public Short getIssyncdb() {
+        return issyncdb;
+    }
+
+    public void setIssyncdb(Short issyncdb) {
+        this.issyncdb = issyncdb;
     }
 }

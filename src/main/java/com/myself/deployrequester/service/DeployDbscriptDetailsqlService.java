@@ -59,4 +59,61 @@ public class DeployDbscriptDetailsqlService {
         return deployDbscriptDetailsqlDAO.deleteByDeployDbscriptId(deployDbscriptId);
     }
 
+    /**
+     * 获取指定的脚本申请记录中已经执行过的sql信息记录
+     * @param deployDbscriptId
+     * @return
+     */
+    public List<DeployDbscriptDetailsqlDO> selectExecutedByDeployDbscriptId(String deployDbscriptId) throws Exception {
+        List<DeployDbscriptDetailsqlPO> deployDbscriptDetailsqlPOList = deployDbscriptDetailsqlDAO.selectExecutedByDeployDbscriptId(deployDbscriptId);
+        if (deployDbscriptDetailsqlPOList == null) {
+            return null;
+        }
+
+        List<DeployDbscriptDetailsqlDO> deployDbscriptDetailsqlDOList = new ArrayList<DeployDbscriptDetailsqlDO>();
+        for (DeployDbscriptDetailsqlPO deployDbscriptDetailsqlPO : deployDbscriptDetailsqlPOList) {
+            DeployDbscriptDetailsqlDO deployDbscriptDetailsqlDO = new DeployDbscriptDetailsqlDO();
+            BeanUtils.copyProperties(deployDbscriptDetailsqlPO, deployDbscriptDetailsqlDO, true);
+            deployDbscriptDetailsqlDOList.add(deployDbscriptDetailsqlDO);
+        }
+
+        return deployDbscriptDetailsqlDOList;
+    }
+
+    /**
+     * 获取指定的脚本申请记录中尚未执行过的sql信息记录
+     * @param deployDbscriptId
+     * @return
+     */
+    public List<DeployDbscriptDetailsqlDO> selectUnexecutedByDeployDbscriptId(String deployDbscriptId) throws Exception {
+        List<DeployDbscriptDetailsqlPO> deployDbscriptDetailsqlPOList = deployDbscriptDetailsqlDAO.selectUnexecutedByDeployDbscriptId(deployDbscriptId);
+        if (deployDbscriptDetailsqlPOList == null) {
+            return null;
+        }
+
+        List<DeployDbscriptDetailsqlDO> deployDbscriptDetailsqlDOList = new ArrayList<DeployDbscriptDetailsqlDO>();
+        for (DeployDbscriptDetailsqlPO deployDbscriptDetailsqlPO : deployDbscriptDetailsqlPOList) {
+            DeployDbscriptDetailsqlDO deployDbscriptDetailsqlDO = new DeployDbscriptDetailsqlDO();
+            BeanUtils.copyProperties(deployDbscriptDetailsqlPO, deployDbscriptDetailsqlDO, true);
+            deployDbscriptDetailsqlDOList.add(deployDbscriptDetailsqlDO);
+        }
+
+        return deployDbscriptDetailsqlDOList;
+    }
+
+    /**
+     * 删除指定的脚本申请记录中尚未执行过的sql信息记录
+     */
+    public int deleteUnexecutedByDeployDbscriptId(String deployDbscriptId) throws Exception {
+        return deployDbscriptDetailsqlDAO.deleteUnexecutedByDeployDbscriptId(deployDbscriptId);
+    }
+
+    /**
+     * 获取指定的申请记录中的子sql记录的最大的序号
+     * @param deployDbscriptId
+     * @return
+     */
+    public Short selectMaxSeqno(String deployDbscriptId) throws Exception {
+        return deployDbscriptDetailsqlDAO.selectMaxSeqno(deployDbscriptId);
+    }
 }

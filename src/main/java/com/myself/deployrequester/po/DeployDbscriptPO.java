@@ -34,6 +34,10 @@ public class DeployDbscriptPO {
 
     private Short belong;
 
+    private Short isabandoned = 0;
+
+    private String sqlmd5;
+
     public String getDeploydbscriptid() {
         return deploydbscriptid;
     }
@@ -152,5 +156,21 @@ public class DeployDbscriptPO {
 
     public void setBelong(Short belong) {
         this.belong = belong;
+    }
+
+    public Short getIsabandoned() {
+        return isabandoned;
+    }
+
+    public void setIsabandoned(Short isabandoned) {
+        this.isabandoned = isabandoned;
+    }
+
+    public String getSqlmd5() {
+        return sqlmd5;
+    }
+
+    public void setSqlmd5(String sqlmd5) {
+        this.sqlmd5 = sqlmd5;
     }
 }

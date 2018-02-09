@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployDbscriptDetailsqlPO" >
     <id column="deploydbscriptdetailsqlid" property="deploydbscriptdetailsqlid" jdbcType="VARCHAR" />
     <result column="deploydbscriptid" property="deploydbscriptid" jdbcType="VARCHAR" />
+    <result column="subsqlseqno" property="subsqlseqno" jdbcType="NUMERIC" />
     <result column="subsql" property="subsql" jdbcType="VARCHAR" />
     <result column="executestatus" property="executestatus" jdbcType="NUMERIC" />
     <result column="executetime" property="executetime" jdbcType="TIMESTAMP" />
@@ -15,7 +16,7 @@
     <result column="createrip" property="createrip" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    deploydbscriptdetailsqlid, deploydbscriptid, subsql, executestatus, executetime, 
+    deploydbscriptdetailsqlid, deploydbscriptid, subsqlseqno, subsql, executestatus, executetime,
     executor, executorip, willignore, createtime, creater, createrip
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
@@ -30,12 +31,12 @@
   </delete>
   <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbscriptDetailsqlPO" >
     insert into t_deploy_dbscript_detailsql (deploydbscriptdetailsqlid, deploydbscriptid, 
-      subsql, executestatus, executetime, 
+      subsqlseqno, subsql, executestatus, executetime,
       executor, executorip, willignore, 
       createtime, creater, createrip
       )
     values (#{deploydbscriptdetailsqlid,jdbcType=VARCHAR}, #{deploydbscriptid,jdbcType=VARCHAR}, 
-      #{subsql,jdbcType=VARCHAR}, #{executestatus,jdbcType=NUMERIC}, #{executetime,jdbcType=TIMESTAMP}, 
+      #{subsqlseqno,jdbcType=NUMERIC}, #{subsql,jdbcType=VARCHAR}, #{executestatus,jdbcType=NUMERIC}, #{executetime,jdbcType=TIMESTAMP},
       #{executor,jdbcType=VARCHAR}, #{executorip,jdbcType=VARCHAR}, #{willignore,jdbcType=NUMERIC}, 
       #{createtime,jdbcType=TIMESTAMP}, #{creater,jdbcType=VARCHAR}, #{createrip,jdbcType=VARCHAR}
       )
@@ -48,6 +49,9 @@
       </if>
       <if test="deploydbscriptid != null" >
         deploydbscriptid,
+      </if>
+      <if test="subsqlseqno != null">
+        subsqlseqno,
       </if>
       <if test="subsql != null" >
         subsql,
@@ -84,6 +88,9 @@
       <if test="deploydbscriptid != null" >
         #{deploydbscriptid,jdbcType=VARCHAR},
       </if>
+      <if test="subsqlseqno != null">
+        #{subsqlseqno,jdbcType=NUMERIC},
+      </if>
       <if test="subsql != null" >
         #{subsql,jdbcType=VARCHAR},
       </if>
@@ -119,6 +126,9 @@
       <if test="deploydbscriptid != null" >
         deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR},
       </if>
+      <if test="subsqlseqno != null">
+        subsqlseqno = #{subsqlseqno,jdbcType=NUMERIC},
+      </if>
       <if test="subsql != null" >
         subsql = #{subsql,jdbcType=VARCHAR},
       </if>
@@ -152,6 +162,7 @@
   <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployDbscriptDetailsqlPO" >
     update t_deploy_dbscript_detailsql
     set deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR},
+      subsqlseqno = #{subsqlseqno,jdbcType=NUMERIC},
       subsql = #{subsql,jdbcType=VARCHAR},
       executestatus = #{executestatus,jdbcType=NUMERIC},
       executetime = #{executetime,jdbcType=TIMESTAMP},
@@ -168,5 +179,40 @@
     delete from t_deploy_dbscript_detailsql
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </delete>
+
+  <select id="selectExecutedByDeployDbscriptId" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+    AND   executestatus = 1
+    ORDER BY subsqlseqno
+  </select>
+
+  <select id="selectUnexecutedByDeployDbscriptId" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+    <![CDATA[
+    AND   executestatus <> 1
+    ]]>
+    ORDER BY subsqlseqno
+  </select>
+
+  <delete id="deleteUnexecutedByDeployDbscriptId" parameterType="java.lang.String" >
+    delete from t_deploy_dbscript_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+    <![CDATA[
+    AND   executestatus <> 1
+    ]]>
+  </delete>
+
+  <select id="selectMaxSeqno" resultType="java.lang.Short" parameterType="java.lang.String">
+    select COALESCE(max(subsqlseqno), 0)
+    from t_deploy_dbscript_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </select>
+
 
 </mapper>

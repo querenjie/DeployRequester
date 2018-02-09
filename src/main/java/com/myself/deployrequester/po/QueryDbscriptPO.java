@@ -19,6 +19,9 @@ public class QueryDbscriptPO {
     private Short executestatus;
     private String failuremsg;
     private Short belong;
+    private Short isabandoned;
+    private String sqlmd5;
+    private String showExcuteOption;        //'yes'表示只显示需要执行的脚本,否则全都显示。
 
     public Short getProjectid() {
         return projectid;
@@ -138,5 +141,29 @@ public class QueryDbscriptPO {
 
     public void setBelong(Short belong) {
         this.belong = belong;
+    }
+
+    public Short getIsabandoned() {
+        return isabandoned;
+    }
+
+    public void setIsabandoned(Short isabandoned) {
+        this.isabandoned = isabandoned;
+    }
+
+    public String getSqlmd5() {
+        return sqlmd5;
+    }
+
+    public void setSqlmd5(String sqlmd5) {
+        this.sqlmd5 = sqlmd5;
+    }
+
+    public String getShowExcuteOption() {
+        return showExcuteOption;
+    }
+
+    public void setShowExcuteOption(String showExcuteOption) {
+        this.showExcuteOption = showExcuteOption;
     }
 }

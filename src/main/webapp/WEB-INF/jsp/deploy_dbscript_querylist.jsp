@@ -62,6 +62,7 @@
         function doRetrieveMsg() {
             retrieveNotice();
             retrieveSpeech();
+            judgeCanDeployDbscript();
         }
         function retrieveNotice() {
             $.ajax({
@@ -98,7 +99,7 @@
                 }
             });
 
-            judgeCanDeployDbscript();
+
         }
 
         function retrieveSpeech() {
@@ -203,8 +204,9 @@
                 success:function(resultData){
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
-                            var deleteRecordCount = resultData.data[0];
-                            if (deleteRecordCount >= 0) {
+                            if (resultData.msg == "failed") {
+                                alert(resultData.data[0]);
+                            } else {
                                 doQuery();
                             }
                         } else {
@@ -235,7 +237,7 @@
                         if (resultData.data != null && resultData.data.length > 0) {
                             var deployDbscript = resultData.data[0];
                             $("#detail_deploydbscriptid").html(deployDbscript.deploydbscriptid);
-                            $("#detail_belongDesc").html(deployDbscript.belongDesc);
+                            $("#detail_belongDesc").html("<b>" + deployDbscript.belongDesc + "</b>");
                             $("#detail_projectName").html(deployDbscript.projectid + "-" + deployDbscript.projectName);
                             $("#detail_moduleName").html(deployDbscript.moduleid + "-" + deployDbscript.moduleName);
                             $("#detail_dbscript").val(deployDbscript.dbscript);
@@ -246,14 +248,59 @@
                             $("#detail_formatedExecuteTime").html(deployDbscript.formatedExecuteTime);
                             $("#detail_executeStatusDesc").html(deployDbscript.executeStatusDesc);
                             $("#detail_failuremsg").val(deployDbscript.failuremsg);
-                            if (deployDbscript.executestatus == 0 && gCanDeployDbscript == "yes") {
+                            if (gCanDeployDbscript == "yes") {
                                 var s = (deployDbscript.dblinkDesc == null ? "" : deployDbscript.dblinkDesc) + "<input id='btnOpenEditStyle' type='button' value='启用编辑模式' onclick=\"openEditStyle('" + deployDbscript.deploydbserversid + "', '" + deployDbscript.belong + "');\">";
                                 $("#detail_dblinkDesc").html(s);
-                                $("#btnDeployDbScript").removeAttr("disabled");
                             } else {
                                 $("#detail_dblinkDesc").html(deployDbscript.dblinkDesc);
-                                $("#btnDeployDbScript").attr("disabled", true);
                             }
+                            $("#detail_dblinkDesc_desc").html("");
+                            $("#detail_executedSql").val("");
+                            var executedSqlList = deployDbscript.executedSqlList;
+                            if (executedSqlList != null && executedSqlList.length > 0) {
+                                var executedSqlStrings = "";
+                                for (var i = 0; i < executedSqlList.length; i++) {
+                                    executedSqlStrings += executedSqlList[i] + ";\n";
+                                }
+                                $("#detail_executedSql").val(executedSqlStrings);
+                            }
+                            $("#detail_unexecutedSql").val("");
+                            var unexecutedSqlList = deployDbscript.unexecutedSqlList;
+                            if (unexecutedSqlList != null && unexecutedSqlList.length > 0) {
+                                var unexecutedSqlStrings = "";
+                                for (var i = 0; i < unexecutedSqlList.length; i++) {
+                                    unexecutedSqlStrings += unexecutedSqlList[i] + ";\n";
+                                }
+                                $("#detail_unexecutedSql").val(unexecutedSqlStrings);
+                            }
+                            $("#detail_isabandoned").html(deployDbscript.isabandonedDesc);
+
+                            highlightOrDisableDeployButton(deployDbscript);
+                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                                $("#detail_unexecutedSql").removeAttr("readonly");
+                            }
+                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
+                                //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布脚本’按钮。
+                                $("#btnApplyRedeployDbScript").removeAttr("disabled");
+                            } else {
+                                $("#btnApplyRedeployDbScript").attr("disabled", true);
+                            }
+                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
+                                //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布脚本’按钮。
+                                $("#btnAbandonDeployDbScript").removeAttr("disabled");
+                            } else {
+                                $("#btnAbandonDeployDbScript").attr("disabled", true);
+                            }
+
+                            if (deployDbscript.executestatus == 1) {
+                                //如果是执行成功状态，则隐藏以下tr
+                                $("#tr_detail_unexecutedSql").hide();
+                                $("#tr_detail_isabandoned").hide();
+                            } else {
+                                $("#tr_detail_unexecutedSql").show();
+                                $("#tr_detail_isabandoned").show();
+                            }
+
                             gDeployDbserversId = deployDbscript.deploydbserversid;
                             gDeployDbscriptId = deploydbscriptid;
                             $("#fntDblinkDesc").css("color", "#000000");
@@ -283,6 +330,7 @@
             var formatedExecutetimeEnd = $("#formatedExecutetimeEnd").val();
             var executestatus = $("#executestatus").val();
             var failuremsg = $("#failuremsg").val();
+            var showExcuteOption = $("#showExcuteOption").val();
 
 
             if (projectCode == "") {
@@ -322,6 +370,7 @@
             if (formatedExecutetimeEnd != "") QueryDbscriptDTO.formatedExecutetimeEnd = formatedExecutetimeEnd;
             if (executestatus != "") QueryDbscriptDTO.executestatus = executestatus;
             if (failuremsg != "") QueryDbscriptDTO.failuremsg = failuremsg;
+            if (showExcuteOption != "") QueryDbscriptDTO.showExcuteOption = showExcuteOption;
 
             $.ajax({
                 type: "POST",
@@ -336,21 +385,38 @@
                             var tableHtml = "";
                             if (deployDbscriptList != null && deployDbscriptList.length > 0) {
                                 $("#processAction").html("查询结果如下");
-                                tableHtml += "<tr bgcolor='#ff8c00'>";
-                                tableHtml += "<td align='center'>数据库环境</td>";
-                                tableHtml += "<td align='center'>项目名称</td>";
-                                tableHtml += "<td align='center'>模块名称</td>";
-                                tableHtml += "<td align='center'>脚本语句部分内容</td>";
-                                tableHtml += "<td align='center'>附加描述部分内容</td>";
-                                tableHtml += "<td align='center'>申请者</td>";
-                                tableHtml += "<td align='center'>申请时间</td>";
-                                tableHtml += "<td align='center'>脚本执行状态</td>";
-                                tableHtml += "<td align='center'>脚本执行时间</td>";
-                                tableHtml += "<td align='center'>操作</td>";
+                                tableHtml += "<tr bgcolor='#ffe4c4'>";
+                                tableHtml += "<td align='center'><b>数据库环境</b></td>";
+                                tableHtml += "<td align='center'><b>项目名称</b></td>";
+                                tableHtml += "<td align='center'><b>模块名称</b></td>";
+                                tableHtml += "<td align='center'><b>脚本语句部分内容</b></td>";
+                                tableHtml += "<td align='center'><b>附加描述部分内容</b></td>";
+                                tableHtml += "<td align='center'><b>申请者</b></td>";
+                                tableHtml += "<td align='center'><b>申请时间</b></td>";
+                                tableHtml += "<td align='center'><b>脚本执行状态</b></td>";
+                                tableHtml += "<td align='center'><b>脚本执行时间</b></td>";
+                                tableHtml += "<td align='center'><b>操作</b></td>";
                             }
                             $.each(deployDbscriptList, function(index) {
                                 var deployDbscript = deployDbscriptList[index];
-                                tableHtml += "<tr>";
+                                var bgColor = "white";
+                                if (deployDbscript.executestatus == 0) {
+                                    //如果尚未执行，底色为白色
+                                    bgColor = "white";
+                                }
+                                if (deployDbscript.executestatus == 1) {
+                                    //如果已经执行成功，底色为绿色
+                                    bgColor = "green";
+                                }
+                                if (deployDbscript.isabandoned == 1) {
+                                    //如果已经放弃执行，底色为灰色
+                                    bgColor = "grey";
+                                }
+                                if (deployDbscript.executestatus == -1 && deployDbscript.isabandoned == 0) {
+                                    //如果是执行失败状态并且可以继续执行的，底色为金色
+                                    bgColor = "gold";
+                                }
+                                tableHtml += "<tr bgcolor='" + bgColor + "'>";
                                 tableHtml += "<td>" + deployDbscript.belongDesc + "</td>";
                                 tableHtml += "<td>" + deployDbscript.projectName + "</td>";
                                 tableHtml += "<td>" + deployDbscript.moduleName + "</td>";
@@ -381,7 +447,12 @@
                             $("#tblResult").html(tableHtml);
                         }
                     }
-                    $("#processAction").html("以下就是查询结果");
+
+                    var whiteChars = "<font color='white'><b>白底</b></font>";
+                    var goldChars = "<font color='gold'><b>黄底</b></font>";
+                    var greyChars = "<font color='grey'><b>灰底</b></font>";
+                    var greenChars = "<font color='green'><b>绿底</b></font>";
+                    $("#processAction").html("以下就是查询结果(提示：" + whiteChars + "和" + goldChars + "的表示可以继续发布执行的；" + greenChars + "的表示已经发布成功的；" + greyChars + "的表示已经放弃发布了。)");
                 },
                 error:function(resultData){
                     //$("#processAction").html("发布系统停止运行，请耐心等待。。。");
@@ -418,24 +489,13 @@
                                 if (resultData.data[0] == "ok") {
                                     $("#btnDbserversConfig").removeAttr("disabled");
                                     gCanDeployDbscript = "yes";
+                                    $("[value='启用编辑模式']").each(function() {
+                                        $(this).removeAttr("disabled");
+                                    });
                                 } else {
                                     $("#btnDbserversConfig").attr("disabled", true);
                                     gCanDeployDbscript = "no";
-                                }
-                                if (gCanDeployDbscript == "yes") {
-                                    $("#btnSave").removeAttr("disabled");
                                     $("[value='启用编辑模式']").each(function() {
-                                        $(this).removeAttr("disabled");
-                                    });
-                                    $("[value='发布脚本']").each(function() {
-                                        $(this).removeAttr("disabled");
-                                    });
-                                } else {
-                                    $("#btnSave").attr("disable", true);
-                                    $("[value='启用编辑模式']").each(function() {
-                                        $(this).attr("disabled", true);
-                                    });
-                                    $("[value='发布脚本']").each(function() {
                                         $(this).attr("disabled", true);
                                     });
                                 }
@@ -523,8 +583,42 @@
 
         function assignTempValue(selDblink) {
             gDeployDbserversId = selDblink.value;
+            if (gDeployDbserversId == "" || gDeployDbserversId == null) {
+                $("#detail_dblinkDesc_desc").html("");
+            } else {
+                var deployDbserversDTO = {};
+                deployDbserversDTO.deploydbserversid = gDeployDbserversId;
+
+                $.ajax({
+                    type: "POST",
+                    url: "<%=basePath%>depdbservers/getById",
+                    async: false,       //false:同步
+                    data:JSON.stringify(deployDbserversDTO),//json序列化
+                    datatype:"json", //此处不能省略
+                    contentType: "application/json; charset=utf-8",//此处不能省略
+                    success:function(resultData){
+                        if (resultData != null) {
+                            if (resultData.data != null && resultData.data.length > 0) {
+                                var deployDbservers = resultData.data[0];
+                                var dbLinkDesc = deployDbservers.linkname + "(" + deployDbservers.linknamedesc + ")";
+                                dbLinkDesc += "[" + deployDbservers.belongName + "--" + deployDbservers.ip;
+                                dbLinkDesc += ":" + deployDbservers.port + "/" + deployDbservers.dbname + "]";
+                                $("#detail_dblinkDesc_desc").html(dbLinkDesc);
+                            }
+                        }
+                    },
+                    error:function(resultData){
+                        $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                    }
+                });
+
+            }
         }
-        
+
+
+        /**
+         * 发布脚本
+         */
         function doDeployDbscript() {
             if (gCanDeployDbscript == "no") {
                 alert("您没有发布脚本的权限!");
@@ -534,10 +628,135 @@
                 alert("记录id不能为空！");
                 return;
             }
-            if (gDeployDbserversId == null) {
+            if (gDeployDbserversId == "" || gDeployDbserversId == null) {
                 alert("必须选择数据库连接的描述！");
                 return;
             }
+            var deployDbscriptDTO = {};
+            deployDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+            deployDbscriptDTO.deploydbserversid = gDeployDbserversId;
+
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/deployDbscript",
+                async: false,       //false:同步
+                data:JSON.stringify(deployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "success") {
+                            alert("发布脚本成功");
+                        } else {
+                            alert(resultData.data[0]);
+                        }
+                        doQueryDetail(gDeployDbscriptId);
+                        doQuery();
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+
+        }
+        
+        function highlightOrDisableDeployButton(deployDbscript) {
+            //如果脚本不是成功或者正在执行状态并且当前用户有权操作脚本发布并且剩余未执行的脚本没被放弃执行，点亮发布按钮。
+            if ((deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && gCanDeployDbscript == "yes" && deployDbscript.isabandoned == 0) {
+                $("#btnDeployDbScript").removeAttr("disabled");
+                return;
+            }
+            $("#btnDeployDbScript").attr("disabled", true);
+        }
+
+        /**
+         * 放弃发布脚本
+         */
+        function doAbandonDeployDbscript() {
+            var queryDbscriptDTO = {};
+            queryDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/abandonDeployDbscript",
+                async: false,       //false:同步
+                data:JSON.stringify(queryDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "update data successfully") {
+                            alert(resultData.data[0]);
+                            doQueryDetail(gDeployDbscriptId);
+                        } else {
+                            alert(resultData.data[0]);
+                        }
+                        doQuery();
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+
+        }
+
+        /**
+         * 申请重新发布脚本
+         */
+        function doApplyRedeployDbscript() {
+            var unexecutedSql = $("#detail_unexecutedSql").val();
+            if (unexecutedSql.replace(/(^s*)|(s*$)/g, "").length == 0) {
+                alert("未经执行的sql为空语句，不能提交申请。");
+                return;
+            }
+            if (gDeployDbscriptId == "") {
+                alert("申请的脚本记录的id丢失了，不能提交申请。");
+                return;
+            }
+            var forcetodoit = $("#forcetodoit").val();
+
+            var applyRedeployDbscriptDTO = {};
+            applyRedeployDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+            applyRedeployDbscriptDTO.unexecutedSql = unexecutedSql;
+            applyRedeployDbscriptDTO.forcetodoit = forcetodoit;
+
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/applyRedeployDbscript",
+                async: false,       //false:同步
+                data:JSON.stringify(applyRedeployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "update data successfully") {
+                            alert(resultData.data[0]);
+                            doQueryDetail(gDeployDbscriptId);
+                            $("#tr_forcesubmit").hide();
+                        } else {
+                            alert(resultData.data[0]);
+                            if (resultData.msg == "dangerous statement in it") {
+                                $("#tr_forcesubmit").show();
+                            }
+                        }
+                        doQuery();
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+
+        }
+
+        function doQueryDetailAgain() {
+            if (gDeployDbscriptId == null || gDeployDbscriptId == "") {
+                return;
+            }
+            doQueryDetail(gDeployDbscriptId);
+            doQuery();
         }
     </script>
 </head>
@@ -599,6 +818,12 @@
                     <option value="1">执行成功</option>
                     <option value="-1">执行失败</option>
                 </select>
+                <br>
+                是否需要执行的选项：
+                <select id="showExcuteOption">
+                    <option value="">全部</option>
+                    <option value="yes">只显示需要执行的脚本</option>
+                </select>
             </td>
             <td>执行报错原因(模糊查询)：<br><textarea id="failuremsg" cols="50" rows="4"></textarea></td>
             <td><input type="button" value="查询" onclick="doQuery();"></td>
@@ -616,65 +841,92 @@
         </tr>
     </table>
 
-    <div id="divDetailInfo" style="position: absolute; width: 1000px; height: 570px; border: 1px solid #08575B;top: 50px;left: 10px; background:#FFF; color:#000; z-index: 100; display:none">
+    <div id="divDetailInfo" style="position: absolute; width: 1000px; height: 600px; border: 1px solid #08575B;top: 50px;left: 10px; background:#FFF; color:#000; z-index: 100; overflow:auto; display:none">
         <table align="center" width="100%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
             <tr><td colspan="2" align="center" bgcolor="#0000ff" style="color:#FFF">数据库脚本发布申请详细内容</td></tr>
             <tr>
-                <td width=>申请记录ID:</td>
+                <td bgcolor='#ffe4c4'>申请记录ID:</td>
                 <td id="detail_deploydbscriptid">&nbsp;</td>
             </tr>
             <tr>
-                <td>数据库环境:</td>
+                <td bgcolor='#ffe4c4'>数据库环境:</td>
                 <td id="detail_belongDesc">&nbsp;</td>
             </tr>
             <tr>
-                <td><font id="fntDblinkDesc">数据库连接的描述:</font></td>
-                <td id="detail_dblinkDesc">&nbsp;</td>
+                <td bgcolor='#ffe4c4'><font id="fntDblinkDesc">数据库连接的描述:</font></td>
+                <td>
+                    <div id="detail_dblinkDesc">&nbsp;</div>
+                    <div id="detail_dblinkDesc_desc">&nbsp;</div>
+                </td>
             </tr>
             <tr>
-                <td>项目名称:</td>
+                <td bgcolor='#ffe4c4'>项目名称:</td>
                 <td id="detail_projectName">&nbsp;</td>
             </tr>
             <tr>
-                <td>模块名称:</td>
+                <td bgcolor='#ffe4c4'>模块名称:</td>
                 <td id="detail_moduleName">&nbsp;</td>
             </tr>
             <tr>
-                <td>脚本语句:</td>
+                <td bgcolor='#ffe4c4'>脚本语句:</td>
                 <td><textarea id="detail_dbscript" cols="110" rows="10" readonly></textarea></td>
             </tr>
             <tr>
-                <td>附加描述:</td>
+                <td bgcolor='#ffe4c4'>附加描述:</td>
                 <td><textarea id="detail_description" cols="110" rows="4" readonly></textarea></td>
             </tr>
             <tr>
-                <td>申请人:</td>
+                <td bgcolor='#ffe4c4'>申请人:</td>
                 <td id="detail_applier">&nbsp;</td>
             </tr>
             <tr>
-                <td>申请时间:</td>
+                <td bgcolor='#ffe4c4'>申请时间:</td>
                 <td id="detail_formatedCreateTime">&nbsp;</td>
             </tr>
             <tr>
-                <td>执行人:</td>
+                <td bgcolor='#ffe4c4'>执行人:</td>
                 <td id="detail_executor">&nbsp;</td>
             </tr>
             <tr>
-                <td>执行时间:</td>
+                <td bgcolor='#ffe4c4'>执行时间:</td>
                 <td id="detail_formatedExecuteTime">&nbsp;</td>
             </tr>
             <tr>
-                <td>执行状态:</td>
+                <td bgcolor='#ffe4c4'>执行状态:</td>
                 <td id="detail_executeStatusDesc">&nbsp;</td>
             </tr>
             <tr>
-                <td>执行报错信息:</td>
+                <td bgcolor='#ffe4c4'>执行报错信息:</td>
                 <td><textarea id="detail_failuremsg" cols="110" rows="3" readonly></textarea></td>
+            </tr>
+            <tr>
+                <td bgcolor='#ffe4c4'>已经执行的sql:</td>
+                <td><textarea id="detail_executedSql" cols="110" rows="5" readonly></textarea></td>
+            </tr>
+            <tr id="tr_detail_unexecutedSql">
+                <td bgcolor='#ffe4c4'>未经执行的sql:</td>
+                <td><textarea id="detail_unexecutedSql" cols="110" rows="5" readonly></textarea></td>
+            </tr>
+            <tr id="tr_forcesubmit" style="display:none">
+                <td><font color="red">是否强制提交危险语句：</font></td>
+                <td colspan="3">
+                    <select id="forcetodoit">
+                        <option value="yes">yes</option>
+                        <option value="no" selected>no</option>
+                    </select>
+                </td>
+            </tr>
+            <tr id="tr_detail_isabandoned">
+                <td bgcolor="#ffe4c4">是否已经放弃未执行的sql:</td>
+                <td id="detail_isabandoned">&nbsp;</td>
             </tr>
         </table>
         <table width="100%">
             <tr>
                 <td align="right">
+                    <input id="btnRefreshContent" type="button" value="刷新页面" onclick="doQueryDetailAgain();">
+                    <input id="btnAbandonDeployDbScript" type="button" value="放弃发布脚本" onclick="doAbandonDeployDbscript();">
+                    <input id="btnApplyRedeployDbScript" type="button" value="申请重新发布脚本" onclick="doApplyRedeployDbscript();">
                     <input id="btnDeployDbScript" type="button" value="发布脚本" onclick="doDeployDbscript();">
                     <input type="button" value="关闭" onclick="doCloseDiv();">
                 </td>

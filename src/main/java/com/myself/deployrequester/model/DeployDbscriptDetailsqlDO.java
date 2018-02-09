@@ -11,6 +11,8 @@ public class DeployDbscriptDetailsqlDO {
 
     private String deploydbscriptid;
 
+    private Short subsqlseqno;
+
     private String subsql;
 
     private Short executestatus;
@@ -43,6 +45,14 @@ public class DeployDbscriptDetailsqlDO {
 
     public void setDeploydbscriptid(String deploydbscriptid) {
         this.deploydbscriptid = deploydbscriptid;
+    }
+
+    public Short getSubsqlseqno() {
+        return subsqlseqno;
+    }
+
+    public void setSubsqlseqno(Short subsqlseqno) {
+        this.subsqlseqno = subsqlseqno;
     }
 
     public String getSubsql() {

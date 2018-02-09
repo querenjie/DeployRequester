@@ -236,6 +236,22 @@ public class CommonDataService {
     }
 
     /**
+     * 判断此ip地址是否可以提交数据库脚本申请
+     * @param ipAddr
+     * @return
+     */
+    public boolean canApplyDbscript(String ipAddr) {
+        //这个和访问应用发布的权限一样，所以借用一下。
+        if (ConfigData.ALLOWED_IP_CONFIG_USE_DEPLOY_URL == null) {
+            return false;
+        }
+        if (ConfigData.ALLOWED_IP_CONFIG_USE_DEPLOY_URL.contains(ipAddr)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 判断此发布申请是否已经锁定.锁定就是禁止发布。
      * @param projectId
      * @param moduleId

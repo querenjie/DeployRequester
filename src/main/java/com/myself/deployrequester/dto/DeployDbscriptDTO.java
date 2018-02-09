@@ -21,6 +21,10 @@ public class DeployDbscriptDTO {
     private Short executestatus = 0;        //执行是否成功。0：未执行；1：成功；-1：失败
     private String failuremsg;
     private Short belong;
+    private Short isabandoned;
+    private String sqlmd5;
+
+    private String forcetodoit;     //yes表示强制提交这个申请，尽管里面有危险的sql
 
     public String getDeploydbscriptid() {
         return deploydbscriptid;
@@ -140,5 +144,29 @@ public class DeployDbscriptDTO {
 
     public void setBelong(Short belong) {
         this.belong = belong;
+    }
+
+    public Short getIsabandoned() {
+        return isabandoned;
+    }
+
+    public void setIsabandoned(Short isabandoned) {
+        this.isabandoned = isabandoned;
+    }
+
+    public String getForcetodoit() {
+        return forcetodoit;
+    }
+
+    public void setForcetodoit(String forcetodoit) {
+        this.forcetodoit = forcetodoit;
+    }
+
+    public String getSqlmd5() {
+        return sqlmd5;
+    }
+
+    public void setSqlmd5(String sqlmd5) {
+        this.sqlmd5 = sqlmd5;
     }
 }

@@ -17,11 +17,13 @@
     <result column="executestatus" property="executestatus" jdbcType="NUMERIC" />
     <result column="failuremsg" property="failuremsg" jdbcType="VARCHAR" />
     <result column="belong" property="belong" jdbcType="NUMERIC" />
+    <result column="isabandoned" property="isabandoned" jdbcType="NUMERIC" />
+    <result column="sqlmd5" property="sqlmd5" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     deploydbscriptid, deploydbserversid, projectid, moduleid, dbscript, description, 
     applier, applierip, createtime, executor, executorip, executetime, executestatus, 
-    failuremsg, belong
+    failuremsg, belong, isabandoned, sqlmd5
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -39,14 +41,14 @@
       description, applier, applierip, 
       createtime, executor, executorip, 
       executetime, executestatus, failuremsg,
-      belong
+      belong, isabandoned, sqlmd5
       )
     values (#{deploydbscriptid,jdbcType=VARCHAR}, #{deploydbserversid,jdbcType=VARCHAR}, 
       #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC}, #{dbscript,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{applier,jdbcType=VARCHAR}, #{applierip,jdbcType=VARCHAR}, 
       #{createtime,jdbcType=TIMESTAMP}, #{executor,jdbcType=VARCHAR}, #{executorip,jdbcType=VARCHAR}, 
       #{executetime,jdbcType=TIMESTAMP}, #{executestatus,jdbcType=NUMERIC}, #{failuremsg,jdbcType=VARCHAR},
-      #{belong,jdbcType=NUMERIC}
+      #{belong,jdbcType=NUMERIC}, #{isabandoned,jdbcType=NUMERIC}, #{sqlmd5,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
@@ -97,6 +99,12 @@
       <if test="belong != null" >
         belong,
       </if>
+      <if test="isabandoned != null">
+        isabandoned,
+      </if>
+      <if test="sqlmd5 != null">
+        sqlmd5,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbscriptid != null" >
@@ -143,6 +151,12 @@
       </if>
       <if test="belong != null" >
         #{belong,jdbcType=NUMERIC},
+      </if>
+      <if test="isabandoned != null">
+        #{isabandoned,jdbcType=NUMERIC},
+      </if>
+      <if test="sqlmd5 != null">
+        #{sqlmd5,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -191,6 +205,12 @@
       <if test="belong != null" >
         belong = #{belong,jdbcType=NUMERIC},
       </if>
+      <if test="isabandoned != null">
+        isabandoned = #{isabandoned,jdbcType=NUMERIC},
+      </if>
+      <if test="sqlmd5 != null">
+        sqlmd5 = #{sqlmd5,jdbcType=VARCHAR},
+      </if>
     </set>
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
@@ -208,15 +228,17 @@
       executorip = #{executorip,jdbcType=VARCHAR},
       executetime = #{executetime,jdbcType=TIMESTAMP},
       executestatus = #{executestatus,jdbcType=NUMERIC},
-      failuremsg = #{failuremsg,jdbcType=VARCHAR}
+      failuremsg = #{failuremsg,jdbcType=VARCHAR},
       belong = #{belong,jdbcType=NUMERIC},
+      isabandoned = #{isabandoned,jdbcType=NUMERIC},
+      sqlmd5 = #{sqlmd5,jdbcType=VARCHAR}
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
 
   <select id="selectByQueryDbscriptPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.QueryDbscriptPO">
     select
     <include refid="Base_Column_List" />
-    from t_deploy_dbscript
+    from t_deploy_dbscript a
     where 1 = 1
     <if test="projectid != null">
       and projectid = #{projectid}
@@ -225,7 +247,16 @@
       and moduleid = #{moduleid}
     </if>
     <if test="dbscript != null and dbscript != ''">
-      and lower(dbscript) like concat('%',lower(#{dbscript}),'%')
+      and
+      (
+        lower(dbscript) like concat('%',lower(#{dbscript}),'%')
+        OR
+        deploydbscriptid IN (
+          SELECT deploydbscriptid FROM t_deploy_dbscript_detailsql b
+          WHERE LOWER (b.subsql) LIKE concat ('%', LOWER(#{dbscript}), '%')
+          AND b.deploydbscriptid = a.deploydbscriptid
+        )
+      )
     </if>
     <if test="description != null and description != ''">
       and lower(description) like concat('%', lower(#{description}), '%')
@@ -271,6 +302,18 @@
     <if test="belong != null">
       and belong = #{belong}
     </if>
+    <if test="isabandoned != null">
+      and isabandoned = #{isabandoned}
+    </if>
+    <if test="sqlmd5 != null">
+      and sqlmd5 = #{sqlmd5}
+    </if>
+    <if test='showExcuteOption != null and showExcuteOption == "yes"'>
+      <![CDATA[
+      and isabandoned = 0 and executestatus <> 1
+      ]]>
+    </if>
 
+    ORDER BY createtime DESC
   </select>
 </mapper>

@@ -25,4 +25,6 @@ public interface DeployDbserversDAO {
     int update1(DeployDbserversPO deployDbserversPO);
 
     List<DeployDbserversPO> selectByDeployDbserversPO(DeployDbserversPO deployDbserversPO);
+
+    List<DeployDbserversPO> selectAll();
 }

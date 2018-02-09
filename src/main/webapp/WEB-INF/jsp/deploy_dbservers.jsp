@@ -56,7 +56,9 @@
             );
 
             setInterval("doRetrieveMsg()", 3000);
+            query();
         });
+
 
         function doRetrieveMsg() {
             retrieveNotice();
@@ -135,6 +137,7 @@
             var password = $("#password").val();
             var needrecpwd = $('input[name="needrecpwd"]:checked').val();
             var dbname = $("#dbname").val();
+            var issyncdb = $("#issyncdb").val();
 
             var errorMsg = "";
             if ($.trim(belong) == "") {
@@ -177,6 +180,7 @@
             deployDbserversDTO.password = password;
             deployDbserversDTO.needrecpwd = needrecpwd;
             deployDbserversDTO.dbname = dbname;
+            deployDbserversDTO.issyncdb = issyncdb;
 
             $("#btnSave").attr("disabled", true);
             $.ajax({
@@ -189,8 +193,13 @@
                 success:function(resultData){
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
+                            if (resultData.msg == "failed") {
+                                alert(resultData.data[0]);
+                                $("#btnSave").removeAttr("disabled");
+                                return;
+                            }
                             if (resultData.data[0] == 1) {
-                                query("save");
+                                queryAll();
 //                                alert("保存成功!");
                             } else {
                                 alert(resultData.data[0]);
@@ -245,12 +254,14 @@
             return true;
         }
 
-        function query(action) {
+        function query() {
             var belong = $("#belong").val();
             var ip = $("#ip").val();
             var port = $("#port").val();
             var username = $("#username").val();
             var dbname = $("#dbname").val();
+            var linkname = $("#linkname").val();
+            var linknamedesc = $("#linknamedesc").val();
 
             var deployDbserversDTO = {};
             deployDbserversDTO.belong = belong;
@@ -258,6 +269,8 @@
             deployDbserversDTO.port = port;
             deployDbserversDTO.username = username;
             deployDbserversDTO.dbname = dbname;
+            deployDbserversDTO.linkname = linkname;
+            deployDbserversDTO.linknamedesc = linknamedesc;
 
             $.ajax({
                 type: "POST",
@@ -271,12 +284,8 @@
                         if (resultData.data != null && resultData.data.length > 0) {
                             var deployDbserversList = resultData.data[0];
                             var tableHtml = "";
+                            $("#processAction").html("查询结果如下");
                             if (deployDbserversList != null && deployDbserversList.length > 0) {
-                                if (action == "save") {
-                                    $("#processAction").html("该记录已经保存到系统中");
-                                } else {
-                                    $("#processAction").html("查询结果如下");
-                                }
                                 tableHtml += "<tr bgcolor='#ff8c00'>";
                                 tableHtml += "<td align='center'>环境</td>";
                                 tableHtml += "<td align='center'>数据库链接名</td>";
@@ -288,7 +297,13 @@
                                 tableHtml += "</tr>";
                                 $.each(deployDbserversList, function(index) {
                                     var deployDbservers = deployDbserversList[index];
-                                    tableHtml += "<tr>";
+                                    var bgColor = "";
+                                    if (deployDbservers.issyncdb == 1) {
+                                        bgColor = "yellow";
+                                    } else {
+                                        bgColor = "";
+                                    }
+                                    tableHtml += "<tr bgcolor='" + bgColor + "'>";
                                     tableHtml += "<td>" + deployDbservers.belongName + "</td>";
                                     tableHtml += "<td>" + deployDbservers.linkname + "</td>";
                                     tableHtml += "<td>" + deployDbservers.ip + "</td>";
@@ -328,10 +343,11 @@
                 success:function(resultData){
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
-                            var deleteCount = resultData.data[0];
-                            if (deleteCount > 0) {
-                                query();
+                            if (resultData.msg == "failed") {
+                                alert(resultData.data[0]);
+                                return;
                             }
+                            query();
                         }
                     }
                 },
@@ -359,12 +375,13 @@
                             if (deployDbserver != null) {
                                 $("#belong").val(deployDbserver.belong);
                                 $("#linkname").val(deployDbserver.linkname);
-                                $("#linknamedesc").html(deployDbserver.linknamedesc);
+                                $("#linknamedesc").val(deployDbserver.linknamedesc);
                                 $("#ip").val(deployDbserver.ip);
                                 $("#port").val(deployDbserver.port);
                                 $("#username").val(deployDbserver.username);
                                 $("#password").val(deployDbserver.password);
                                 $("#dbname").val(deployDbserver.dbname);
+                                $("#issyncdb").val(deployDbserver.issyncdb);
                             }
                         } else {
                             alert("找不到记录!");
@@ -378,8 +395,8 @@
         }
 
         function resetQueryConditions() {
-
             $("#formEdit")[0].reset();
+            $("#linknamedesc").val("");
         }
 
         function judgeCanDeployDbscript() {
@@ -424,7 +441,65 @@
                 }
             });
         }
-        
+
+        function queryAll() {
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbservers/queryAll",
+                async: false,       //false:同步
+                data:"",//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            var deployDbserversList = resultData.data[0];
+                            var tableHtml = "";
+                            if (deployDbserversList != null && deployDbserversList.length > 0) {
+                                $("#processAction").html("该记录已经保存到系统中");
+                                tableHtml += "<tr bgcolor='#ff8c00'>";
+                                tableHtml += "<td align='center'>环境</td>";
+                                tableHtml += "<td align='center'>数据库链接名</td>";
+                                tableHtml += "<td align='center'>ip</td>";
+                                tableHtml += "<td align='center'>端口</td>";
+                                tableHtml += "<td align='center'>用户名</td>";
+                                tableHtml += "<td align='center'>数据库名称</td>";
+                                tableHtml += "<td align='center'>操作</td>";
+                                tableHtml += "</tr>";
+                                $.each(deployDbserversList, function(index) {
+                                    var deployDbservers = deployDbserversList[index];
+                                    var bgColor = "";
+                                    if (deployDbservers.issyncdb == 1) {
+                                        bgColor = "yellow";
+                                    } else {
+                                        bgColor = "";
+                                    }
+                                    tableHtml += "<tr bgcolor='" + bgColor + "'>";
+                                    tableHtml += "<td>" + deployDbservers.belongName + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.linkname + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.ip + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.port + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.username + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.dbname + "</td>";
+                                    tableHtml += "<td>";
+                                    tableHtml += "<input type='button' value='删除' onclick=\"deleteById('" + deployDbservers.deploydbserversid + "');\">";
+                                    tableHtml += "<input type='button' value='编辑' onclick=\"getById('" + deployDbservers.deploydbserversid + "');\">";
+                                    tableHtml += "</td>";
+                                    tableHtml += "</tr>";
+                                });
+                            } else {
+                                tableHtml = "";
+                            }
+                            $("#tblResult").html(tableHtml);
+                        }
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
     </script>
 </head>
 <body>
@@ -460,7 +535,7 @@
         </tr>
         <tr>
             <td><font color="red">数据库链接名：</font></td>
-            <td><input type="text" id="linkname"></td>
+            <td><input type="text" id="linkname" size="50"></td>
         </tr>
         <tr>
             <td>数据库链接描述：</td>
@@ -494,6 +569,16 @@
         <tr>
             <td><font color="red">数据库名称：</font></td>
             <td><input type="dbname" id="dbname" maxlength="100" size="40">(这是大小写敏感的)</td>
+        </tr>
+        <tr>
+            <td><font color="red">是否为同步库：</font></td>
+            <td>
+                <select id="issyncdb">
+                    <option value="0">否</option>
+                    <option value="1">是</option>
+                </select>
+                <br>一般情况下只有报表库才是同步库。针对各个业务库中的表结构变更要同步到同步库。
+            </td>
         </tr>
         <tr>
             <td colspan="2" align="right">

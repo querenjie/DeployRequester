@@ -208,6 +208,7 @@
             var dbscript = $("#dbscript").val();
             var description = $("#description").val();
             var applier = $("#applier").val();
+            var forcetodoit = $("#forcetodoit").val();
 
             var errorMsg = "";
             if ($.trim(belong) == "") {
@@ -237,6 +238,7 @@
             DeployDbscriptDTO.dbscript = dbscript;
             DeployDbscriptDTO.description = description;
             DeployDbscriptDTO.applier = applier;
+            DeployDbscriptDTO.forcetodoit = forcetodoit;
 
             $("#btnSave").attr("disabled", true);
             $.ajax({
@@ -249,10 +251,20 @@
                 success:function(resultData){
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
+                            if (resultData.msg == "failed") {
+                                alert(resultData.data[0]);
+                                $("#btnSave").removeAttr("disabled");
+                                return;
+                            }
                             if (resultData.data[0] == 1) {
                                 alert("新增记录成功!");
+                                $("#forcetodoit").val("no");
+                                $("#tr_forcesubmit").hide();
                             } else {
                                 alert(resultData.data[0]);
+                                if (resultData.msg == "dangerous statement in it") {
+                                    $("#tr_forcesubmit").show();
+                                }
                             }
                             $("#btnSave").removeAttr("disabled");
                         }
@@ -282,6 +294,7 @@
 </head>
 <body>
 <font color="blue">建议使用chrome浏览器，在其他浏览器上运行有可能不正常。(chrome is a strong recommendation, others may cause malfunction.)</font>
+
 <div class="remodal-bg">
     <a id="callModal" href="#" data-remodal-target="modal5" style="visibility: hidden;">Call</a>
 </div>
@@ -296,11 +309,11 @@
 <div id="target"></div>
 
 <div><font color="red" id="serverStatus" size="5"></font> </div>
-<table align="center" width="50%">
-    <tr><td align="center"><font size="5">postgres数据库脚本上线申请</font></td></tr>
+<table align="center" width="60%">
+    <tr><td align="center"><font size="5">postgres数据库脚本上线申请</font><a href="<%=basePath%>resources/manual/manual_1.doc">下载操作手册</a></td></tr>
 </table>
 <form id="formEdit" name="formEdit">
-    <table id="tblEdit" align="center" width="50%" border="1">
+    <table id="tblEdit" align="center" width="60%" border="1">
         <tr>
             <td colspan="2">
                 <font color="red">目标数据库环境：</font>
@@ -322,12 +335,21 @@
             </td>
         </tr>
         <tr>
-            <td><font color="red">脚本语句：</font></td>
-            <td colspan="3"><textarea type="text" id="dbscript" cols="95" rows="20"></textarea></td>
+            <td width="170"><font color="red">脚本语句：</font></td>
+            <td colspan="3"><textarea id="dbscript" cols="100" rows="20"></textarea></td>
+        </tr>
+        <tr id="tr_forcesubmit" style="display:none">
+            <td><font color="red">是否强制提交危险语句：</font></td>
+            <td colspan="3">
+                <select id="forcetodoit">
+                    <option value="yes">yes</option>
+                    <option value="no" selected>no</option>
+                </select>
+            </td>
         </tr>
         <tr>
             <td>附加描述：</td>
-            <td colspan="3"><textarea id="description" cols="95" rows="10"></textarea></td>
+            <td colspan="3"><textarea id="description" cols="100" rows="10"></textarea></td>
         </tr>
         <tr>
             <td><font color="red">申请者：</font></td>
@@ -342,7 +364,6 @@
         <tr><td><b>解释：</b></td></tr>
         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>脚本语句可以由多句DDL或DML语句组成，但必须保证这组语句都是操作同一个数据库的，否则执行过程中会报错。对于操作不同数据库的语句就应该单独另建新的记录。</li></td></tr>
         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>附加描述可以为空，通常用来简单描述一下脚本的用处，对应的什么需求、为何要有这个脚本等内容。</li></td></tr>
-        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>提交申请按钮的作用永远是向数据库中新插入记录。如果对同一条信息点击2次这个按钮就意味着有2条同样的记录进入库中，可以通过查询看到和删除多余的记录。提交过申请之后负责发布脚本的人员能看到你的申请并采取人工操作的方式发布脚本。您可以在查询页面中看到申请和发布的情况。</li></td></tr>
     </table>
 </form>
 <br>

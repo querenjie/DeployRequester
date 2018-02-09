@@ -12,9 +12,13 @@
     <result column="password" property="password" jdbcType="VARCHAR" />
     <result column="needrecpwd" property="needrecpwd" jdbcType="NUMERIC" />
     <result column="dbname" property="dbname" jdbcType="VARCHAR" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="createrip" property="createrip" jdbcType="VARCHAR" />
+    <result column="issyncdb" property="issyncdb" jdbcType="NUMERIC" />
   </resultMap>
   <sql id="Base_Column_List" >
-    deploydbserversid, linkname, linknamedesc, ip, port, username, belong, password, needrecpwd, dbname
+    deploydbserversid, linkname, linknamedesc, ip, port, username, belong, password, needrecpwd, dbname, createtime, creater, createrip, issyncdb
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -29,11 +33,11 @@
   <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     insert into t_deploy_dbservers (deploydbserversid, linkname, linknamedesc, ip, port,
       username, belong, password, 
-      needrecpwd, dbname)
+      needrecpwd, dbname, createtime, creater, createrip, issyncdb)
     values (#{deploydbserversid,jdbcType=VARCHAR}, #{linkname,jdbcType=VARCHAR}, #{linknamedesc,jdbcType=VARCHAR},
       #{ip,jdbcType=VARCHAR}, #{port,jdbcType=NUMERIC},
       #{username,jdbcType=VARCHAR}, #{belong,jdbcType=NUMERIC}, #{password,jdbcType=VARCHAR}, 
-      #{needrecpwd,jdbcType=NUMERIC}, #{dbname,jdbcType=VARCHAR})
+      #{needrecpwd,jdbcType=NUMERIC}, #{dbname,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{creater,jdbcType=VARCHAR}, #{createrip,jdbcType=VARCHAR}, #{issyncdb,jdbcType=NUMERIC})
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     insert into t_deploy_dbservers
@@ -68,6 +72,18 @@
       <if test="dbname != null" >
         dbname,
       </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createrip != null" >
+        createrip,
+      </if>
+      <if test="issyncdb != null" >
+        issyncdb,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbserversid != null" >
@@ -99,6 +115,18 @@
       </if>
       <if test="dbname != null" >
         #{dbname,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createrip != null" >
+        #{createrip,jdbcType=VARCHAR},
+      </if>
+      <if test="issyncdb != null" >
+        #{issyncdb,jdbcType=NUMERIC},
       </if>
     </trim>
   </insert>
@@ -132,6 +160,18 @@
       <if test="dbname != null" >
         dbname = #{dbname,jdbcType=VARCHAR},
       </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createrip != null" >
+        createrip = #{createrip,jdbcType=VARCHAR},
+      </if>
+      <if test="issyncdb != null" >
+        issyncdb = #{issyncdb,jdbcType=NUMERIC},
+      </if>
     </set>
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </update>
@@ -145,7 +185,11 @@
       belong = #{belong,jdbcType=NUMERIC},
       password = #{password,jdbcType=VARCHAR},
       needrecpwd = #{needrecpwd,jdbcType=NUMERIC},
-      dbname = #{dbname,jdbcType=VARCHAR}
+      dbname = #{dbname,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      creater = #{creater,jdbcType=VARCHAR},
+      createrip = #{createrip,jdbcType=VARCHAR},
+      issyncdb = #{issyncdb,jdbcType=NUMERIC}
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </update>
 
@@ -183,10 +227,10 @@
       and belong = #{belong}
     </if>
     <if test="linkname != null and linkname != '' ">
-      and linkname = #{linkname}
+      and lower(linkname) like concat('%',lower(#{linkname}),'%')
     </if>
     <if test="linknamedesc != null and linknamedesc != '' ">
-      and linknamedesc = #{linknamedesc}
+      and lower(linknamedesc) like concat('%',lower(#{linknamedesc}),'%')
     </if>
     <if test="ip != null and ip != '' ">
       and ip = #{ip}
@@ -201,5 +245,13 @@
       and dbname = #{dbname}
     </if>
     order by belong, ip
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbservers
+    where 1 = 1
+    order by createtime desc
   </select>
 </mapper>

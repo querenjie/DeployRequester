@@ -171,7 +171,24 @@ public class DeployDbserversService {
         }
         DeployDbservers deployDbservers = new DeployDbservers();
         BeanUtils.copyProperties(deployDbserversPO, deployDbservers, true);
+        fillDeployDbservers(deployDbservers);
+
         return deployDbservers;
+    }
+
+    public List<DeployDbservers> selectAll() throws Exception {
+        List<DeployDbserversPO> deployDbserversPOList = deployDbserversDAO.selectAll();
+        if (deployDbserversPOList == null) {
+            return null;
+        }
+        List<DeployDbservers> deployDbserversList = new ArrayList<DeployDbservers>();
+        for (DeployDbserversPO deployDbserversPO1 : deployDbserversPOList) {
+            DeployDbservers deployDbservers = new DeployDbservers();
+            BeanUtils.copyProperties(deployDbserversPO1, deployDbservers, true);
+            fillDeployDbservers(deployDbservers);
+            deployDbserversList.add(deployDbservers);
+        }
+        return deployDbserversList;
     }
 
     private void fillDeployDbservers(DeployDbservers deployDbservers) {

@@ -290,22 +290,6 @@
       <version>${commons.logging.version}</version>
     </dependency>
 
-    <!--以下内容和在日志中显示mybatis sql有关 -->
-    <dependency>
-      <groupId>org.bgee.log4jdbc-log4j2</groupId>
-      <artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
-      <version>1.16</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.13</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.13</version>
-    </dependency>
   </dependencies>
 
 

@@ -1,20 +1,14 @@
 package com.myself.deployrequester.service;
 
-import com.myself.deployrequester.biz.config.sharedata.DBExecuteStatusEnum;
-import com.myself.deployrequester.biz.config.sharedata.DeployStatusForProdEnvEnum;
-import com.myself.deployrequester.biz.config.sharedata.EnvOfDBEnum;
-import com.myself.deployrequester.biz.config.sharedata.TestStatusEnum;
+import com.myself.deployrequester.biz.config.sharedata.*;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.dao.DeployDbscriptDAO;
 import com.myself.deployrequester.dao.DeployDbscriptDetailsqlDAO;
 import com.myself.deployrequester.dao.DeployDbserversDAO;
-import com.myself.deployrequester.model.DeployDbscriptDO;
-import com.myself.deployrequester.model.DeployRequesterDO;
-import com.myself.deployrequester.model.QueryDbscriptDO;
-import com.myself.deployrequester.po.DeployDbscriptPO;
-import com.myself.deployrequester.po.DeployDbserversPO;
-import com.myself.deployrequester.po.DeployRequesterPO;
-import com.myself.deployrequester.po.QueryDbscriptPO;
+import com.myself.deployrequester.model.*;
+import com.myself.deployrequester.po.*;
+import com.myself.deployrequester.util.JdbcUtilForPostgres;
+import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -42,6 +36,7 @@ public class DeployDBScriptService extends CommonDataService {
     private DeployDbserversDAO deployDbserversDAO;
     @Autowired
     private DeployDbscriptDetailsqlDAO deployDbscriptDetailsqlDAO;
+
 
     public int insert(DeployDbscriptDO deployDbscriptDO) throws Exception {
         DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
@@ -87,6 +82,7 @@ public class DeployDBScriptService extends CommonDataService {
         DeployDbscript deployDbscript = new DeployDbscript();
         BeanUtils.copyProperties(deployDbscriptDO, deployDbscript, false);
         fillDeployDbscript(deployDbscript);
+
         return deployDbscript;
     }
 
@@ -108,19 +104,121 @@ public class DeployDBScriptService extends CommonDataService {
      * @return
      * @throws Exception
      */
-    public boolean deployDbscript(DeployDbscriptDO deployDbscriptDO) throws Exception {
+    public String deployDbscript(DeployDbscriptDO deployDbscriptDO) {
         if (StringUtils.isBlank(deployDbscriptDO.getDbscript())) {
             //如果脚本内容为空则表示执行失败
-            return false;
+            return "脚本内容为空。";
         }
+        DeployDbserversPO deployDbserversPO = deployDbserversDAO.selectByPrimaryKey(deployDbscriptDO.getDeploydbserversid());
+        if (deployDbserversPO == null) {
+            return "找不到关联的数据库连接信息";
+        }
+
         deployDbscriptDO.setExecutetime(new Date());
 
+        List<DeployDbscriptDetailsqlPO> deployDbscriptDetailsqlPOList = deployDbscriptDetailsqlDAO.selectUnexecutedByDeployDbscriptId(deployDbscriptDO.getDeploydbscriptid());
+        if (deployDbscriptDetailsqlPOList == null || deployDbscriptDetailsqlPOList.size() == 0) {
+            DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
+            BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
+            deployDbscriptPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+            deployDbscriptPO.setExecutetime(new Date());
+            deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+            return "脚本内容为空，发布脚本的过程直接归类为成功。";
+        }
+
+        if (deployDbscriptDO.getExecutestatus().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()) {
+            //如果是其他线程正在执行此脚本，则本线程退出。
+            return "其他线程正在执行此脚本,本线程退出。";
+        }
+        if (deployDbscriptDO.getExecutestatus().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+            //如果此脚本早已执行成功，则本线程退出。
+            return "脚本早已执行成功,本线程退出。";
+        }
 
 
+        JdbcUtilForPostgres jdbcUtilForPostgres = new JdbcUtilForPostgres();
+        String ip = deployDbserversPO.getIp();
+        Integer port = deployDbserversPO.getPort();
+        String username = deployDbserversPO.getUsername();
+        String password = deployDbserversPO.getPassword();
+        String dbname = deployDbserversPO.getDbname();
+
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = jdbcUtilForPostgres.getConn(ip, port, username, password, dbname);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "数据库连接出现问题", e);
+            return "数据库连接出现问题:" + e;
+        }
+        if (conn != null) {
+            try {
+                stmt = conn.createStatement();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Log4jUtil.error(logger, "创建数据库statment出现问题", e);
+                return "创建数据库statment出现问题:" + e;
+            }
+        }
+
+        //更新申请记录的执行状态
+        DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
+        BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
+        deployDbscriptPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTING.getCode())));
+        deployDbscriptPO.setExecutetime(new Date());
+        deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
 
 
+        if (conn != null && stmt != null) {
+            for (DeployDbscriptDetailsqlPO deployDbscriptDetailsqlPO : deployDbscriptDetailsqlPOList) {
+                String sql = deployDbscriptDetailsqlPO.getSubsql();
+                deployDbscriptDetailsqlPO.setExecutorip(deployDbscriptDO.getExecutorip());
+                deployDbscriptDetailsqlPO.setExecutor(deployDbscriptDO.getExecutor());
+                deployDbscriptDetailsqlPO.setExecutetime(new Date());
+                try {
+                    jdbcUtilForPostgres.executeSql(sql, conn, stmt);
+                    deployDbscriptDetailsqlPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+                    deployDbscriptDetailsqlDAO.updateByPrimaryKeySelective(deployDbscriptDetailsqlPO);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    try {
+                        conn.close();
+                        stmt.close();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                    Log4jUtil.error(logger, "执行sql[" + sql + "]有问题：", e);
 
-        return false;
+                    deployDbscriptDetailsqlPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_FAILED.getCode())));
+                    deployDbscriptDetailsqlDAO.updateByPrimaryKeySelective(deployDbscriptDetailsqlPO);
+                    deployDbscriptPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_FAILED.getCode())));
+                    deployDbscriptPO.setFailuremsg("执行sql[" + sql + "]有问题：" + e);
+                    deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+
+                    return "执行sql[" + sql + "]有问题：" + e;
+                }
+            }
+        }
+
+        deployDbscriptPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+        deployDbscriptPO.setFailuremsg("");
+        deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+
+
+        return "脚本执行成功!";
+    }
+
+    /**
+     * 修改脚本申请记录的放弃标志
+     * @param deployDbscriptDO
+     * @return
+     */
+    public int modifiyIsabandoned(DeployDbscriptDO deployDbscriptDO) throws Exception {
+        DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
+        BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
+        int updateSuccessCount = deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+        return updateSuccessCount;
     }
 
     private void fillDeployDbscript(DeployDbscript deployDbscript) {
@@ -146,11 +244,31 @@ public class DeployDBScriptService extends CommonDataService {
         formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
         deployDbscript.setFormatedCreateTime(formatter.format(deployDbscript.getCreatetime()));
         if (deployDbscript.getExecutetime() != null) {
-            deployDbscript.setFormatedExecutetime(formatter.format(deployDbscript.getExecutetime()));
+            deployDbscript.setFormatedExecuteTime(formatter.format(deployDbscript.getExecutetime()));
         }
 
         deployDbscript.setExecuteStatusDesc(DBExecuteStatusEnum.getDescByCode(deployDbscript.getExecutestatus().intValue()));
         deployDbscript.setBelongDesc(EnvOfDBEnum.getDescByCode(deployDbscript.getBelong().intValue()));
+
+        List<DeployDbscriptDetailsqlPO> executedDeployDbscriptDetailsqlList = deployDbscriptDetailsqlDAO.selectExecutedByDeployDbscriptId(deployDbscript.getDeploydbscriptid());
+        if (executedDeployDbscriptDetailsqlList != null) {
+            List<String> executedSqlList = new ArrayList<String>();
+            for (DeployDbscriptDetailsqlPO deployDbscriptDetailsqlPO : executedDeployDbscriptDetailsqlList) {
+                executedSqlList.add(deployDbscriptDetailsqlPO.getSubsql());
+            }
+            deployDbscript.setExecutedSqlList(executedSqlList);
+        }
+
+        List<DeployDbscriptDetailsqlPO> unexecutedDeployDbscriptDetialsqlList = deployDbscriptDetailsqlDAO.selectUnexecutedByDeployDbscriptId(deployDbscript.getDeploydbscriptid());
+        if (unexecutedDeployDbscriptDetialsqlList != null) {
+            List<String> unexecutedSqlList = new ArrayList<String>();
+            for (DeployDbscriptDetailsqlPO deployDbscriptDetailsqlPO : unexecutedDeployDbscriptDetialsqlList) {
+                unexecutedSqlList.add(deployDbscriptDetailsqlPO.getSubsql());
+            }
+            deployDbscript.setUnexecutedSqlList(unexecutedSqlList);
+        }
+
+        deployDbscript.setIsabandonedDesc(DBIsAbandonedEnum.getDescByCode(deployDbscript.getIsabandoned().intValue()));
         /********************补全deployDbscript中的属性值( end )*******************************/
 
     }

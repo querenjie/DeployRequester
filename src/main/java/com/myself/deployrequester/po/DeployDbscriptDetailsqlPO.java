@@ -8,6 +8,8 @@ public class DeployDbscriptDetailsqlPO {
 
     private String deploydbscriptid;
 
+    private Short subsqlseqno;
+
     private String subsql;
 
     private Short executestatus;
@@ -40,6 +42,14 @@ public class DeployDbscriptDetailsqlPO {
 
     public void setDeploydbscriptid(String deploydbscriptid) {
         this.deploydbscriptid = deploydbscriptid == null ? null : deploydbscriptid.trim();
+    }
+
+    public Short getSubsqlseqno() {
+        return subsqlseqno;
+    }
+
+    public void setSubsqlseqno(Short subsqlseqno) {
+        this.subsqlseqno = subsqlseqno;
     }
 
     public String getSubsql() {
