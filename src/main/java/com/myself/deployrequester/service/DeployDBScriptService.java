@@ -4,9 +4,11 @@ import com.myself.deployrequester.biz.config.sharedata.*;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.dao.DeployDbscriptDAO;
 import com.myself.deployrequester.dao.DeployDbscriptDetailsqlDAO;
+import com.myself.deployrequester.dao.DeployDbscriptSyncDetailsqlDAO;
 import com.myself.deployrequester.dao.DeployDbserversDAO;
 import com.myself.deployrequester.model.*;
 import com.myself.deployrequester.po.*;
+import com.myself.deployrequester.util.DBScriptUtil;
 import com.myself.deployrequester.util.JdbcUtilForPostgres;
 import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.reflect.BeanUtils;
@@ -36,6 +38,8 @@ public class DeployDBScriptService extends CommonDataService {
     private DeployDbserversDAO deployDbserversDAO;
     @Autowired
     private DeployDbscriptDetailsqlDAO deployDbscriptDetailsqlDAO;
+    @Autowired
+    private DeployDbscriptSyncDetailsqlDAO deployDbscriptSyncDetailsqlDAO;
 
 
     public int insert(DeployDbscriptDO deployDbscriptDO) throws Exception {
@@ -93,6 +97,7 @@ public class DeployDBScriptService extends CommonDataService {
      * @throws Exception
      */
     public int deleteById(String deployDbscriptId) throws Exception {
+        deployDbscriptSyncDetailsqlDAO.deleteByDeployDbscriptId(deployDbscriptId);
         deployDbscriptDetailsqlDAO.deleteByDeployDbscriptId(deployDbscriptId);
         int delRecCount = deployDbscriptDAO.deleteByPrimaryKey(deployDbscriptId);
         return delRecCount;
@@ -122,6 +127,7 @@ public class DeployDBScriptService extends CommonDataService {
             BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
             deployDbscriptPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
             deployDbscriptPO.setExecutetime(new Date());
+            deployDbscriptPO.setFailuremsg("");
             deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
             return "脚本内容为空，发布脚本的过程直接归类为成功。";
         }
@@ -152,15 +158,6 @@ public class DeployDBScriptService extends CommonDataService {
             Log4jUtil.error(logger, "数据库连接出现问题", e);
             return "数据库连接出现问题:" + e;
         }
-        if (conn != null) {
-            try {
-                stmt = conn.createStatement();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                Log4jUtil.error(logger, "创建数据库statment出现问题", e);
-                return "创建数据库statment出现问题:" + e;
-            }
-        }
 
         //更新申请记录的执行状态
         DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
@@ -170,24 +167,18 @@ public class DeployDBScriptService extends CommonDataService {
         deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
 
 
-        if (conn != null && stmt != null) {
+        if (conn != null) {
             for (DeployDbscriptDetailsqlPO deployDbscriptDetailsqlPO : deployDbscriptDetailsqlPOList) {
                 String sql = deployDbscriptDetailsqlPO.getSubsql();
                 deployDbscriptDetailsqlPO.setExecutorip(deployDbscriptDO.getExecutorip());
                 deployDbscriptDetailsqlPO.setExecutor(deployDbscriptDO.getExecutor());
                 deployDbscriptDetailsqlPO.setExecutetime(new Date());
                 try {
-                    jdbcUtilForPostgres.executeSql(sql, conn, stmt);
+                    jdbcUtilForPostgres.executeSql(sql, conn);
                     deployDbscriptDetailsqlPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
                     deployDbscriptDetailsqlDAO.updateByPrimaryKeySelective(deployDbscriptDetailsqlPO);
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    try {
-                        conn.close();
-                        stmt.close();
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
                     Log4jUtil.error(logger, "执行sql[" + sql + "]有问题：", e);
 
                     deployDbscriptDetailsqlPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_FAILED.getCode())));
@@ -196,7 +187,22 @@ public class DeployDBScriptService extends CommonDataService {
                     deployDbscriptPO.setFailuremsg("执行sql[" + sql + "]有问题：" + e);
                     deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
 
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
                     return "执行sql[" + sql + "]有问题：" + e;
+                }
+            }
+
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -204,8 +210,123 @@ public class DeployDBScriptService extends CommonDataService {
         deployDbscriptPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
         deployDbscriptPO.setFailuremsg("");
         deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+        return "脚本执行成功!";
+    }
+
+    /**
+     * 执行同步脚本并记录状态
+     * @param deployDbscriptDO
+     * @return
+     * @throws Exception
+     */
+    public String deployDbscriptForSync(DeployDbscriptDO deployDbscriptDO) {
+        DeployDbserversPO deployDbserversPO = deployDbserversDAO.selectByPrimaryKey(deployDbscriptDO.getDeploydbserversid());
+        if (deployDbserversPO == null) {
+            return "找不到关联的数据库连接信息";
+        }
+
+        deployDbscriptDO.setExecutetimeforsync(new Date());
+
+        List<DeployDbscriptSyncDetailsqlPO> deployDbscriptSyncDetailsqlPOList = deployDbscriptSyncDetailsqlDAO.selectUnexecutedByDeployDbscriptId(deployDbscriptDO.getDeploydbscriptid());
+        if (deployDbscriptSyncDetailsqlPOList == null || deployDbscriptSyncDetailsqlPOList.size() == 0) {
+            DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
+            BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
+            deployDbscriptPO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+            deployDbscriptPO.setExecutetimeforsync(new Date());
+            deployDbscriptPO.setFailuremsgforsync("");
+            deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+            return "脚本内容为空，发布脚本的过程直接归类为成功。";
+        }
+
+        if (deployDbscriptDO.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()) {
+            //如果是其他线程正在执行此脚本，则本线程退出。
+            return "其他线程正在执行此脚本,本线程退出。";
+        }
+        if (deployDbscriptDO.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+            //如果此脚本早已执行成功，则本线程退出。
+            return "脚本早已执行成功,本线程退出。";
+        }
+
+        DeployDbserversPO deployDbserversPO1 = new DeployDbserversPO();
+        deployDbserversPO1.setBelong(deployDbscriptDO.getBelong());
+        deployDbserversPO1.setProjectid(deployDbscriptDO.getProjectid());
+        deployDbserversPO1.setIssyncdb(Short.valueOf("1"));
+
+        List<DeployDbserversPO> syncdbList = deployDbserversDAO.selectByDeployDbserversPO(deployDbserversPO1);
+        if (syncdbList == null || syncdbList.size() == 0) {
+            return "找不到同步库。";
+        }
+        //这个就是同步库的对象
+        deployDbserversPO1 = syncdbList.get(0);
+
+        JdbcUtilForPostgres jdbcUtilForPostgres = new JdbcUtilForPostgres();
+        String ip = deployDbserversPO1.getIp();
+        Integer port = deployDbserversPO1.getPort();
+        String username = deployDbserversPO1.getUsername();
+        String password = deployDbserversPO1.getPassword();
+        String dbname = deployDbserversPO1.getDbname();
+
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = jdbcUtilForPostgres.getConn(ip, port, username, password, dbname);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "连接同步库出现问题", e);
+            return "连接同步库出现问题:" + e;
+        }
+
+        //更新申请记录的执行状态
+        DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
+        BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
+        deployDbscriptPO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTING.getCode())));
+        deployDbscriptPO.setExecutetimeforsync(new Date());
+        deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
 
 
+        if (conn != null) {
+            for (DeployDbscriptSyncDetailsqlPO deployDbscriptSyncDetailsqlPO : deployDbscriptSyncDetailsqlPOList) {
+                String sql = deployDbscriptSyncDetailsqlPO.getSubsql();
+                deployDbscriptSyncDetailsqlPO.setExecutorip(deployDbscriptDO.getExecutoripforsync());
+                deployDbscriptSyncDetailsqlPO.setExecutor(deployDbscriptDO.getExecutorforsync());
+                deployDbscriptSyncDetailsqlPO.setExecutetime(new Date());
+                try {
+                    jdbcUtilForPostgres.executeSql(sql, conn);
+                    deployDbscriptSyncDetailsqlPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+                    deployDbscriptSyncDetailsqlDAO.updateByPrimaryKeySelective(deployDbscriptSyncDetailsqlPO);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    Log4jUtil.error(logger, "执行sql[" + sql + "]有问题：", e);
+
+                    deployDbscriptSyncDetailsqlPO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_FAILED.getCode())));
+                    deployDbscriptSyncDetailsqlDAO.updateByPrimaryKeySelective(deployDbscriptSyncDetailsqlPO);
+                    deployDbscriptPO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_FAILED.getCode())));
+                    deployDbscriptPO.setFailuremsgforsync("执行sql[" + sql + "]有问题：" + e);
+                    deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
+
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    return "执行sql[" + sql + "]有问题：" + e;
+                }
+            }
+
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        deployDbscriptPO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+        deployDbscriptPO.setFailuremsgforsync("");
+        deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
         return "脚本执行成功!";
     }
 
@@ -219,6 +340,80 @@ public class DeployDBScriptService extends CommonDataService {
         BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
         int updateSuccessCount = deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
         return updateSuccessCount;
+    }
+
+    public Connection getConn(DeployDbservers deployDbservers) throws Exception {
+        JdbcUtilForPostgres jdbcUtilForPostgres = new JdbcUtilForPostgres();
+        String ip = deployDbservers.getIp();
+        Integer port = deployDbservers.getPort();
+        String username = deployDbservers.getUsername();
+        String password = deployDbservers.getPassword();
+        String dbname = deployDbservers.getDbname();
+
+        Connection conn = null;
+        try {
+            conn = jdbcUtilForPostgres.getConn(ip, port, username, password, dbname);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "数据库连接出现问题", e);
+            throw e;
+        }
+
+        return conn;
+    }
+
+    /**
+     * 获取同步库中的所有表名
+     * @param conn
+     * @return
+     */
+    private List<String> getAllTables(Connection conn) {
+        List<String> tableNameList = new ArrayList<String>();
+        String sql = "select tablename from pg_tables where schemaname not in ('information_schema', 'pg_catalog')";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                tableNameList.add(rs.getString("tablename"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return tableNameList;
+    }
+
+    /**
+     * 获取需要同步的sql
+     * @param conn
+     * @param seperatedStatementList
+     * @return
+     */
+    public List<String> getSyncSqlList(Connection conn, List<String> seperatedStatementList) {
+        List<String> syncSqlList = new ArrayList<String>();
+
+        List<String> allTablesInSyncDb = getAllTables(conn);
+        if (allTablesInSyncDb == null || allTablesInSyncDb.size() == 0) {
+            return null;
+        }
+        DBScriptUtil dbScriptUtil = new DBScriptUtil();
+        for (String sql : seperatedStatementList) {
+            sql = sql.toLowerCase();
+            String tableName = dbScriptUtil.obtainTableName(sql);
+            if (StringUtils.isNotBlank(tableName)) {
+                if (allTablesInSyncDb.contains(tableName)) {
+                    syncSqlList.add(sql);
+                }
+            }
+        }
+
+        return syncSqlList;
+    }
+
+    public int updateSelective(DeployDbscriptDO deployDbscriptDO) throws Exception {
+        DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
+        BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
+        return deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
     }
 
     private void fillDeployDbscript(DeployDbscript deployDbscript) {
@@ -269,6 +464,57 @@ public class DeployDBScriptService extends CommonDataService {
         }
 
         deployDbscript.setIsabandonedDesc(DBIsAbandonedEnum.getDescByCode(deployDbscript.getIsabandoned().intValue()));
+
+        //和同步sql有关的
+        DeployDbserversPO deployDbserversPO = new DeployDbserversPO();
+        deployDbserversPO.setBelong(deployDbscript.getBelong());
+        deployDbserversPO.setProjectid(deployDbscript.getProjectid());
+        deployDbserversPO.setIssyncdb(Short.valueOf("1"));
+        List<DeployDbserversPO> syncdbList = deployDbserversDAO.selectByDeployDbserversPO(deployDbserversPO);
+        if (syncdbList != null && syncdbList.size() > 0) {
+            DeployDbserversPO deployDbserversPO1 = syncdbList.get(0);
+            String dbLinkDescForSync = deployDbserversPO1.getLinkname() + "(" + deployDbserversPO1.getLinknamedesc() + ")" + "[" + EnvOfDBEnum.getDescByCode(deployDbserversPO1.getBelong().intValue()) + "--" + deployDbserversPO1.getIp() + ":" + deployDbserversPO1.getPort() + "/" + deployDbserversPO1.getDbname() + "]";
+            deployDbscript.setDblinkDescForSync(dbLinkDescForSync);
+        } else {
+            deployDbscript.setDblinkDescForSync("");
+        }
+
+        if (deployDbscript.getExecutetimeforsync() != null) {
+            deployDbscript.setFormatedExceuteTimeForSync(formatter.format(deployDbscript.getExecutetimeforsync()));
+        }
+
+        if (deployDbscript.getExecutestatusforsync() == null) {
+            deployDbscript.setExecuteStatusDescForSync("");
+        } else {
+            deployDbscript.setExecuteStatusDescForSync(DBExecuteStatusEnum.getDescByCode(deployDbscript.getExecutestatusforsync().intValue()));
+        }
+
+        List<DeployDbscriptSyncDetailsqlPO> executedDeployDbscriptSyncDetailsqlList = deployDbscriptSyncDetailsqlDAO.selectExecutedByDeployDbscriptId(deployDbscript.getDeploydbscriptid());
+        if (executedDeployDbscriptSyncDetailsqlList != null && executedDeployDbscriptSyncDetailsqlList.size() > 0) {
+            deployDbscript.setHasSyncSql("yes");
+            List<String> executedSqlList = new ArrayList<String>();
+            for (DeployDbscriptSyncDetailsqlPO deployDbscriptSyncDetailsqlPO : executedDeployDbscriptSyncDetailsqlList) {
+                executedSqlList.add(deployDbscriptSyncDetailsqlPO.getSubsql());
+            }
+            deployDbscript.setExecutedSqlListForSync(executedSqlList);
+        }
+
+        List<DeployDbscriptSyncDetailsqlPO> unexecutedDeployDbscriptSyncDetialsqlList = deployDbscriptSyncDetailsqlDAO.selectUnexecutedByDeployDbscriptId(deployDbscript.getDeploydbscriptid());
+        if (unexecutedDeployDbscriptSyncDetialsqlList != null && unexecutedDeployDbscriptSyncDetialsqlList.size() > 0) {
+            deployDbscript.setHasSyncSql("yes");
+            List<String> unexecutedSqlList = new ArrayList<String>();
+            for (DeployDbscriptSyncDetailsqlPO deployDbscriptSyncDetailsqlPO : unexecutedDeployDbscriptSyncDetialsqlList) {
+                unexecutedSqlList.add(deployDbscriptSyncDetailsqlPO.getSubsql());
+            }
+            deployDbscript.setUnexecutedSqlListForSync(unexecutedSqlList);
+        }
+
+        if (deployDbscript.getIsabandonedforsync() == null) {
+            deployDbscript.setIsabandonedDescForSync("");
+        } else {
+            deployDbscript.setIsabandonedDescForSync(DBIsAbandonedEnum.getDescByCode(deployDbscript.getIsabandonedforsync().intValue()));
+        }
+
         /********************补全deployDbscript中的属性值( end )*******************************/
 
     }

@@ -19,6 +19,13 @@ public class DeployDbscript extends DeployDbscriptDO {
     private List<String> executedSqlList;   //已经执行过的sql
     private List<String> unexecutedSqlList; //尚未执行过的sql
     private String isabandonedDesc;         //是否已经放弃执行尚未执行的sql
+    private String hasSyncSql = "no";               //是否有同步的脚本sql。yes或者no
+    private String formatedExceuteTimeForSync;      //同步脚本的格式化后的脚本执行时间
+    private String executeStatusDescForSync;        //同步脚本的执行的状态描述
+    private List<String> executedSqlListForSync;    //同步脚本的已经执行过的sql
+    private List<String> unexecutedSqlListForSync;  //同步脚本的尚未执行过的sql
+    private String isabandonedDescForSync;          //同步脚本的是否已经放弃执行尚未执行的sql
+    private String dblinkDescForSync;               //同步库连接的描述
 
 
     public String getProjectName() {
@@ -107,5 +114,61 @@ public class DeployDbscript extends DeployDbscriptDO {
 
     public void setIsabandonedDesc(String isabandonedDesc) {
         this.isabandonedDesc = isabandonedDesc;
+    }
+
+    public String getHasSyncSql() {
+        return hasSyncSql;
+    }
+
+    public void setHasSyncSql(String hasSyncSql) {
+        this.hasSyncSql = hasSyncSql;
+    }
+
+    public String getFormatedExceuteTimeForSync() {
+        return formatedExceuteTimeForSync;
+    }
+
+    public void setFormatedExceuteTimeForSync(String formatedExceuteTimeForSync) {
+        this.formatedExceuteTimeForSync = formatedExceuteTimeForSync;
+    }
+
+    public String getExecuteStatusDescForSync() {
+        return executeStatusDescForSync;
+    }
+
+    public void setExecuteStatusDescForSync(String executeStatusDescForSync) {
+        this.executeStatusDescForSync = executeStatusDescForSync;
+    }
+
+    public List<String> getExecutedSqlListForSync() {
+        return executedSqlListForSync;
+    }
+
+    public void setExecutedSqlListForSync(List<String> executedSqlListForSync) {
+        this.executedSqlListForSync = executedSqlListForSync;
+    }
+
+    public List<String> getUnexecutedSqlListForSync() {
+        return unexecutedSqlListForSync;
+    }
+
+    public void setUnexecutedSqlListForSync(List<String> unexecutedSqlListForSync) {
+        this.unexecutedSqlListForSync = unexecutedSqlListForSync;
+    }
+
+    public String getIsabandonedDescForSync() {
+        return isabandonedDescForSync;
+    }
+
+    public void setIsabandonedDescForSync(String isabandonedDescForSync) {
+        this.isabandonedDescForSync = isabandonedDescForSync;
+    }
+
+    public String getDblinkDescForSync() {
+        return dblinkDescForSync;
+    }
+
+    public void setDblinkDescForSync(String dblinkDescForSync) {
+        this.dblinkDescForSync = dblinkDescForSync;
     }
 }

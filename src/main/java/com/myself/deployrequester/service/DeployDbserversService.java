@@ -2,6 +2,8 @@ package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.biz.config.sharedata.EnvOfDBEnum;
 import com.myself.deployrequester.bo.DeployDbservers;
+import com.myself.deployrequester.bo.Module;
+import com.myself.deployrequester.bo.Project;
 import com.myself.deployrequester.dao.DeployDbserversDAO;
 import com.myself.deployrequester.model.DeployDbserversDO;
 import com.myself.deployrequester.model.DeployRequesterDO;
@@ -22,7 +24,7 @@ import java.util.List;
  * Created by QueRenJie on ${date}
  */
 @Service
-public class DeployDbserversService {
+public class DeployDbserversService extends CommonDataService {
     /** 日志 */
     private static final Logger logger = LogManager.getLogger(DeployDbserversService.class);
 
@@ -197,6 +199,12 @@ public class DeployDbserversService {
         }
 
         /********************补全deployDbservers中的属性值(begin)*******************************/
+        Project project = getProjectById(deployDbservers.getProjectid().intValue());
+        deployDbservers.setProjectName(project.getProjectName());
+
+        Module module = getModuleById(deployDbservers.getModuleid());
+        deployDbservers.setModuleName(module.getCode() + "-" + module.getName());
+
         deployDbservers.setBelongName(EnvOfDBEnum.getDescByCode(deployDbservers.getBelong().intValue()));
         /********************补全deployDbservers中的属性值( end )*******************************/
     }

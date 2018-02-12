@@ -22,6 +22,8 @@ public class QueryDbscriptPO {
     private Short isabandoned;
     private String sqlmd5;
     private String showExcuteOption;        //'yes'表示只显示需要执行的脚本,否则全都显示。
+    private Short executestatusForSync;             //同步脚本的执行状态
+    private String showExcuteOptionForSync;         //同步脚本的，'yes'表示只显示需要执行的脚本,否则全都显示。
 
     public Short getProjectid() {
         return projectid;
@@ -165,5 +167,21 @@ public class QueryDbscriptPO {
 
     public void setShowExcuteOption(String showExcuteOption) {
         this.showExcuteOption = showExcuteOption;
+    }
+
+    public Short getExecutestatusForSync() {
+        return executestatusForSync;
+    }
+
+    public void setExecutestatusForSync(Short executestatusForSync) {
+        this.executestatusForSync = executestatusForSync;
+    }
+
+    public String getShowExcuteOptionForSync() {
+        return showExcuteOptionForSync;
+    }
+
+    public void setShowExcuteOptionForSync(String showExcuteOptionForSync) {
+        this.showExcuteOptionForSync = showExcuteOptionForSync;
     }
 }

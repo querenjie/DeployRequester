@@ -55,6 +55,7 @@
                 }
             );
 
+            getProjects();
             setInterval("doRetrieveMsg()", 3000);
             query();
         });
@@ -126,9 +127,68 @@
             });
         }
 
+        function getProjects() {
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>configdata/getProjects",
+                data:"",//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    $("#projectcode").empty();
+                    $("#projectcode").append("<option value=\"\"></option>")
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            $.each(resultData.data, function(index) {
+                                $("#projectcode").append("<option value=\"" + resultData.data[index].id + "\">" + resultData.data[index].id + "-" + resultData.data[index].projectName + "</option>");
+                            });
+                        }
+                    }
+                },
+                error:function(resultData){
+                    //alert("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
+        function initModules() {
+            var projectId = $("#projectcode").val();
+            if (projectId != "") {
+                getModulesByProjectId(projectId);
+            }
+        }
+
+        function getModulesByProjectId(projectId) {
+            var moduleDTO = {};
+            moduleDTO.projectId = projectId;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>configdata/getModulesByProjectId",
+                async: false,
+                data:JSON.stringify(moduleDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    $("#modulecode").empty();
+                    $("#modulecode").append("<option value=\"\"></option>")
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            $.each(resultData.data, function(index) {
+                                $("#modulecode").append("<option value=\"" + resultData.data[index].id + "\">" + resultData.data[index].id + "-" + resultData.data[index].code + "</option>");
+                            });
+                        }
+                    }
+                },
+                error:function(resultData){
+                    //alert("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
 
         function saveData() {
             var belong = $("#belong").val();
+            var projectid = $("#projectcode").val();
+            var moduleid = $("#modulecode").val();
             var linkname = $("#linkname").val();
             var linknamedesc = $("#linknamedesc").val();
             var ip = $("#ip").val();
@@ -142,6 +202,12 @@
             var errorMsg = "";
             if ($.trim(belong) == "") {
                 errorMsg += "必须选择数据库环境！" + "\n";
+            }
+            if ($.trim(projectid) == "") {
+                errorMsg += "必须选择项目！" + "\n";
+            }
+            if ($.trim(moduleid) == "") {
+                errorMsg += "必须选择模块！" + "\n";
             }
             if ($.trim(linkname) == "") {
                 errorMsg += "数据库链接名不能为空！" + "\n";
@@ -172,6 +238,8 @@
 
             var deployDbserversDTO = {};
             deployDbserversDTO.belong = belong;
+            deployDbserversDTO.projectid = projectid;
+            deployDbserversDTO.moduleid = moduleid;
             deployDbserversDTO.linkname = linkname;
             deployDbserversDTO.linknamedesc = linknamedesc;
             deployDbserversDTO.ip = ip;
@@ -256,6 +324,8 @@
 
         function query() {
             var belong = $("#belong").val();
+            var projectid = $("#projectcode").val();
+            var moduleid = $("#modulecode").val();
             var ip = $("#ip").val();
             var port = $("#port").val();
             var username = $("#username").val();
@@ -265,6 +335,8 @@
 
             var deployDbserversDTO = {};
             deployDbserversDTO.belong = belong;
+            deployDbserversDTO.projectid = projectid;
+            deployDbserversDTO.moduleid = moduleid;
             deployDbserversDTO.ip = ip;
             deployDbserversDTO.port = port;
             deployDbserversDTO.username = username;
@@ -284,10 +356,12 @@
                         if (resultData.data != null && resultData.data.length > 0) {
                             var deployDbserversList = resultData.data[0];
                             var tableHtml = "";
-                            $("#processAction").html("查询结果如下");
+                            $("#processAction").html("查询结果如下(黄色底纹的记录表示为同步库)");
                             if (deployDbserversList != null && deployDbserversList.length > 0) {
                                 tableHtml += "<tr bgcolor='#ff8c00'>";
                                 tableHtml += "<td align='center'>环境</td>";
+                                tableHtml += "<td align='center'>项目</td>";
+                                tableHtml += "<td align='center'>模块</td>";
                                 tableHtml += "<td align='center'>数据库链接名</td>";
                                 tableHtml += "<td align='center'>ip</td>";
                                 tableHtml += "<td align='center'>端口</td>";
@@ -305,6 +379,8 @@
                                     }
                                     tableHtml += "<tr bgcolor='" + bgColor + "'>";
                                     tableHtml += "<td>" + deployDbservers.belongName + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.projectName + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.moduleName + "</td>";
                                     tableHtml += "<td>" + deployDbservers.linkname + "</td>";
                                     tableHtml += "<td>" + deployDbservers.ip + "</td>";
                                     tableHtml += "<td>" + deployDbservers.port + "</td>";
@@ -374,6 +450,8 @@
                             var deployDbserver = resultData.data[0];
                             if (deployDbserver != null) {
                                 $("#belong").val(deployDbserver.belong);
+                                $("#projectcode").val(deployDbserver.projectid);
+                                $("#modulecode").val(deployDbserver.moduleid);
                                 $("#linkname").val(deployDbserver.linkname);
                                 $("#linknamedesc").val(deployDbserver.linknamedesc);
                                 $("#ip").val(deployDbserver.ip);
@@ -456,9 +534,11 @@
                             var deployDbserversList = resultData.data[0];
                             var tableHtml = "";
                             if (deployDbserversList != null && deployDbserversList.length > 0) {
-                                $("#processAction").html("该记录已经保存到系统中");
+                                $("#processAction").html("该记录已经保存到系统中(黄色底纹的记录表示为同步库)");
                                 tableHtml += "<tr bgcolor='#ff8c00'>";
                                 tableHtml += "<td align='center'>环境</td>";
+                                tableHtml += "<td align='center'>项目</td>";
+                                tableHtml += "<td align='center'>模块</td>";
                                 tableHtml += "<td align='center'>数据库链接名</td>";
                                 tableHtml += "<td align='center'>ip</td>";
                                 tableHtml += "<td align='center'>端口</td>";
@@ -476,6 +556,8 @@
                                     }
                                     tableHtml += "<tr bgcolor='" + bgColor + "'>";
                                     tableHtml += "<td>" + deployDbservers.belongName + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.projectName + "</td>";
+                                    tableHtml += "<td>" + deployDbservers.moduleName + "</td>";
                                     tableHtml += "<td>" + deployDbservers.linkname + "</td>";
                                     tableHtml += "<td>" + deployDbservers.ip + "</td>";
                                     tableHtml += "<td>" + deployDbservers.port + "</td>";
@@ -532,34 +614,44 @@
                     <option value="2">生产环境</option>
                 </select>
             </td>
+            <td>
+                <font color="red">项目名称：</font>
+                <select id="projectcode" onchange="initModules();">
+                </select>
+            </td>
+            <td>
+                <font color="red">模块：</font>
+                <select id="modulecode">
+                </select>
+            </td>
         </tr>
         <tr>
             <td><font color="red">数据库链接名：</font></td>
-            <td><input type="text" id="linkname" size="50"></td>
+            <td colspan="3"><input type="text" id="linkname" size="50"></td>
         </tr>
         <tr>
             <td>数据库链接描述：</td>
-            <td><textarea id="linknamedesc" cols="80" rows="10"></textarea></td>
+            <td colspan="3"><textarea id="linknamedesc" cols="80" rows="10"></textarea></td>
         </tr>
         <tr>
             <td><font color="red">数据库服务器的ip：</font></td>
-            <td><input type="text" id="ip" maxlength="15"></td>
+            <td colspan="3"><input type="text" id="ip" maxlength="15"></td>
         </tr>
         <tr>
             <td><font color="red">端口：</font> </td>
-            <td><input type="text" id="port" maxlength="5"></td>
+            <td colspan="3"><input type="text" id="port" maxlength="5"></td>
         </tr>
         <tr>
             <td><font color="red">数据库用户名：</font> </td>
-            <td><input type="text" id="username" maxlength="100"></td>
+            <td colspan="3"><input type="text" id="username" maxlength="100"></td>
         </tr>
         <tr>
             <td><font color="red">密码：</font></td>
-            <td><input type="password" id="password" maxlength="100"></td>
+            <td colspan="3"><input type="password" id="password" maxlength="100"></td>
         </tr>
         <tr>
             <td><font color="red">是否需要记住密码：</font> </td>
-            <td>
+            <td colspan="3">
                 <label>
                     <!--input type="radio" name="needrecpwd" value="0">不记密码-->
                     <input type="radio" name="needrecpwd" value="1" checked>让系统记住密码
@@ -568,11 +660,11 @@
         </tr>
         <tr>
             <td><font color="red">数据库名称：</font></td>
-            <td><input type="dbname" id="dbname" maxlength="100" size="40">(这是大小写敏感的)</td>
+            <td colspan="3"><input type="dbname" id="dbname" maxlength="100" size="40">(这是大小写敏感的)</td>
         </tr>
         <tr>
             <td><font color="red">是否为同步库：</font></td>
-            <td>
+            <td colspan="3">
                 <select id="issyncdb">
                     <option value="0">否</option>
                     <option value="1">是</option>
@@ -581,7 +673,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2" align="right">
+            <td colspan="4" align="right">
                 <input type="button" value="保存(新增/修改)" id="btnSave">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="button" value="清空查询条件" onclick="resetQueryConditions();">
                 <input type="button" value="查询" id="btnQuery" onclick="query();">

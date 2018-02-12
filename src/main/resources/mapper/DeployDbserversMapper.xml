@@ -16,9 +16,13 @@
     <result column="creater" property="creater" jdbcType="VARCHAR" />
     <result column="createrip" property="createrip" jdbcType="VARCHAR" />
     <result column="issyncdb" property="issyncdb" jdbcType="NUMERIC" />
+    <result column="projectid" property="projectid" jdbcType="NUMERIC" />
+    <result column="moduleid" property="moduleid" jdbcType="NUMERIC" />
   </resultMap>
   <sql id="Base_Column_List" >
-    deploydbserversid, linkname, linknamedesc, ip, port, username, belong, password, needrecpwd, dbname, createtime, creater, createrip, issyncdb
+    deploydbserversid, linkname, linknamedesc, ip, port, username,
+    belong, password, needrecpwd, dbname, createtime, creater, createrip,
+    issyncdb, projectid, moduleid
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -33,11 +37,13 @@
   <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     insert into t_deploy_dbservers (deploydbserversid, linkname, linknamedesc, ip, port,
       username, belong, password, 
-      needrecpwd, dbname, createtime, creater, createrip, issyncdb)
+      needrecpwd, dbname, createtime, creater, createrip, issyncdb,
+      projectid, moduleid)
     values (#{deploydbserversid,jdbcType=VARCHAR}, #{linkname,jdbcType=VARCHAR}, #{linknamedesc,jdbcType=VARCHAR},
       #{ip,jdbcType=VARCHAR}, #{port,jdbcType=NUMERIC},
       #{username,jdbcType=VARCHAR}, #{belong,jdbcType=NUMERIC}, #{password,jdbcType=VARCHAR}, 
-      #{needrecpwd,jdbcType=NUMERIC}, #{dbname,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{creater,jdbcType=VARCHAR}, #{createrip,jdbcType=VARCHAR}, #{issyncdb,jdbcType=NUMERIC})
+      #{needrecpwd,jdbcType=NUMERIC}, #{dbname,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{creater,jdbcType=VARCHAR}, #{createrip,jdbcType=VARCHAR}, #{issyncdb,jdbcType=NUMERIC},
+      #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC})
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbserversPO" >
     insert into t_deploy_dbservers
@@ -84,6 +90,12 @@
       <if test="issyncdb != null" >
         issyncdb,
       </if>
+      <if test="projectid != null" >
+        projectid,
+      </if>
+      <if test="moduleid != null" >
+        moduleid,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbserversid != null" >
@@ -127,6 +139,12 @@
       </if>
       <if test="issyncdb != null" >
         #{issyncdb,jdbcType=NUMERIC},
+      </if>
+      <if test="projectid != null" >
+        #{projectid,jdbcType=NUMERIC},
+      </if>
+      <if test="moduleid != null" >
+        #{moduleid,jdbcType=NUMERIC},
       </if>
     </trim>
   </insert>
@@ -172,6 +190,12 @@
       <if test="issyncdb != null" >
         issyncdb = #{issyncdb,jdbcType=NUMERIC},
       </if>
+      <if test="projectid != null" >
+        projectid = #{projectid,jdbcType=NUMERIC},
+      </if>
+      <if test="moduleid != null" >
+        moduleid = #{moduleid,jdbcType=NUMERIC},
+      </if>
     </set>
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </update>
@@ -189,7 +213,9 @@
       createtime = #{createtime,jdbcType=TIMESTAMP},
       creater = #{creater,jdbcType=VARCHAR},
       createrip = #{createrip,jdbcType=VARCHAR},
-      issyncdb = #{issyncdb,jdbcType=NUMERIC}
+      issyncdb = #{issyncdb,jdbcType=NUMERIC},
+      projectid = #{projectid,jdbcType=NUMERIC},
+      moduleid = #{moduleid,jdbcType=NUMERIC}
     where deploydbserversid = #{deploydbserversid,jdbcType=VARCHAR}
   </update>
 
@@ -210,12 +236,22 @@
       <if test="linknamedesc != null and linknamedesc != ''">
         linknamedesc = #{linknamedesc,jdbcType=VARCHAR},
       </if>
+      <if test="ip != null and ip != ''">
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null">
+        port = #{port,jdbcType=NUMERIC},
+      </if>
+      <if test="username != null and username != ''">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="dbname != null and dbname != ''">
+        dbname = #{dbname,jdbcType=VARCHAR},
+      </if>
     </set>
     where belong = #{belong,jdbcType=NUMERIC}
-    AND   ip = #{ip,jdbcType=VARCHAR}
-    AND   port = #{port,jdbcType=NUMERIC}
-    AND   username = #{username,jdbcType=VARCHAR}
-    AND   dbname = #{dbname,jdbcType=VARCHAR}
+    AND   projectid = #{projectid,jdbcType=NUMERIC}
+    AND   moduleid = #{moduleid,jdbcType=NUMERIC}
   </update>
 
   <select id="selectByDeployDbserversPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.DeployDbserversPO">
@@ -244,7 +280,16 @@
     <if test="dbname != null and dbname != '' ">
       and dbname = #{dbname}
     </if>
-    order by belong, ip
+    <if test="issyncdb != null">
+      and issyncdb = #{issyncdb}
+    </if>
+    <if test="projectid != null">
+      and projectid = #{projectid}
+    </if>
+    <if test="moduleid != null">
+      and moduleid = #{moduleid}
+    </if>
+    order by belong, projectid, moduleid, ip
   </select>
 
   <select id="selectAll" resultMap="BaseResultMap">

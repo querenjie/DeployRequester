@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by QueRenJie on ${date}
@@ -94,15 +96,86 @@ public class DBScriptUtil {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        DBScriptUtil dbScriptUtil = new DBScriptUtil();
-        String originalString = "a/**bcdefg\nhij*/kl/*mn你*/S*/好\naaaaaaa\nbbbbbbb\n\nccccccc;\neeeeeee;";
-        System.out.println("originalString="+originalString);
-        List<String> seperatedStatementList = dbScriptUtil.analyzeSqlStatement(originalString);
-        if (seperatedStatementList != null) {
-            for (String s : seperatedStatementList) {
-                System.out.println("statement = " + s.trim());
+    /**
+     * 把字符串切分出非空的子字符串依次放到List中。
+     * @param string
+     * @return
+     */
+    public List<String> splitString(String string) {
+        List<String> stringList = new ArrayList<String>();
+
+        int startIndex = -1;
+        int endIndex = 0;
+        boolean isBlankChar = true;
+        char[] chars = string.toCharArray();
+
+        for (int i = 0; i < chars.length; i++) {
+            if (isBlankChar && !(chars[i] == ' ' || chars[i] == '\t' || chars[i] == '\n' || chars[i] == '\r')){
+                startIndex = i;
+                isBlankChar = false;
+            } else if (!isBlankChar && (chars[i] == ' ' || chars[i] == '\t' || chars[i] == '\n' || chars[i] == '\r')) {
+                endIndex = i - 1;
+                char[] words = new char[endIndex - startIndex + 1];
+                for (int j = 0; j < words.length; j++) {
+                    words[j] = chars[startIndex++];
+                }
+                stringList.add(String.valueOf(words));
+                isBlankChar = true;
             }
         }
+        if (!isBlankChar) {
+            char[] words = new char[chars.length - startIndex];
+            for (int i = 0; i < words.length; i++) {
+                words[i] = chars[startIndex++];
+            }
+            stringList.add(String.valueOf(words));
+        }
+
+        return stringList;
+    }
+
+    /**
+     * 获取表的名字
+     * @param sql
+     * @return
+     */
+    public String obtainTableName(String sql) {
+        sql = sql.toLowerCase();
+        List<String> sqlWordsList = splitString(sql);
+
+        if (sqlWordsList != null && sqlWordsList.size() > 3) {
+            if ("alter".equals(sqlWordsList.get(0)) && "table".equals(sqlWordsList.get(1))) {
+                String temp = sqlWordsList.get(2);
+                temp = StringUtils.replace(temp, "\"", "");
+                int dotPosition = StringUtils.lastIndexOf(temp,".");
+                if (dotPosition > -1) {
+                    return StringUtils.substring(temp, dotPosition + 1);
+                } else {
+                    return temp;
+                }
+            }
+
+            if ("comment".equals(sqlWordsList.get(0)) && "on".equals(sqlWordsList.get(1)) && "column".equals(sqlWordsList.get(2))) {
+                String temp = sqlWordsList.get(3);
+                temp = StringUtils.replace(temp, "\"", "");
+                String[] strarrTemp = StringUtils.split(temp, ".");
+                if (strarrTemp != null && strarrTemp.length == 2) {
+                    return strarrTemp[0];
+                }
+                if (strarrTemp != null && strarrTemp.length == 3) {
+                    return strarrTemp[1];
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        DBScriptUtil dbScriptUtil = new DBScriptUtil();
+
+        String str = "alter   table    \n  \r  \t      \"public\".pub_supplyregister add suppliertype numeric(2) ";
+        String str2 = "COMMENT ON COLUMN \"pub_supplyregister\".\"suppliertype\" IS '供应商类型';";
+        str = dbScriptUtil.obtainTableName(str2);
+        System.out.println(str);
     }
 }

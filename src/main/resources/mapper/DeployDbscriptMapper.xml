@@ -19,11 +19,18 @@
     <result column="belong" property="belong" jdbcType="NUMERIC" />
     <result column="isabandoned" property="isabandoned" jdbcType="NUMERIC" />
     <result column="sqlmd5" property="sqlmd5" jdbcType="VARCHAR" />
+    <result column="executorforsync" property="executorforsync" jdbcType="VARCHAR" />
+    <result column="executoripforsync" property="executoripforsync" jdbcType="VARCHAR" />
+    <result column="executetimeforsync" property="executetimeforsync" jdbcType="TIMESTAMP" />
+    <result column="executestatusforsync" property="executestatusforsync" jdbcType="NUMERIC" />
+    <result column="failuremsgforsync" property="failuremsgforsync" jdbcType="VARCHAR" />
+    <result column="isabandonedforsync" property="isabandonedforsync" jdbcType="NUMERIC" />
   </resultMap>
   <sql id="Base_Column_List" >
     deploydbscriptid, deploydbserversid, projectid, moduleid, dbscript, description, 
     applier, applierip, createtime, executor, executorip, executetime, executestatus, 
-    failuremsg, belong, isabandoned, sqlmd5
+    failuremsg, belong, isabandoned, sqlmd5, executorforsync, executoripforsync,
+    executetimeforsync, executestatusforsync, failuremsgforsync, isabandonedforsync
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -41,14 +48,20 @@
       description, applier, applierip, 
       createtime, executor, executorip, 
       executetime, executestatus, failuremsg,
-      belong, isabandoned, sqlmd5
+      belong, isabandoned, sqlmd5,
+      executorforsync, executoripforsync,
+      executetimeforsync, executestatusforsync,
+      failuremsgforsync, isabandonedforsync
       )
     values (#{deploydbscriptid,jdbcType=VARCHAR}, #{deploydbserversid,jdbcType=VARCHAR}, 
       #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC}, #{dbscript,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{applier,jdbcType=VARCHAR}, #{applierip,jdbcType=VARCHAR}, 
       #{createtime,jdbcType=TIMESTAMP}, #{executor,jdbcType=VARCHAR}, #{executorip,jdbcType=VARCHAR}, 
       #{executetime,jdbcType=TIMESTAMP}, #{executestatus,jdbcType=NUMERIC}, #{failuremsg,jdbcType=VARCHAR},
-      #{belong,jdbcType=NUMERIC}, #{isabandoned,jdbcType=NUMERIC}, #{sqlmd5,jdbcType=VARCHAR}
+      #{belong,jdbcType=NUMERIC}, #{isabandoned,jdbcType=NUMERIC}, #{sqlmd5,jdbcType=VARCHAR},
+      #{executorforsync,jdbcType=VARCHAR}, #{executoripforsync,jdbcType=VARCHAR},
+      #{executetimeforsync,jdbcType=TIMESTAMP}, #{executestatusforsync,jdbcType=NUMERIC},
+      #{failuremsgforsync,jdbcType=VARCHAR}, #{isabandonedforsync,jdbcType=NUMERIC}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
@@ -105,6 +118,24 @@
       <if test="sqlmd5 != null">
         sqlmd5,
       </if>
+      <if test="executorforsync != null" >
+        executorforsync,
+      </if>
+      <if test="executoripforsync != null" >
+        executoripforsync,
+      </if>
+      <if test="executetimeforsync != null" >
+        executetimeforsync,
+      </if>
+      <if test="executestatusforsync != null" >
+        executestatusforsync,
+      </if>
+      <if test="failuremsgforsync != null" >
+        failuremsgforsync,
+      </if>
+      <if test="isabandonedforsync != null">
+        isabandonedforsync,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbscriptid != null" >
@@ -157,6 +188,24 @@
       </if>
       <if test="sqlmd5 != null">
         #{sqlmd5,jdbcType=VARCHAR},
+      </if>
+      <if test="executorforsync != null" >
+        #{executorforsync,jdbcType=VARCHAR},
+      </if>
+      <if test="executoripforsync != null" >
+        #{executoripforsync,jdbcType=VARCHAR},
+      </if>
+      <if test="executetimeforsync != null" >
+        #{executetimeforsync,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executestatusforsync != null" >
+        #{executestatusforsync,jdbcType=NUMERIC},
+      </if>
+      <if test="failuremsgforsync != null" >
+        #{failuremsgforsync,jdbcType=VARCHAR},
+      </if>
+      <if test="isabandonedforsync != null">
+        #{isabandonedforsync,jdbcType=NUMERIC},
       </if>
     </trim>
   </insert>
@@ -211,6 +260,24 @@
       <if test="sqlmd5 != null">
         sqlmd5 = #{sqlmd5,jdbcType=VARCHAR},
       </if>
+      <if test="executorforsync != null" >
+        executorforsync = #{executorforsync,jdbcType=VARCHAR},
+      </if>
+      <if test="executoripforsync != null" >
+        executoripforsync = #{executoripforsync,jdbcType=VARCHAR},
+      </if>
+      <if test="executetimeforsync != null" >
+        executetimeforsync = #{executetimeforsync,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executestatusforsync != null" >
+        executestatusforsync = #{executestatusforsync,jdbcType=NUMERIC},
+      </if>
+      <if test="failuremsgforsync != null" >
+        failuremsgforsync = #{failuremsgforsync,jdbcType=VARCHAR},
+      </if>
+      <if test="isabandonedforsync != null">
+        isabandonedforsync = #{isabandonedforsync,jdbcType=NUMERIC},
+      </if>
     </set>
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
@@ -231,7 +298,13 @@
       failuremsg = #{failuremsg,jdbcType=VARCHAR},
       belong = #{belong,jdbcType=NUMERIC},
       isabandoned = #{isabandoned,jdbcType=NUMERIC},
-      sqlmd5 = #{sqlmd5,jdbcType=VARCHAR}
+      sqlmd5 = #{sqlmd5,jdbcType=VARCHAR},
+      executorforsync = #{executorforsync,jdbcType=VARCHAR},
+      executoripforsync = #{executoripforsync,jdbcType=VARCHAR},
+      executetimeforsync = #{executetimeforsync,jdbcType=TIMESTAMP},
+      executestatusforsync = #{executestatusforsync,jdbcType=NUMERIC},
+      failuremsgforsync = #{failuremsgforsync,jdbcType=VARCHAR},
+      isabandonedforsync = #{isabandonedforsync,jdbcType=NUMERIC}
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
 
@@ -311,6 +384,14 @@
     <if test='showExcuteOption != null and showExcuteOption == "yes"'>
       <![CDATA[
       and isabandoned = 0 and executestatus <> 1
+      ]]>
+    </if>
+    <if test='executestatusForSync != null'>
+      and executestatusforsync = #{executestatusForSync}
+    </if>
+    <if test='showExcuteOptionForSync != null and showExcuteOptionForSync == "yes"'>
+      <![CDATA[
+      and isabandonedforsync = 0 and executestatusforsync <> 1
       ]]>
     </if>
 

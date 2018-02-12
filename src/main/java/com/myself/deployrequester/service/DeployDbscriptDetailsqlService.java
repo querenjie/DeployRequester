@@ -1,7 +1,6 @@
 package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.dao.DeployDbscriptDetailsqlDAO;
-import com.myself.deployrequester.model.DeployDbscriptDO;
 import com.myself.deployrequester.model.DeployDbscriptDetailsqlDO;
 import com.myself.deployrequester.po.DeployDbscriptDetailsqlPO;
 import com.myself.deployrequester.util.reflect.BeanUtils;

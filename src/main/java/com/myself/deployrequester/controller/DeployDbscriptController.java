@@ -5,18 +5,15 @@ import com.myself.deployrequester.biz.config.sharedata.DBExecuteStatusEnum;
 import com.myself.deployrequester.biz.config.sharedata.DBIsAbandonedEnum;
 import com.myself.deployrequester.biz.config.sharedata.DBWillIgnoreEnum;
 import com.myself.deployrequester.bo.DeployDbscript;
-import com.myself.deployrequester.bo.DeployRequest;
+import com.myself.deployrequester.bo.DeployDbservers;
+import com.myself.deployrequester.dao.DeployDbserversDAO;
 import com.myself.deployrequester.dto.*;
-import com.myself.deployrequester.model.DeployDbscriptDO;
-import com.myself.deployrequester.model.DeployDbscriptDetailsqlDO;
-import com.myself.deployrequester.model.PrjmodDblinkRelDO;
-import com.myself.deployrequester.model.QueryDbscriptDO;
+import com.myself.deployrequester.model.*;
+import com.myself.deployrequester.po.DeployDbscriptDetailsqlPO;
 import com.myself.deployrequester.po.DeployDbscriptPO;
-import com.myself.deployrequester.service.CommonDataService;
-import com.myself.deployrequester.service.DeployDBScriptService;
-import com.myself.deployrequester.service.DeployDbscriptDetailsqlService;
-import com.myself.deployrequester.service.PrjmodDblinkRelService;
+import com.myself.deployrequester.service.*;
 import com.myself.deployrequester.util.DBScriptUtil;
+import com.myself.deployrequester.util.JdbcUtilForPostgres;
 import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.MD5Util;
 import com.myself.deployrequester.util.json.JsonResult;
@@ -24,7 +21,6 @@ import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +52,10 @@ public class DeployDbscriptController extends CommonMethodWrapper {
     private DeployDbscriptDetailsqlService deployDbscriptDetailsqlService;
     @Autowired
     private CommonDataService commonDataService;
+    @Autowired
+    private DeployDbserversService deployDbserversService;
+    @Autowired
+    private DeployDbscriptSyncDetailsqlService deployDbscriptSyncDetailsqlService;
 
     @RequestMapping("/deploy_dbscript_insert")
     public String gotoDbscriptInsertForm() {
@@ -117,16 +120,15 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                 return result;
             }
 
-
-            PrjmodDblinkRelDO prjmodDblinkRelDO = new PrjmodDblinkRelDO();
-            prjmodDblinkRelDO.setProjectid(deployDbscriptDO.getProjectid());
-            prjmodDblinkRelDO.setModuleid(deployDbscriptDO.getModuleid());
-
+            DeployDbserversDO deployDbserversDO = new DeployDbserversDO();
+            deployDbserversDO.setBelong(deployDbscriptDO.getBelong());
+            deployDbserversDO.setProjectid(deployDbscriptDO.getProjectid());
+            deployDbserversDO.setModuleid(deployDbscriptDO.getModuleid());
             try {
-                List<PrjmodDblinkRelDO> prjmodDblinkRelDOList = prjmodDblinkRelService.selectByPrjmodDblinkRelDO(prjmodDblinkRelDO);
-                if (prjmodDblinkRelDOList != null && prjmodDblinkRelDOList.size() == 1) {
-                    PrjmodDblinkRelDO prjmodDblinkRelDO1 = prjmodDblinkRelDOList.get(0);
-                    deployDbscriptDO.setDeploydbserversid(prjmodDblinkRelDO1.getDeploydbserversid());
+                List<DeployDbservers> deployDbserversList = deployDbserversService.selectByDeployDbserversDO(deployDbserversDO);
+                if (deployDbserversList != null && deployDbserversList.size() == 1) {
+                    String deploydbserversid = deployDbserversList.get(0).getDeploydbserversid();
+                    deployDbscriptDO.setDeploydbserversid(deploydbserversid);
                 }
 
                 int saveSuccessRecCount = deployDBScriptService.insert(deployDbscriptDO);
@@ -154,8 +156,91 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                             result = JsonResult.createFailed("save data abnormally");
                             result.addData("保存sql语句出现问题，保存失败。");
                         } else {
-                            result = JsonResult.createSuccess("save data successfully");
-                            result.addData(1);
+                            //保存子sql到t_deploy_dbscript_detailsql表成功后
+                            //获取同步表的数据库连接
+                            DeployDbserversDO deployDbserversDO1 = new DeployDbserversDO();
+                            deployDbserversDO1.setBelong(deployDbscriptDO.getBelong());
+                            deployDbserversDO1.setProjectid(deployDbscriptDO.getProjectid());
+                            deployDbserversDO1.setIssyncdb(Short.valueOf("1"));
+                            List<DeployDbservers> deployDbserversList1 = deployDbserversService.selectByDeployDbserversDO(deployDbserversDO1);
+                            if (deployDbserversList1 != null && deployDbserversList1.size() == 1) {
+                                //这是同步库的链接对象
+                                DeployDbservers deployDbserversForSync = deployDbserversList1.get(0);
+
+                                //看看自己是不是同步库，如果不是的话才能考虑是否保存同步的sql。
+                                boolean isSelfTheSameWithSyncDb = false;
+                                if (StringUtils.isNotBlank(deployDbscriptDO.getDeploydbserversid()) && deployDbscriptDO.getDeploydbserversid().equals(deployDbserversForSync.getDeploydbserversid())) {
+                                    isSelfTheSameWithSyncDb = true;
+                                }
+
+                                if (!isSelfTheSameWithSyncDb) {
+                                    try {
+                                        Connection conn = deployDBScriptService.getConn(deployDbserversForSync);
+                                        if (conn != null) {
+                                            //说明能连上同步库，然后就计算出需要同步的sql
+                                            List<String> syncSqlList = deployDBScriptService.getSyncSqlList(conn, seperatedStatementList);
+                                            if (conn != null) {
+                                                conn.close();
+                                            }
+                                            if (syncSqlList != null && syncSqlList.size() > 0) {
+                                                short j = 1;
+                                                List<DeployDbscriptSyncDetailsqlDO> deployDbscriptSyncDetailsqlDOList = new ArrayList<DeployDbscriptSyncDetailsqlDO>();
+                                                for (String sql : syncSqlList) {
+                                                    DeployDbscriptSyncDetailsqlDO deployDbscriptSyncDetailsqlDO = new DeployDbscriptSyncDetailsqlDO();
+                                                    deployDbscriptSyncDetailsqlDO.setDeploydbscriptid(deployDbscriptDO.getDeploydbscriptid());
+                                                    deployDbscriptSyncDetailsqlDO.setSubsqlseqno(j++);
+                                                    deployDbscriptSyncDetailsqlDO.setSubsql(sql);
+                                                    deployDbscriptSyncDetailsqlDO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.NOT_EXECUTE_YET.getCode())));
+                                                    deployDbscriptSyncDetailsqlDO.setWillignore(Short.valueOf(String.valueOf(DBWillIgnoreEnum.NOT_IGNORE.getCode())));
+                                                    deployDbscriptSyncDetailsqlDO.setCreater(deployDbscriptDO.getApplier());
+                                                    deployDbscriptSyncDetailsqlDO.setCreaterip(deployDbscriptDO.getApplierip());
+                                                    deployDbscriptSyncDetailsqlDO.setCreatetime(new Date());
+
+                                                    deployDbscriptSyncDetailsqlDOList.add(deployDbscriptSyncDetailsqlDO);
+                                                }
+                                                List<String> deployDbscriptSyncDetailsqlidList = deployDbscriptSyncDetailsqlService.batchInsert(deployDbscriptSyncDetailsqlDOList);
+                                                if (deployDbscriptSyncDetailsqlidList.size() == deployDbscriptSyncDetailsqlDOList.size()) {
+                                                    deployDbscriptDO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.NOT_EXECUTE_YET.getCode())));
+                                                    deployDbscriptDO.setIsabandonedforsync(Short.valueOf(String.valueOf(DBIsAbandonedEnum.NOT_ABANDONED.getCode())));
+                                                    int updateSuccess = deployDBScriptService.updateSelective(deployDbscriptDO);
+                                                    if (updateSuccess == 1) {
+                                                        result = JsonResult.createSuccess("save data successfully");
+                                                        result.addData("整个保存申请记录的过程包括同步sql的保存成功。");
+                                                        return result;
+                                                    } else {
+                                                        result = JsonResult.createFailed("save data abnormally");
+                                                        result.addData("保存脚本申请成功，然而在保存完同步sql之后更新主记录的同步状态时找不到主记录。");
+                                                        return result;
+                                                    }
+                                                } else {
+                                                    result = JsonResult.createFailed("save data abnormally");
+                                                    result.addData("保存同步的sql语句出现问题，保存失败。");
+                                                    return result;
+                                                }
+                                            } else {
+                                                //此处表示没有需要同步的sql,此时保存申请脚本的记录过程已经结束了。
+                                                result = JsonResult.createSuccess("save data successfully");
+                                                result.addData("保存申请记录的过程成功。");
+                                                return result;
+                                            }
+                                        } else {
+                                            //未能正常产生同步数据库的链接对象
+                                            result = JsonResult.createFailed("failed");
+                                            result.addData("未能正常产生同步数据库的链接对象");
+                                            return result;
+                                        }
+                                    } catch (Exception e) {
+                                        result = JsonResult.createFailed("failed");
+                                        result.addData("连接同步数据库出现问题：" + e);
+                                        return result;
+                                    }
+                                } else {
+                                    //此处表示没有需要同步的sql,此时保存申请脚本的记录过程已经结束了。
+                                    result = JsonResult.createSuccess("save data successfully");
+                                    result.addData("保存申请记录的过程成功。");
+                                    return result;
+                                }
+                            }
                         }
                     }
                 } else {
@@ -305,6 +390,54 @@ public class DeployDbscriptController extends CommonMethodWrapper {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/abandonDeployDbscriptForSync", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult abandonDeployDbscriptForSync(@RequestBody QueryDbscriptDTO queryDbscriptDTO, HttpServletRequest request) {
+        JsonResult result;
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canApplyDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限申请放弃脚本的执行,请找管理员开权限。");
+            return result;
+        }
+
+        String deployDbscriptId = queryDbscriptDTO.getDeploydbscriptid();
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        deployDbscriptDO.setDeploydbscriptid(deployDbscriptId);
+        try {
+            DeployDbscript deployDbscript = deployDBScriptService.getDeployDbscriptById(deployDbscriptId);
+            if (deployDbscript != null) {
+                if (deployDbscript.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+                    result = JsonResult.createFailed("failed");
+                    result.addData("已经是执行成功状态，放弃同步脚本执行申请无效。");
+                    return result;
+                }
+                if (deployDbscript.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()) {
+                    result = JsonResult.createFailed("failed");
+                    result.addData("sql正在执行中，放弃同步脚本执行申请无效。");
+                    return result;
+                }
+                //更新主记录的isabandoned字段的内容
+                deployDbscriptDO.setIsabandonedforsync(Short.valueOf(String.valueOf(DBIsAbandonedEnum.ABANDONED.getCode())));
+                int updateSuccessCount = deployDBScriptService.modifiyIsabandoned(deployDbscriptDO);
+                result = JsonResult.createSuccess("update data successfully");
+                result.addData("放弃同步脚本执行申请生效。");
+            } else {
+                result = JsonResult.createFailed("query data failed");
+                result.addData("未找到记录！");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "出现问题", e);
+            result = JsonResult.createFailed("failed");
+            result.addData("出现问题:" + e);
+        }
+
+        return result;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/applyRedeployDbscript", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult applyRedeployDbscript(@RequestBody ApplyRedeployDbscriptDTO applyRedeployDbscriptDTO, HttpServletRequest request) {
         JsonResult result;
@@ -393,6 +526,94 @@ public class DeployDbscriptController extends CommonMethodWrapper {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/applyRedeployDbscriptForSync", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult applyRedeployDbscriptForSync(@RequestBody ApplyRedeployDbscriptDTO applyRedeployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result;
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canApplyDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限重新申请提交脚本,请找管理员开权限。");
+            return result;
+        }
+
+        String deployDbscriptId = applyRedeployDbscriptDTO.getDeploydbscriptid();
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        deployDbscriptDO.setDeploydbscriptid(deployDbscriptId);
+        try {
+            DeployDbscript deployDbscript = deployDBScriptService.getDeployDbscriptById(deployDbscriptId);
+            if (deployDbscript != null) {
+                if (deployDbscript.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+                    result = JsonResult.createFailed("failed");
+                    result.addData("已经是执行成功状态，申请重新执行剩余同步脚本无效。");
+                    return result;
+                }
+                if (deployDbscript.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()) {
+                    result = JsonResult.createFailed("failed");
+                    result.addData("sql正在执行中，申请重新执行剩余同步脚本无效。");
+                    return result;
+                }
+                //批量插入新的未执行的sql
+                DBScriptUtil dbScriptUtil = new DBScriptUtil();
+                List<String> seperatedStatementList = dbScriptUtil.analyzeSqlStatement(applyRedeployDbscriptDTO.getUnexecutedSql());
+                if (hasDangerousStatement(seperatedStatementList)) {
+                    if (!"yes".equals(applyRedeployDbscriptDTO.getForcetodoit())) {
+                        result = JsonResult.createFailed("dangerous statement in it");
+                        result.addData("其中有drop或delete语句，很危险，请去掉这种语句。");
+                        return result;
+                    }
+                }
+
+                //删除未执行的sql
+                int deleteUnexecutedSuccessCount = deployDbscriptSyncDetailsqlService.deleteUnexecutedByDeployDbscriptId(deployDbscriptId);
+
+                if (seperatedStatementList != null) {
+                    //在拼装sql记录对象之前必须确定序号从那个数值开始
+                    Short maxSeqno = deployDbscriptSyncDetailsqlService.selectMaxSeqno(deployDbscriptId);
+
+                    List<DeployDbscriptSyncDetailsqlDO> deployDbscriptSyncDetailsqlDOList = new ArrayList<DeployDbscriptSyncDetailsqlDO>();
+                    for (String sql : seperatedStatementList) {
+                        DeployDbscriptSyncDetailsqlDO deployDbscriptSyncDetailsqlDO = new DeployDbscriptSyncDetailsqlDO();
+                        deployDbscriptSyncDetailsqlDO.setDeploydbscriptid(deployDbscriptDO.getDeploydbscriptid());
+                        deployDbscriptSyncDetailsqlDO.setSubsqlseqno(++maxSeqno);
+                        deployDbscriptSyncDetailsqlDO.setSubsql(sql);
+                        deployDbscriptSyncDetailsqlDO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.NOT_EXECUTE_YET.getCode())));
+                        deployDbscriptSyncDetailsqlDO.setWillignore(Short.valueOf(String.valueOf(DBWillIgnoreEnum.NOT_IGNORE.getCode())));
+                        deployDbscriptSyncDetailsqlDO.setCreater(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+                        deployDbscriptSyncDetailsqlDO.setCreaterip(clientIpAddr);
+                        deployDbscriptSyncDetailsqlDO.setCreatetime(new Date());
+
+                        deployDbscriptSyncDetailsqlDOList.add(deployDbscriptSyncDetailsqlDO);
+                    }
+                    List<String> deployDbscriptSyncDetailsqlidList = deployDbscriptSyncDetailsqlService.batchInsert(deployDbscriptSyncDetailsqlDOList);
+                    if (deployDbscriptSyncDetailsqlidList.size() != deployDbscriptSyncDetailsqlDOList.size()) {
+                        result = JsonResult.createFailed("save data abnormally");
+                        result.addData("保存sql语句出现问题，保存失败。");
+                        deployDbscriptSyncDetailsqlService.deleteUnexecutedByDeployDbscriptId(deployDbscriptId);
+                        return result;
+                    }
+                }
+                //更新主记录的isabandoned字段的内容
+                deployDbscriptDO.setIsabandonedforsync(Short.valueOf(String.valueOf(DBIsAbandonedEnum.NOT_ABANDONED.getCode())));
+                int updateSuccessCount = deployDBScriptService.modifiyIsabandoned(deployDbscriptDO);
+                result = JsonResult.createSuccess("update data successfully");
+                result.addData("重新申请发布剩余同步脚本生效。");
+            } else {
+                result = JsonResult.createFailed("query data failed");
+                result.addData("未找到记录！");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "出现问题", e);
+            result = JsonResult.createFailed("failed");
+            result.addData("出现问题:" + e);
+        }
+
+        return result;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/deployDbscript", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult deployDbscript(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
         JsonResult result;
@@ -432,7 +653,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
             return result;
         }
 
-        if (deployDbscript.getIsabandoned() == 1) {
+        if (deployDbscript.getIsabandoned() == Short.valueOf(String.valueOf(DBIsAbandonedEnum.ABANDONED.getCode()))) {
             //当申请记录是已经放弃执行剩余的sql脚本的时候就不能执行发布了
             result = JsonResult.createFailed("failed");
             result.addData("当前申请已经放弃执行剩余的sql脚本了，所以发布过程不执行。");
@@ -460,22 +681,87 @@ public class DeployDbscriptController extends CommonMethodWrapper {
             return result;
         }
 
-        PrjmodDblinkRelDO prjmodDblinkRelDO = new PrjmodDblinkRelDO();
-        prjmodDblinkRelDO.setDeploydbserversid(deployDbscriptDO.getDeploydbserversid());
-        prjmodDblinkRelDO.setProjectid(deployDbscriptDO.getProjectid());
-        prjmodDblinkRelDO.setModuleid(deployDbscriptDO.getModuleid());
-        prjmodDblinkRelDO.setBelong(deployDbscriptDO.getBelong());
-        try {
-            prjmodDblinkRelService.savePrjmodDblinkRel(prjmodDblinkRelDO);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log4jUtil.error(logger, "保存t_prjmod_dblink_rel表失败", e);
+        String errorMsg = deployDBScriptService.deployDbscript(deployDbscriptDO);
+        if (StringUtils.isBlank(errorMsg)) {
+            result = JsonResult.createSuccess("success");
+            result.addData("");
+        } else {
+            result = JsonResult.createSuccess("failed");
+            result.addData(errorMsg);
+        }
+        return  result;
+
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/deployDbscriptForSync", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult deployDbscriptForSync(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result;
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canDeployDbscript(clientIpAddr)) {
             result = JsonResult.createFailed("failed");
-            result.addData("保存t_prjmod_dblink_rel表失败:" + e);
+            result.addData("您没有权限执行脚本,请找管理员开权限。");
             return result;
         }
 
-        String errorMsg = deployDBScriptService.deployDbscript(deployDbscriptDO);
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbscriptid())) {
+            result = JsonResult.createFailed("failed");
+            result.addData("入参中获取不到申请记录的id。");
+            return result;
+        }
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbserversid())) {
+            result = JsonResult.createFailed("failed");
+            result.addData("入参中获取不到数据库连接的id。");
+            return result;
+        }
+
+        DeployDbscript deployDbscript = null;
+
+        try {
+            deployDbscript = deployDBScriptService.getDeployDbscriptById(deployDbscriptDTO.getDeploydbscriptid());
+            if (deployDbscript == null) {
+                result = JsonResult.createFailed("failed");
+                result.addData("根据申请记录的id查询申请记录对象时发现找不到这个对象了。");
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "根据申请记录的id查询申请记录对象时发现问题", e);
+            result = JsonResult.createFailed("failed");
+            result.addData("根据申请记录的id查询申请记录对象时发现问题:" + e);
+            return result;
+        }
+
+        if (deployDbscript.getIsabandonedforsync() == Short.valueOf(String.valueOf(DBIsAbandonedEnum.ABANDONED.getCode()))) {
+            //当申请记录是已经放弃执行剩余的sql脚本的时候就不能执行发布了
+            result = JsonResult.createFailed("failed");
+            result.addData("当前申请已经放弃执行剩余的同步sql脚本了，所以发布过程不执行。");
+            return result;
+        }
+
+        deployDbscript.setDeploydbserversid(deployDbscriptDTO.getDeploydbserversid());
+
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+
+        BeanUtils.copyProperties(deployDbscript, deployDbscriptDO, true);
+
+        deployDbscriptDO.setExecutorforsync(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+        deployDbscriptDO.setExecutoripforsync(clientIpAddr);
+        deployDbscriptDO.setExecutetimeforsync(new Date());
+
+        if (deployDbscriptDO.getProjectid() == null || deployDbscriptDO.getModuleid() == null) {
+            result = JsonResult.createFailed("failed");
+            result.addData("没有绑定项目和模块！");
+            return result;
+        }
+        if (StringUtils.isBlank(deployDbscriptDO.getDeploydbserversid())) {
+            result = JsonResult.createFailed("failed");
+            result.addData("没有绑定数据库连接！");
+            return result;
+        }
+
+        String errorMsg = deployDBScriptService.deployDbscriptForSync(deployDbscriptDO);
         if (StringUtils.isBlank(errorMsg)) {
             result = JsonResult.createSuccess("success");
             result.addData("");

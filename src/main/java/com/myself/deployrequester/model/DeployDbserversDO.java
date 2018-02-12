@@ -34,6 +34,11 @@ public class DeployDbserversDO {
 
     private Short issyncdb;         //是否为同步库。0：否；1：是。通常只有报表库才是同步库。
 
+    private Short projectid;
+
+    private Short moduleid;
+
+
     public String getDeploydbserversid() {
         return deploydbserversid;
     }
@@ -144,5 +149,21 @@ public class DeployDbserversDO {
 
     public void setIssyncdb(Short issyncdb) {
         this.issyncdb = issyncdb;
+    }
+
+    public Short getProjectid() {
+        return projectid;
+    }
+
+    public void setProjectid(Short projectid) {
+        this.projectid = projectid;
+    }
+
+    public Short getModuleid() {
+        return moduleid;
+    }
+
+    public void setModuleid(Short moduleid) {
+        this.moduleid = moduleid;
     }
 }

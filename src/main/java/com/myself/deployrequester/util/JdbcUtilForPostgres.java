@@ -1,9 +1,6 @@
 package com.myself.deployrequester.util;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Created by QueRenJie on ${date}
@@ -46,17 +43,57 @@ public class JdbcUtilForPostgres {
      * 执行一句sql
      * @param sql
      * @param conn
-     * @param stmt
      * @return
      * @throws SQLException
      */
-    public void executeSql(String sql, Connection conn, Statement stmt) throws SQLException {
+    public void executeSql(String sql, Connection conn) throws SQLException {
+        Statement stmt = null;
         try {
+            stmt = conn.createStatement();
             stmt.execute(sql);
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
         }
         return;
+    }
+
+    /**
+     * 获取sql结果集合
+     * @param sql
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    public ResultSet executeQuery(String sql, Connection conn) {
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            return rs;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

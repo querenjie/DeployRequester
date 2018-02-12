@@ -38,6 +38,18 @@ public class DeployDbscriptPO {
 
     private String sqlmd5;
 
+    private String executorforsync;
+
+    private String executoripforsync;
+
+    private Date executetimeforsync;
+
+    private Short executestatusforsync;
+
+    private String failuremsgforsync;
+
+    private Short isabandonedforsync;
+
     public String getDeploydbscriptid() {
         return deploydbscriptid;
     }
@@ -172,5 +184,53 @@ public class DeployDbscriptPO {
 
     public void setSqlmd5(String sqlmd5) {
         this.sqlmd5 = sqlmd5;
+    }
+
+    public String getExecutorforsync() {
+        return executorforsync;
+    }
+
+    public void setExecutorforsync(String executorforsync) {
+        this.executorforsync = executorforsync;
+    }
+
+    public String getExecutoripforsync() {
+        return executoripforsync;
+    }
+
+    public void setExecutoripforsync(String executoripforsync) {
+        this.executoripforsync = executoripforsync;
+    }
+
+    public Date getExecutetimeforsync() {
+        return executetimeforsync;
+    }
+
+    public void setExecutetimeforsync(Date executetimeforsync) {
+        this.executetimeforsync = executetimeforsync;
+    }
+
+    public Short getExecutestatusforsync() {
+        return executestatusforsync;
+    }
+
+    public void setExecutestatusforsync(Short executestatusforsync) {
+        this.executestatusforsync = executestatusforsync;
+    }
+
+    public String getFailuremsgforsync() {
+        return failuremsgforsync;
+    }
+
+    public void setFailuremsgforsync(String failuremsgforsync) {
+        this.failuremsgforsync = failuremsgforsync;
+    }
+
+    public Short getIsabandonedforsync() {
+        return isabandonedforsync;
+    }
+
+    public void setIsabandonedforsync(Short isabandonedforsync) {
+        this.isabandonedforsync = isabandonedforsync;
     }
 }

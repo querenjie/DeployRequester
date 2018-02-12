@@ -23,6 +23,12 @@ public class DeployDbscriptDTO {
     private Short belong;
     private Short isabandoned;
     private String sqlmd5;
+    private String executorforsync;
+    private String executoripforsync;
+    private Date executetimeforsync;
+    private Short executestatusforsync;
+    private String failuremsgforsync;
+    private Short isabandonedforsync;
 
     private String forcetodoit;     //yes表示强制提交这个申请，尽管里面有危险的sql
 
@@ -168,5 +174,53 @@ public class DeployDbscriptDTO {
 
     public void setSqlmd5(String sqlmd5) {
         this.sqlmd5 = sqlmd5;
+    }
+
+    public String getExecutorforsync() {
+        return executorforsync;
+    }
+
+    public void setExecutorforsync(String executorforsync) {
+        this.executorforsync = executorforsync;
+    }
+
+    public String getExecutoripforsync() {
+        return executoripforsync;
+    }
+
+    public void setExecutoripforsync(String executoripforsync) {
+        this.executoripforsync = executoripforsync;
+    }
+
+    public Date getExecutetimeforsync() {
+        return executetimeforsync;
+    }
+
+    public void setExecutetimeforsync(Date executetimeforsync) {
+        this.executetimeforsync = executetimeforsync;
+    }
+
+    public Short getExecutestatusforsync() {
+        return executestatusforsync;
+    }
+
+    public void setExecutestatusforsync(Short executestatusforsync) {
+        this.executestatusforsync = executestatusforsync;
+    }
+
+    public String getFailuremsgforsync() {
+        return failuremsgforsync;
+    }
+
+    public void setFailuremsgforsync(String failuremsgforsync) {
+        this.failuremsgforsync = failuremsgforsync;
+    }
+
+    public Short getIsabandonedforsync() {
+        return isabandonedforsync;
+    }
+
+    public void setIsabandonedforsync(Short isabandonedforsync) {
+        this.isabandonedforsync = isabandonedforsync;
     }
 }

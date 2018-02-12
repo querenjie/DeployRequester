@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myself.deployrequester.dao.DeployDbscriptSyncDetailsqlDAO" >
+  <resultMap id="BaseResultMap" type="com.myself.deployrequester.po.DeployDbscriptSyncDetailsqlPO" >
+    <id column="deploydbscriptsyncdetailsqlid" property="deploydbscriptsyncdetailsqlid" jdbcType="VARCHAR" />
+    <result column="deploydbscriptid" property="deploydbscriptid" jdbcType="VARCHAR" />
+    <result column="subsqlseqno" property="subsqlseqno" jdbcType="NUMERIC" />
+    <result column="subsql" property="subsql" jdbcType="VARCHAR" />
+    <result column="executestatus" property="executestatus" jdbcType="NUMERIC" />
+    <result column="executetime" property="executetime" jdbcType="TIMESTAMP" />
+    <result column="executor" property="executor" jdbcType="VARCHAR" />
+    <result column="executorip" property="executorip" jdbcType="VARCHAR" />
+    <result column="willignore" property="willignore" jdbcType="NUMERIC" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="createrip" property="createrip" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    deploydbscriptsyncdetailsqlid, deploydbscriptid, subsqlseqno, subsql, executestatus, 
+    executetime, executor, executorip, willignore, createtime, creater, createrip
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptsyncdetailsqlid = #{deploydbscriptsyncdetailsqlid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptsyncdetailsqlid = #{deploydbscriptsyncdetailsqlid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.myself.deployrequester.po.DeployDbscriptSyncDetailsqlPO" >
+    insert into t_deploy_dbscript_sync_detailsql (deploydbscriptsyncdetailsqlid, deploydbscriptid, 
+      subsqlseqno, subsql, executestatus, 
+      executetime, executor, executorip, 
+      willignore, createtime, creater, 
+      createrip)
+    values (#{deploydbscriptsyncdetailsqlid,jdbcType=VARCHAR}, #{deploydbscriptid,jdbcType=VARCHAR}, 
+      #{subsqlseqno,jdbcType=NUMERIC}, #{subsql,jdbcType=VARCHAR}, #{executestatus,jdbcType=NUMERIC}, 
+      #{executetime,jdbcType=TIMESTAMP}, #{executor,jdbcType=VARCHAR}, #{executorip,jdbcType=VARCHAR}, 
+      #{willignore,jdbcType=NUMERIC}, #{createtime,jdbcType=TIMESTAMP}, #{creater,jdbcType=VARCHAR}, 
+      #{createrip,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbscriptSyncDetailsqlPO" >
+    insert into t_deploy_dbscript_sync_detailsql
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="deploydbscriptsyncdetailsqlid != null" >
+        deploydbscriptsyncdetailsqlid,
+      </if>
+      <if test="deploydbscriptid != null" >
+        deploydbscriptid,
+      </if>
+      <if test="subsqlseqno != null" >
+        subsqlseqno,
+      </if>
+      <if test="subsql != null" >
+        subsql,
+      </if>
+      <if test="executestatus != null" >
+        executestatus,
+      </if>
+      <if test="executetime != null" >
+        executetime,
+      </if>
+      <if test="executor != null" >
+        executor,
+      </if>
+      <if test="executorip != null" >
+        executorip,
+      </if>
+      <if test="willignore != null" >
+        willignore,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createrip != null" >
+        createrip,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="deploydbscriptsyncdetailsqlid != null" >
+        #{deploydbscriptsyncdetailsqlid,jdbcType=VARCHAR},
+      </if>
+      <if test="deploydbscriptid != null" >
+        #{deploydbscriptid,jdbcType=VARCHAR},
+      </if>
+      <if test="subsqlseqno != null" >
+        #{subsqlseqno,jdbcType=NUMERIC},
+      </if>
+      <if test="subsql != null" >
+        #{subsql,jdbcType=VARCHAR},
+      </if>
+      <if test="executestatus != null" >
+        #{executestatus,jdbcType=NUMERIC},
+      </if>
+      <if test="executetime != null" >
+        #{executetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executor != null" >
+        #{executor,jdbcType=VARCHAR},
+      </if>
+      <if test="executorip != null" >
+        #{executorip,jdbcType=VARCHAR},
+      </if>
+      <if test="willignore != null" >
+        #{willignore,jdbcType=NUMERIC},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createrip != null" >
+        #{createrip,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.myself.deployrequester.po.DeployDbscriptSyncDetailsqlPO" >
+    update t_deploy_dbscript_sync_detailsql
+    <set >
+      <if test="deploydbscriptid != null" >
+        deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR},
+      </if>
+      <if test="subsqlseqno != null" >
+        subsqlseqno = #{subsqlseqno,jdbcType=NUMERIC},
+      </if>
+      <if test="subsql != null" >
+        subsql = #{subsql,jdbcType=VARCHAR},
+      </if>
+      <if test="executestatus != null" >
+        executestatus = #{executestatus,jdbcType=NUMERIC},
+      </if>
+      <if test="executetime != null" >
+        executetime = #{executetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="executor != null" >
+        executor = #{executor,jdbcType=VARCHAR},
+      </if>
+      <if test="executorip != null" >
+        executorip = #{executorip,jdbcType=VARCHAR},
+      </if>
+      <if test="willignore != null" >
+        willignore = #{willignore,jdbcType=NUMERIC},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createrip != null" >
+        createrip = #{createrip,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where deploydbscriptsyncdetailsqlid = #{deploydbscriptsyncdetailsqlid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.myself.deployrequester.po.DeployDbscriptSyncDetailsqlPO" >
+    update t_deploy_dbscript_sync_detailsql
+    set deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR},
+      subsqlseqno = #{subsqlseqno,jdbcType=NUMERIC},
+      subsql = #{subsql,jdbcType=VARCHAR},
+      executestatus = #{executestatus,jdbcType=NUMERIC},
+      executetime = #{executetime,jdbcType=TIMESTAMP},
+      executor = #{executor,jdbcType=VARCHAR},
+      executorip = #{executorip,jdbcType=VARCHAR},
+      willignore = #{willignore,jdbcType=NUMERIC},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      creater = #{creater,jdbcType=VARCHAR},
+      createrip = #{createrip,jdbcType=VARCHAR}
+    where deploydbscriptsyncdetailsqlid = #{deploydbscriptsyncdetailsqlid,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteByDeployDbscriptId" parameterType="java.lang.String" >
+    delete from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectExecutedByDeployDbscriptId" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+    AND   executestatus = 1
+    ORDER BY subsqlseqno
+  </select>
+
+  <select id="selectUnexecutedByDeployDbscriptId" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+    <![CDATA[
+    AND   executestatus <> 1
+    ]]>
+    ORDER BY subsqlseqno
+  </select>
+
+  <delete id="deleteUnexecutedByDeployDbscriptId" parameterType="java.lang.String" >
+    delete from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+    <![CDATA[
+    AND   executestatus <> 1
+    ]]>
+  </delete>
+
+  <select id="selectMaxSeqno" resultType="java.lang.Short" parameterType="java.lang.String">
+    select COALESCE(max(subsqlseqno), 0)
+    from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </select>
+
+</mapper>
