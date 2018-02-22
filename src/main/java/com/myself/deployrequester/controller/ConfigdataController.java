@@ -222,6 +222,26 @@ public class ConfigdataController extends CommonMethodWrapper {
         return result;
     }
 
+    @ResponseBody
+    @RequestMapping(value="/judgeCanChangeCanExecDbscript", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult judgeCanChangeCanExecDbscript(HttpServletRequest request) {
+        JsonResult result;
+        List<String> resultList = new ArrayList<String>();
+
+        String ipAddr = getIpAddr(request);
+        boolean canChangeCanExecDbscript = commonDataService.canChangeCanExecDbscript(ipAddr);
+        if (canChangeCanExecDbscript == false) {
+            resultList.add("Sorry, you have no privilege to change status of executing dbscript at anytime or not.");
+        } else {
+            resultList.add("ok");
+        }
+
+        result = JsonResult.createSuccess("ok");
+        result.addDataAll(resultList);
+        return result;
+    }
+
+
     /**
      * 判断此ip地址是否可以提交数据库脚本申请
      * @param request

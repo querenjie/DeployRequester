@@ -30,6 +30,7 @@ public class DeployDbscriptDO {
     private Short executestatusforsync;
     private String failuremsgforsync;
     private Short isabandonedforsync;
+    private Short canexecute;
 
     public String getDeploydbscriptid() {
         return deploydbscriptid;
@@ -213,5 +214,13 @@ public class DeployDbscriptDO {
 
     public void setIsabandonedforsync(Short isabandonedforsync) {
         this.isabandonedforsync = isabandonedforsync;
+    }
+
+    public Short getCanexecute() {
+        return canexecute;
+    }
+
+    public void setCanexecute(Short canexecute) {
+        this.canexecute = canexecute;
     }
 }

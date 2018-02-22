@@ -1,19 +1,12 @@
 package com.myself.deployrequester.controller;
 
-import com.myself.deployrequester.biz.config.sharedata.ConfigData;
-import com.myself.deployrequester.biz.config.sharedata.DBExecuteStatusEnum;
-import com.myself.deployrequester.biz.config.sharedata.DBIsAbandonedEnum;
-import com.myself.deployrequester.biz.config.sharedata.DBWillIgnoreEnum;
+import com.myself.deployrequester.biz.config.sharedata.*;
 import com.myself.deployrequester.bo.DeployDbscript;
 import com.myself.deployrequester.bo.DeployDbservers;
-import com.myself.deployrequester.dao.DeployDbserversDAO;
 import com.myself.deployrequester.dto.*;
 import com.myself.deployrequester.model.*;
-import com.myself.deployrequester.po.DeployDbscriptDetailsqlPO;
-import com.myself.deployrequester.po.DeployDbscriptPO;
 import com.myself.deployrequester.service.*;
 import com.myself.deployrequester.util.DBScriptUtil;
-import com.myself.deployrequester.util.JdbcUtilForPostgres;
 import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.MD5Util;
 import com.myself.deployrequester.util.json.JsonResult;
@@ -30,8 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -371,7 +362,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                 }
                 //更新主记录的isabandoned字段的内容
                 deployDbscriptDO.setIsabandoned(Short.valueOf(String.valueOf(DBIsAbandonedEnum.ABANDONED.getCode())));
-                int updateSuccessCount = deployDBScriptService.modifiyIsabandoned(deployDbscriptDO);
+                int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
                 result = JsonResult.createSuccess("update data successfully");
                 result.addData("放弃执行申请生效。");
             } else {
@@ -419,7 +410,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                 }
                 //更新主记录的isabandoned字段的内容
                 deployDbscriptDO.setIsabandonedforsync(Short.valueOf(String.valueOf(DBIsAbandonedEnum.ABANDONED.getCode())));
-                int updateSuccessCount = deployDBScriptService.modifiyIsabandoned(deployDbscriptDO);
+                int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
                 result = JsonResult.createSuccess("update data successfully");
                 result.addData("放弃同步脚本执行申请生效。");
             } else {
@@ -507,7 +498,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                 }
                 //更新主记录的isabandoned字段的内容
                 deployDbscriptDO.setIsabandoned(Short.valueOf(String.valueOf(DBIsAbandonedEnum.NOT_ABANDONED.getCode())));
-                int updateSuccessCount = deployDBScriptService.modifiyIsabandoned(deployDbscriptDO);
+                int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
                 result = JsonResult.createSuccess("update data successfully");
                 result.addData("重新申请发布剩余脚本生效。");
             } else {
@@ -595,7 +586,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                 }
                 //更新主记录的isabandoned字段的内容
                 deployDbscriptDO.setIsabandonedforsync(Short.valueOf(String.valueOf(DBIsAbandonedEnum.NOT_ABANDONED.getCode())));
-                int updateSuccessCount = deployDBScriptService.modifiyIsabandoned(deployDbscriptDO);
+                int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
                 result = JsonResult.createSuccess("update data successfully");
                 result.addData("重新申请发布剩余同步脚本生效。");
             } else {
@@ -771,6 +762,76 @@ public class DeployDbscriptController extends CommonMethodWrapper {
         }
         return  result;
 
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/assignCanexecute", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult assignCanexecute(@RequestBody QueryDbscriptDTO queryDbscriptDTO, HttpServletRequest request) {
+        JsonResult result;
+
+        String clientIpAddr = getIpAddr(request);
+
+        String deployDbscriptId = queryDbscriptDTO.getDeploydbscriptid();
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        deployDbscriptDO.setDeploydbscriptid(deployDbscriptId);
+        deployDbscriptDO.setCanexecute(queryDbscriptDTO.getCanexecute());
+        try {
+            DeployDbscript deployDbscript = deployDBScriptService.getDeployDbscriptById(deployDbscriptId);
+            if (deployDbscript != null) {
+                if (!commonDataService.canChangeCanExecDbscript(clientIpAddr) && !clientIpAddr.equals(deployDbscript.getApplierip())) {
+                    result = JsonResult.createFailed("failed");
+                    result.addData("您没有权限修改何时执行脚本的状态,请找管理员开权限。");
+                    return result;
+                }
+                if ("yes".equals(deployDbscript.getHasSyncSql())) {
+                    if (deployDbscript.getExecutestatus().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()
+                            && (deployDbscript.getExecutestatusforsync() != null && deployDbscript.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())) {
+                        result = JsonResult.createFailed("failed");
+                        result.addData("已经是执行成功状态，不能修改何时执行脚本的状态。");
+                        return result;
+                    }
+                    if (deployDbscript.getExecutestatus().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()
+                            && deployDbscript.getExecutestatusforsync() != null && deployDbscript.getExecutestatusforsync().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()) {
+                        result = JsonResult.createFailed("failed");
+                        result.addData("sql正在执行中，不能修改何时执行脚本的状态。");
+                        return result;
+                    }
+                } else {
+                    if (deployDbscript.getExecutestatus().intValue() == DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+                        result = JsonResult.createFailed("failed");
+                        result.addData("已经是执行成功状态，不能修改何时执行脚本的状态。");
+                        return result;
+                    }
+                    if (deployDbscript.getExecutestatus().intValue() == DBExecuteStatusEnum.EXECUTING.getCode()) {
+                        result = JsonResult.createFailed("failed");
+                        result.addData("sql正在执行中，不能修改何时执行脚本的状态。");
+                        return result;
+                    }
+                }
+                if (deployDbscript.getIsabandoned().intValue() == DBIsAbandonedEnum.ABANDONED.getCode()
+                        && deployDbscript.getIsabandoned().intValue() == DBIsAbandonedEnum.ABANDONED.getCode()) {
+                    result = JsonResult.createFailed("failed");
+                    result.addData("脚本已经放弃执行了，不能修改何时执行脚本的状态。");
+                    return result;
+                }
+                //更新主记录的canexecute字段的内容
+                //deployDbscriptDO.canexecute的内容已经在页面中被赋值并提交到后台来了。
+                int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
+                result = JsonResult.createSuccess("update data successfully");
+                result.addData("修改何时执行脚本的状态生效。");
+            } else {
+                result = JsonResult.createFailed("query data failed");
+                result.addData("未找到记录！");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "出现问题", e);
+            result = JsonResult.createFailed("failed");
+            result.addData("出现问题:" + e);
+        }
+
+        return result;
     }
 
     /**

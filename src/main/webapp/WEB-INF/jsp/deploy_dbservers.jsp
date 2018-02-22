@@ -451,6 +451,7 @@
                             if (deployDbserver != null) {
                                 $("#belong").val(deployDbserver.belong);
                                 $("#projectcode").val(deployDbserver.projectid);
+                                initModules();
                                 $("#modulecode").val(deployDbserver.moduleid);
                                 $("#linkname").val(deployDbserver.linkname);
                                 $("#linknamedesc").val(deployDbserver.linknamedesc);

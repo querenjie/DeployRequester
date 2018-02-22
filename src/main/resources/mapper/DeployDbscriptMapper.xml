@@ -25,12 +25,14 @@
     <result column="executestatusforsync" property="executestatusforsync" jdbcType="NUMERIC" />
     <result column="failuremsgforsync" property="failuremsgforsync" jdbcType="VARCHAR" />
     <result column="isabandonedforsync" property="isabandonedforsync" jdbcType="NUMERIC" />
+    <result column="canexecute" property="canexecute" jdbcType="NUMERIC" />
   </resultMap>
   <sql id="Base_Column_List" >
     deploydbscriptid, deploydbserversid, projectid, moduleid, dbscript, description, 
     applier, applierip, createtime, executor, executorip, executetime, executestatus, 
     failuremsg, belong, isabandoned, sqlmd5, executorforsync, executoripforsync,
-    executetimeforsync, executestatusforsync, failuremsgforsync, isabandonedforsync
+    executetimeforsync, executestatusforsync, failuremsgforsync, isabandonedforsync,
+    canexecute
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -51,7 +53,8 @@
       belong, isabandoned, sqlmd5,
       executorforsync, executoripforsync,
       executetimeforsync, executestatusforsync,
-      failuremsgforsync, isabandonedforsync
+      failuremsgforsync, isabandonedforsync,
+      canexecute
       )
     values (#{deploydbscriptid,jdbcType=VARCHAR}, #{deploydbserversid,jdbcType=VARCHAR}, 
       #{projectid,jdbcType=NUMERIC}, #{moduleid,jdbcType=NUMERIC}, #{dbscript,jdbcType=VARCHAR}, 
@@ -61,7 +64,8 @@
       #{belong,jdbcType=NUMERIC}, #{isabandoned,jdbcType=NUMERIC}, #{sqlmd5,jdbcType=VARCHAR},
       #{executorforsync,jdbcType=VARCHAR}, #{executoripforsync,jdbcType=VARCHAR},
       #{executetimeforsync,jdbcType=TIMESTAMP}, #{executestatusforsync,jdbcType=NUMERIC},
-      #{failuremsgforsync,jdbcType=VARCHAR}, #{isabandonedforsync,jdbcType=NUMERIC}
+      #{failuremsgforsync,jdbcType=VARCHAR}, #{isabandonedforsync,jdbcType=NUMERIC},
+      #{canexecute,jdbcType=NUMERIC}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.myself.deployrequester.po.DeployDbscriptPO" >
@@ -136,6 +140,9 @@
       <if test="isabandonedforsync != null">
         isabandonedforsync,
       </if>
+      <if test="canexecute != null">
+        canexecute,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="deploydbscriptid != null" >
@@ -206,6 +213,9 @@
       </if>
       <if test="isabandonedforsync != null">
         #{isabandonedforsync,jdbcType=NUMERIC},
+      </if>
+      <if test="canexecute != null">
+        #{canexecute,jdbcType=NUMERIC},
       </if>
     </trim>
   </insert>
@@ -278,6 +288,9 @@
       <if test="isabandonedforsync != null">
         isabandonedforsync = #{isabandonedforsync,jdbcType=NUMERIC},
       </if>
+      <if test="canexecute != null">
+        canexecute = #{canexecute,jdbcType=NUMERIC},
+      </if>
     </set>
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
@@ -304,7 +317,8 @@
       executetimeforsync = #{executetimeforsync,jdbcType=TIMESTAMP},
       executestatusforsync = #{executestatusforsync,jdbcType=NUMERIC},
       failuremsgforsync = #{failuremsgforsync,jdbcType=VARCHAR},
-      isabandonedforsync = #{isabandonedforsync,jdbcType=NUMERIC}
+      isabandonedforsync = #{isabandonedforsync,jdbcType=NUMERIC},
+      canexecute = #{canexecute,jdbcType=NUMERIC}
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </update>
 
@@ -394,7 +408,9 @@
       and isabandonedforsync = 0 and executestatusforsync <> 1
       ]]>
     </if>
-
+    <if test="canexecute != null">
+      and canexecute = #{canexecute}
+    </if>
     ORDER BY createtime DESC
   </select>
 </mapper>

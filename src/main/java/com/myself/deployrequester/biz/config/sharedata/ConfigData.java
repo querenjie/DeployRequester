@@ -72,6 +72,11 @@ public class ConfigData {
     public static Set<String> ALLOWED_IP_CONFIG_DEPLOY_DBSCRIPT = new HashSet<String>();
 
     /**
+     * 允许设置是否可以随时发布数据库脚本的操作人员的ip地址
+     */
+    public static Set<String> ALLOWED_IP_CONFIG_CHANGE_CAN_EXEC_DBSCRIPT = new HashSet<String>();
+
+    /**
      * 客户端ip地址和对应的开发人员姓名的映射关系
      */
     public static Map<String, String> IP_CREWNAME_MAPPING = new HashMap<String, String>();

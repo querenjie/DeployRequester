@@ -24,6 +24,7 @@ public class QueryDbscriptPO {
     private String showExcuteOption;        //'yes'表示只显示需要执行的脚本,否则全都显示。
     private Short executestatusForSync;             //同步脚本的执行状态
     private String showExcuteOptionForSync;         //同步脚本的，'yes'表示只显示需要执行的脚本,否则全都显示。
+    private Short canexecute;                   //是否可以随时执行。0：暂时不可执行；1：可以随时执行
 
     public Short getProjectid() {
         return projectid;
@@ -183,5 +184,13 @@ public class QueryDbscriptPO {
 
     public void setShowExcuteOptionForSync(String showExcuteOptionForSync) {
         this.showExcuteOptionForSync = showExcuteOptionForSync;
+    }
+
+    public Short getCanexecute() {
+        return canexecute;
+    }
+
+    public void setCanexecute(Short canexecute) {
+        this.canexecute = canexecute;
     }
 }

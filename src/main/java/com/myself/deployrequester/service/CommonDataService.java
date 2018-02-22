@@ -236,6 +236,21 @@ public class CommonDataService {
     }
 
     /**
+     * 判断此ip地址是否可以修改是否可以随时发布脚本的权限
+     * @param ipAddr
+     * @return
+     */
+    public boolean canChangeCanExecDbscript(String ipAddr) {
+        if (ConfigData.ALLOWED_IP_CONFIG_CHANGE_CAN_EXEC_DBSCRIPT == null) {
+            return false;
+        }
+        if (ConfigData.ALLOWED_IP_CONFIG_CHANGE_CAN_EXEC_DBSCRIPT.contains(ipAddr)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 判断此ip地址是否可以提交数据库脚本申请
      * @param ipAddr
      * @return

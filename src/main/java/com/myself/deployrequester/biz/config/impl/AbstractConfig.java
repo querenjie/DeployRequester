@@ -88,6 +88,11 @@ public abstract class AbstractConfig implements Config {
     protected Set<String> allowedIpForDeployDbscript;
 
     /**
+     * 允许设置是否可以随时发布数据库脚本的操作人员的ip地址
+     */
+    protected Set<String> allowedIpForChangeCanExecDbscript;
+
+    /**
      * 客户端ip地址和对应的开发人员姓名
      */
     protected Map<String, String> ipAndCrewNameMap;
@@ -120,6 +125,7 @@ public abstract class AbstractConfig implements Config {
         allowedIpForMarkProductDeploy = new HashSet<String>();
         allowedIpForLockDeployRequest = new HashSet<String>();
         allowedIpForDeployDbscript = new HashSet<String>();
+        allowedIpForChangeCanExecDbscript = new HashSet<String>();
         ipAndCrewNameMap = new HashMap<String, String>();
         ipAndRoleMap = new HashMap<String, RoleEnum>();
         lockElementList = new ArrayList<LockElement>();
@@ -138,6 +144,7 @@ public abstract class AbstractConfig implements Config {
         ConfigData.ALLOWED_IP_CONFIG_MARK_PRODUCT_DEPLOY = allowedIpForMarkProductDeploy;
         ConfigData.ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST = allowedIpForLockDeployRequest;
         ConfigData.ALLOWED_IP_CONFIG_DEPLOY_DBSCRIPT = allowedIpForDeployDbscript;
+        ConfigData.ALLOWED_IP_CONFIG_CHANGE_CAN_EXEC_DBSCRIPT = allowedIpForChangeCanExecDbscript;
         ConfigData.IP_CREWNAME_MAPPING = ipAndCrewNameMap;
         ConfigData.IP_ROLE_MAPPING = ipAndRoleMap;
         ConfigData.LOCK_ELEMENT_LIST = lockElementList;
@@ -353,6 +360,9 @@ public abstract class AbstractConfig implements Config {
         }
         if (whichPrivilege == Config.DEPLOY_DBSCRIPT) {
             allowedIpForDeployDbscript.add(ipAddr);
+        }
+        if (whichPrivilege == Config.CHANGE_CAN_EXEC_DBSCRIPT) {
+            allowedIpForChangeCanExecDbscript.add(ipAddr);
         }
     }
 

@@ -27,7 +27,6 @@ public class DeployDbscript extends DeployDbscriptDO {
     private String isabandonedDescForSync;          //同步脚本的是否已经放弃执行尚未执行的sql
     private String dblinkDescForSync;               //同步库连接的描述
 
-
     public String getProjectName() {
         return projectName;
     }
@@ -171,4 +170,5 @@ public class DeployDbscript extends DeployDbscriptDO {
     public void setDblinkDescForSync(String dblinkDescForSync) {
         this.dblinkDescForSync = dblinkDescForSync;
     }
+
 }

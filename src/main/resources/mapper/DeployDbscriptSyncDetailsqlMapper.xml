@@ -214,4 +214,10 @@
     where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectCountByDeployDbscriptId" resultType="java.lang.Integer" parameterType="java.lang.String">
+    select count(1)
+    from t_deploy_dbscript_sync_detailsql
+    where deploydbscriptid = #{deploydbscriptid,jdbcType=VARCHAR}
+  </select>
+
 </mapper>

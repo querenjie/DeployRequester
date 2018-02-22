@@ -209,6 +209,7 @@
             var description = $("#description").val();
             var applier = $("#applier").val();
             var forcetodoit = $("#forcetodoit").val();
+            var canexecute = $("#canexecute").val();
 
             var errorMsg = "";
             if ($.trim(belong) == "") {
@@ -239,6 +240,7 @@
             DeployDbscriptDTO.description = description;
             DeployDbscriptDTO.applier = applier;
             DeployDbscriptDTO.forcetodoit = forcetodoit;
+            DeployDbscriptDTO.canexecute = canexecute;
 
             $("#btnSave").attr("disabled", true);
             $.ajax({
@@ -315,7 +317,7 @@
 <form id="formEdit" name="formEdit">
     <table id="tblEdit" align="center" width="60%" border="1">
         <tr>
-            <td colspan="2">
+            <td colspan="2" width="900">
                 <font color="red">目标数据库环境：</font>
                 <select id="belong">
                     <option value=""></option>
@@ -335,8 +337,10 @@
             </td>
         </tr>
         <tr>
-            <td width="170"><font color="red">脚本语句：</font></td>
-            <td colspan="3"><textarea id="dbscript" cols="100" rows="20"></textarea></td>
+            <td ><font color="red">脚本语句：</font></td>
+            <td colspan="3">
+                <textarea id="dbscript" cols="100" rows="20"></textarea>
+            </td>
         </tr>
         <tr id="tr_forcesubmit" style="display:none">
             <td><font color="red">是否强制提交危险语句：</font></td>
@@ -349,12 +353,25 @@
         </tr>
         <tr>
             <td>附加描述：</td>
-            <td colspan="3"><textarea id="description" cols="100" rows="10"></textarea></td>
+            <td colspan="3">
+                <textarea id="description" cols="100" rows="10"></textarea>
+            </td>
         </tr>
         <tr>
-            <td><font color="red">申请者：</font></td>
-            <td><input type="text" id="applier" readonly></td>
-            <td colspan=2 align="right">
+            <td colspan="2">
+                <font color="red">申请者：</font>
+                <input type="text" id="applier" size="10" readonly>
+            </td>
+            <td colspan="2">
+                <font color="red">何时执行：</font>
+                <select id="canexecute">
+                    <option value="0">暂缓执行</option>
+                    <option value="1">随时都可执行</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" align="right">
                 <input type="button" value="提交申请" id="btnSave" onclick="saveData();">
                 <input type="button" value="打开查询页面" id="btnOpenQueryPage" onclick="openQueryPage();">
             </td>

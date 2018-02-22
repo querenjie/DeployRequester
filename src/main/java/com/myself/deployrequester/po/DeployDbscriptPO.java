@@ -50,6 +50,8 @@ public class DeployDbscriptPO {
 
     private Short isabandonedforsync;
 
+    private Short canexecute;
+
     public String getDeploydbscriptid() {
         return deploydbscriptid;
     }
@@ -232,5 +234,13 @@ public class DeployDbscriptPO {
 
     public void setIsabandonedforsync(Short isabandonedforsync) {
         this.isabandonedforsync = isabandonedforsync;
+    }
+
+    public Short getCanexecute() {
+        return canexecute;
+    }
+
+    public void setCanexecute(Short canexecute) {
+        this.canexecute = canexecute;
     }
 }

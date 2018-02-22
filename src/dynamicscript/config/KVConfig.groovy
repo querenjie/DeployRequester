@@ -483,6 +483,10 @@ class KVConfig extends AbstractConfig {
         //发布数据库脚本到生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯
+
+        //修改是否可以随时发布脚本的权限配置
+        addAllowedIpConfig("172.19.14.144", Config.CHANGE_CAN_EXEC_DBSCRIPT);
+        addAllowedIpConfig("172.19.14.236", Config.CHANGE_CAN_EXEC_DBSCRIPT);        //正卯
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
     }
 }

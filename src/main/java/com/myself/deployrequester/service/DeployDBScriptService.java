@@ -331,11 +331,11 @@ public class DeployDBScriptService extends CommonDataService {
     }
 
     /**
-     * 修改脚本申请记录的放弃标志
+     * 修改脚本申请记录
      * @param deployDbscriptDO
      * @return
      */
-    public int modifiyIsabandoned(DeployDbscriptDO deployDbscriptDO) throws Exception {
+    public int modifiy(DeployDbscriptDO deployDbscriptDO) throws Exception {
         DeployDbscriptPO deployDbscriptPO = new DeployDbscriptPO();
         BeanUtils.copyProperties(deployDbscriptDO, deployDbscriptPO, true);
         int updateSuccessCount = deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);

@@ -29,6 +29,7 @@ public class DeployDbscriptDTO {
     private Short executestatusforsync;
     private String failuremsgforsync;
     private Short isabandonedforsync;
+    private Short canexecute;
 
     private String forcetodoit;     //yes表示强制提交这个申请，尽管里面有危险的sql
 
@@ -222,5 +223,13 @@ public class DeployDbscriptDTO {
 
     public void setIsabandonedforsync(Short isabandonedforsync) {
         this.isabandonedforsync = isabandonedforsync;
+    }
+
+    public Short getCanexecute() {
+        return canexecute;
+    }
+
+    public void setCanexecute(Short canexecute) {
+        this.canexecute = canexecute;
     }
 }

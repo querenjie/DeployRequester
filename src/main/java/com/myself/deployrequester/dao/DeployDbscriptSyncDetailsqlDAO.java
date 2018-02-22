@@ -47,4 +47,10 @@ public interface DeployDbscriptSyncDetailsqlDAO {
      */
     Short selectMaxSeqno(String deployDbscriptId);
 
+    /**
+     * 获取某个指定的脚本申请记录的同步子脚本数量，以此判断是否这个脚本申请具有同步脚本。
+     * @param deployDbscriptId
+     * @return
+     */
+    int selectCountByDeployDbscriptId(String deployDbscriptId);
 }
