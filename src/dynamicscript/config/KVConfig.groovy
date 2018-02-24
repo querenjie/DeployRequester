@@ -415,6 +415,8 @@ class KVConfig extends AbstractConfig {
         addIpAndCrewNameMapping("172.19.14.181", "彭超伟", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.247", "恒砺", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.212", "承宇", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.164", "元吉", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.213", "长风", RoleEnum.DEVELOPER);
 
         addIpAndCrewNameMapping("172.19.14.211", "王志超", RoleEnum.TESTER);
         addIpAndCrewNameMapping("172.19.14.151", "宋伟", RoleEnum.TESTER);
@@ -426,7 +428,7 @@ class KVConfig extends AbstractConfig {
         /*********************添加客户端ip地址和对应的开发人员的映射关系 ( end ) **********************/
 
         /**********配置允许访问此发布申请系统的ip地址 (begin) **************************************************/
-        //发布权限配置
+        //发布权限配置(应用的发布和数据库脚本的发布)
         addAllowedIpConfig("172.19.14.144", Config.USE_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.173", Config.USE_DEPLOY_URL);     //徐光兴
         addAllowedIpConfig("172.19.14.134", Config.USE_DEPLOY_URL);     //至真
@@ -449,6 +451,8 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.181", Config.USE_DEPLOY_URL);     //彭超伟
         addAllowedIpConfig("172.19.14.247", Config.USE_DEPLOY_URL);     //恒砺
         addAllowedIpConfig("172.19.14.212", Config.USE_DEPLOY_URL);     //承宇
+        addAllowedIpConfig("172.19.14.164", Config.USE_DEPLOY_URL);     //元吉
+        addAllowedIpConfig("172.19.14.213", Config.USE_DEPLOY_URL);     //长风
 
         //显示发布路径的权限配置
         addAllowedIpConfig("172.19.14.144", Config.VIEW_DEPLOY_URL);
@@ -471,6 +475,8 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.131", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.174", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.212", Config.VIEW_DEPLOY_URL);
+        addAllowedIpConfig("172.19.14.164", Config.VIEW_DEPLOY_URL);
+        addAllowedIpConfig("172.19.14.213", Config.VIEW_DEPLOY_URL);
 
         //标识已经发布过生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.MARK_PRODUCT_DEPLOY);
@@ -480,7 +486,7 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.144", Config.LOCK_DEPLOY_REQUEST);
         addAllowedIpConfig("172.19.14.236", Config.LOCK_DEPLOY_REQUEST);    //正卯
 
-        //发布数据库脚本到生产的权限配置
+        //发布数据库脚本到预发和生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯
 
