@@ -25,6 +25,8 @@ public class QueryDbscriptDO {
     private Short executestatusForSync;             //同步脚本的执行状态
     private String showExcuteOptionForSync;         //同步脚本的，'yes'表示只显示需要执行的脚本,否则全都显示。
     private Short canexecute;                   //是否可以随时执行。0：暂时不可执行；1：可以随时执行
+    private String formatedExecutetimeforsyncBegin;
+    private String formatedExecutetimeforsyncEnd;
 
     public Short getProjectid() {
         return projectid;
@@ -192,5 +194,21 @@ public class QueryDbscriptDO {
 
     public void setCanexecute(Short canexecute) {
         this.canexecute = canexecute;
+    }
+
+    public String getFormatedExecutetimeforsyncBegin() {
+        return formatedExecutetimeforsyncBegin;
+    }
+
+    public void setFormatedExecutetimeforsyncBegin(String formatedExecutetimeforsyncBegin) {
+        this.formatedExecutetimeforsyncBegin = formatedExecutetimeforsyncBegin;
+    }
+
+    public String getFormatedExecutetimeforsyncEnd() {
+        return formatedExecutetimeforsyncEnd;
+    }
+
+    public void setFormatedExecutetimeforsyncEnd(String formatedExecutetimeforsyncEnd) {
+        this.formatedExecutetimeforsyncEnd = formatedExecutetimeforsyncEnd;
     }
 }

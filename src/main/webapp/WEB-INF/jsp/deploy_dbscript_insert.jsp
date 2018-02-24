@@ -242,7 +242,6 @@
             DeployDbscriptDTO.forcetodoit = forcetodoit;
             DeployDbscriptDTO.canexecute = canexecute;
 
-            $("#btnSave").attr("disabled", true);
             $.ajax({
                 type: "POST",
                 url: "<%=basePath%>depdbscript/saveDBScript",
@@ -255,7 +254,6 @@
                         if (resultData.data != null && resultData.data.length > 0) {
                             if (resultData.msg == "failed") {
                                 alert(resultData.data[0]);
-                                $("#btnSave").removeAttr("disabled");
                                 return;
                             }
                             if (resultData.data[0] == 1) {
@@ -268,7 +266,6 @@
                                     $("#tr_forcesubmit").show();
                                 }
                             }
-                            $("#btnSave").removeAttr("disabled");
                         }
                     }
                 },
@@ -276,12 +273,10 @@
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
                             alert(resultData.data[0]);
-                            $("#btnSave").removeAttr("disabled");
                             return;
                         }
                     }
                     $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
-                    $("#btnSave").removeAttr("disabled");
                 }
             });
 

@@ -231,6 +231,11 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                                     result.addData("保存申请记录的过程成功。");
                                     return result;
                                 }
+                            } else {
+                                //如果没有找到同步库，返回成功。
+                                result = JsonResult.createSuccess("save data successfully");
+                                result.addData("保存申请记录的过程成功。");
+                                return result;
                             }
                         }
                     }
@@ -832,6 +837,198 @@ public class DeployDbscriptController extends CommonMethodWrapper {
         }
 
         return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/assignDeployDbscriptSuccess", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult assignDeployDbscriptSuccess(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result = null;
+
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbscriptid())) {
+            result = JsonResult.createFailed("save data failed");
+            result.addData("缺少主键，操作中止。");
+            return result;
+        }
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canDeployDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限设置脚本的执行状态,请找管理员开权限。");
+            return result;
+        }
+        deployDbscriptDTO.setExecutor(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+        deployDbscriptDTO.setExecutorip(clientIpAddr);
+        deployDbscriptDTO.setExecutetime(new Date());
+        deployDbscriptDTO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        BeanUtils.copyProperties(deployDbscriptDTO, deployDbscriptDO, true);
+        try {
+            int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
+            if (updateSuccessCount == 1) {
+                result = JsonResult.createSuccess("save data successfully");
+                result.addData("设置成功。");
+                return result;
+            } else if (updateSuccessCount == 0) {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("貌似没找到需要更新的记录。");
+                return result;
+            } else {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("更新的记录数量多余一条(更新了 " + updateSuccessCount + " 条记录)，这不正常。");
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "更新记录出问题", e);
+            result = JsonResult.createFailed("save data failed");
+            result.addData("更新记录出问题。");
+            return result;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/cancelDeployDbscriptSuccess", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult cancelDeployDbscriptSuccess(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result = null;
+
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbscriptid())) {
+            result = JsonResult.createFailed("save data failed");
+            result.addData("缺少主键，操作中止。");
+            return result;
+        }
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canDeployDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限设置脚本的执行状态,请找管理员开权限。");
+            return result;
+        }
+        deployDbscriptDTO.setExecutor(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+        deployDbscriptDTO.setExecutorip(clientIpAddr);
+        deployDbscriptDTO.setExecutetime(new Date());
+        deployDbscriptDTO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.NOT_EXECUTE_YET.getCode())));
+
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        BeanUtils.copyProperties(deployDbscriptDTO, deployDbscriptDO, true);
+        try {
+            int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
+            if (updateSuccessCount == 1) {
+                result = JsonResult.createSuccess("save data successfully");
+                result.addData("设置成功。");
+                return result;
+            } else if (updateSuccessCount == 0) {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("貌似没找到需要更新的记录。");
+                return result;
+            } else {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("更新的记录数量多余一条(更新了 " + updateSuccessCount + " 条记录)，这不正常。");
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "更新记录出问题", e);
+            result = JsonResult.createFailed("save data failed");
+            result.addData("更新记录出问题。");
+            return result;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/assignDeployDbscriptForSyncSuccess", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult assignDeployDbscriptForSyncSuccess(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result = null;
+
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbscriptid())) {
+            result = JsonResult.createFailed("save data failed");
+            result.addData("缺少主键，操作中止。");
+            return result;
+        }
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canDeployDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限设置脚本的执行状态,请找管理员开权限。");
+            return result;
+        }
+        deployDbscriptDTO.setExecutorforsync(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+        deployDbscriptDTO.setExecutoripforsync(clientIpAddr);
+        deployDbscriptDTO.setExecutetimeforsync(new Date());
+        deployDbscriptDTO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        BeanUtils.copyProperties(deployDbscriptDTO, deployDbscriptDO, true);
+        try {
+            int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
+            if (updateSuccessCount == 1) {
+                result = JsonResult.createSuccess("save data successfully");
+                result.addData("设置成功。");
+                return result;
+            } else if (updateSuccessCount == 0) {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("貌似没找到需要更新的记录。");
+                return result;
+            } else {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("更新的记录数量多余一条(更新了 " + updateSuccessCount + " 条记录)，这不正常。");
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "更新记录出问题", e);
+            result = JsonResult.createFailed("save data failed");
+            result.addData("更新记录出问题。");
+            return result;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/cancelDeployDbscriptForSyncSuccess", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult cancelDeployDbscriptForSyncSuccess(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result = null;
+
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbscriptid())) {
+            result = JsonResult.createFailed("save data failed");
+            result.addData("缺少主键，操作中止。");
+            return result;
+        }
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canDeployDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限设置脚本的执行状态,请找管理员开权限。");
+            return result;
+        }
+        deployDbscriptDTO.setExecutorforsync(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+        deployDbscriptDTO.setExecutoripforsync(clientIpAddr);
+        deployDbscriptDTO.setExecutetimeforsync(new Date());
+        deployDbscriptDTO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.NOT_EXECUTE_YET.getCode())));
+
+        DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+        BeanUtils.copyProperties(deployDbscriptDTO, deployDbscriptDO, true);
+        try {
+            int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
+            if (updateSuccessCount == 1) {
+                result = JsonResult.createSuccess("save data successfully");
+                result.addData("设置成功。");
+                return result;
+            } else if (updateSuccessCount == 0) {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("貌似没找到需要更新的记录。");
+                return result;
+            } else {
+                result = JsonResult.createFailed("save data failed");
+                result.addData("更新的记录数量多余一条(更新了 " + updateSuccessCount + " 条记录)，这不正常。");
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "更新记录出问题", e);
+            result = JsonResult.createFailed("save data failed");
+            result.addData("更新记录出问题。");
+            return result;
+        }
     }
 
     /**

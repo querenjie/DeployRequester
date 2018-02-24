@@ -612,7 +612,7 @@
                 <select id="belong">
                     <option value=""></option>
                     <option value="1">预发环境</option>
-                    <option value="2">生产环境</option>
+                    <!--option value="2">生产环境</option-->
                 </select>
             </td>
             <td>

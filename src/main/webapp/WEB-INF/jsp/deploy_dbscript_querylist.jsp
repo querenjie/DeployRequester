@@ -309,6 +309,47 @@
                                 $("#tr_detail_isabandoned").show();
                             }
 
+                            if (deployDbscript.belong == 1) {
+                                //如果脚本是预发环境的，则显示和隐藏掉页面中的某些元素
+                                $("#tr_detail_failuremsg").show();
+                                $("#tr_detail_executedSql").show();
+                                $("#btnDeployDbScript").show();
+                                $("#btnAssignDeployDbScriptSuccess").hide();
+                                $("#btnCancelDeployDbScriptSuccess").hide();
+                            }
+                            if (deployDbscript.belong == 2) {
+                                //如果脚本是生产环境的，则隐藏掉页面中的某些元素
+                                $("#tr_detail_unexecutedSql").show();
+                                $("#tr_detail_failuremsg").hide();
+                                $("#tr_detail_executedSql").hide();
+                                $("#btnDeployDbScript").hide();
+                                if (deployDbscript.isabandoned == 0) {
+                                    //如果脚本是未放弃状态(0：未放弃；1：已放弃)
+                                    if (deployDbscript.executestatus == 0) {
+                                        //执行状态为未执行(0：未执行；1：成功；-1：失败；2：正在执行)
+                                        $("#btnAssignDeployDbScriptSuccess").show();
+                                        $("#btnCancelDeployDbScriptSuccess").hide();
+                                        if (deployDbscript.canexecute == 0) {
+                                            //0：暂时不可执行；1：可以随时执行
+                                            $("#btnAssignDeployDbScriptSuccess").attr("disabled", true);
+                                        } else {
+                                            $("#btnAssignDeployDbScriptSuccess").removeAttr("disabled");
+                                        }
+                                    }
+                                    if (deployDbscript.executestatus == 1) {
+                                        //执行状态为成功(0：未执行；1：成功；-1：失败；2：正在执行)
+                                        $("#btnAssignDeployDbScriptSuccess").hide();
+                                        $("#btnCancelDeployDbScriptSuccess").show();
+                                        if (deployDbscript.canexecute == 0) {
+                                            //0：暂时不可执行；1：可以随时执行
+                                            $("#btnCancelDeployDbScriptSuccess").attr("disabled", true);
+                                        } else {
+                                            $("#btnCancelDeployDbScriptSuccess").removeAttr("disabled");
+                                        }
+                                    }
+                                }
+                            }
+
                             ///////////////以下是同步脚本相关的/////////////////////////////////////////////////////////////////////////////////
                             if (deployDbscript.hasSyncSql == "yes") {
                                 $("#tbl_detail_sync").show();
@@ -366,6 +407,47 @@
                                 $("#tr_detail_isabandoned_sync").show();
                             }
 
+                            if (deployDbscript.belong == 1) {
+                                //如果脚本是预发环境的，则显示和隐藏掉页面中的某些元素
+                                $("#tr_detail_failuremsg_sync").show();
+                                $("#tr_detail_executedSql_sync").show();
+                                $("#btnDeployDbScriptForSync").show();
+                                $("#btnAssignDeployDbScriptForSyncSuccess").hide();
+                                $("#btnCancelDeployDbScriptForSyncSuccess").hide();
+                            }
+                            if (deployDbscript.belong == 2) {
+                                //如果脚本是生产环境的，则显示和隐藏掉页面中的某些元素
+                                $("#tr_detail_unexecutedSql_sync").show();
+                                $("#tr_detail_failuremsg_sync").hide();
+                                $("#tr_detail_executedSql_sync").hide();
+                                $("#btnDeployDbScriptForSync").hide();
+                                if (deployDbscript.isabandonedforsync == 0) {
+                                    //如果脚本是未放弃状态(0：未放弃；1：已放弃)
+                                    if (deployDbscript.executestatusforsync == 0) {
+                                        //执行状态为未执行(0：未执行；1：成功；-1：失败；2：正在执行)
+                                        $("#btnAssignDeployDbScriptForSyncSuccess").show();
+                                        $("#btnCancelDeployDbScriptForSyncSuccess").hide();
+                                        if (deployDbscript.canexecute == 0) {
+                                            //0：暂时不可执行；1：可以随时执行
+                                            $("#btnAssignDeployDbScriptForSyncSuccess").attr("disabled", true);
+                                        } else {
+                                            $("#btnAssignDeployDbScriptForSyncSuccess").removeAttr("disabled");
+                                        }
+                                    }
+                                    if (deployDbscript.executestatusforsync == 1) {
+                                        //执行状态为成功(0：未执行；1：成功；-1：失败；2：正在执行)
+                                        $("#btnAssignDeployDbScriptForSyncSuccess").hide();
+                                        $("#btnCancelDeployDbScriptForSyncSuccess").show();
+                                        if (deployDbscript.canexecute == 0) {
+                                            //0：暂时不可执行；1：可以随时执行
+                                            $("#btnCancelDeployDbScriptForSyncSuccess").attr("disabled", true);
+                                        } else {
+                                            $("#btnCancelDeployDbScriptForSyncSuccess").removeAttr("disabled");
+                                        }
+                                    }
+                                }
+                            }
+
                             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -387,21 +469,23 @@
         }
 
         function doQuery() {
+            var belong = $("#belong").val();
             var projectCode = $("#projectcode").val();
             var moduleCode = $("#modulecode").val();
             var applier = $("#applier").val();
             var formatedCreatetimeBegin = $("#formatedCreatetimeBegin").val();
             var formatedCreatetimeEnd = $("#formatedCreatetimeEnd").val();
             var dbscript = $("#dbscript").val();
-            var description = $("#description").val();
             var formatedExecutetimeBegin = $("#formatedExecutetimeBegin").val();
             var formatedExecutetimeEnd = $("#formatedExecutetimeEnd").val();
             var executestatus = $("#executestatus").val();
             var failuremsg = $("#failuremsg").val();
             var showExcuteOption = $("#showExcuteOption").val();
-            var executestatusForSync = $("#executestatus_sync").val();
-            var showExcuteOptionForSync = $("#showExcuteOption_sync").val();
+            var executestatusForSync = $("#executestatusforsync").val();
+            var showExcuteOptionForSync = $("#showExcuteOptionforsync").val();
             var canexecute = $("#canexecute").val();
+            var formatedExecutetimeforsyncBegin = $("#formatedExecutetimeforsyncBegin").val();
+            var formatedExecutetimeforsyncEnd = $("#formatedExecutetimeforsyncEnd").val();
 
 
             if (projectCode == "") {
@@ -430,10 +514,10 @@
             $("#processAction").html("正在查询中......");
 
             var QueryDbscriptDTO = {};
+            if (belong != "")   QueryDbscriptDTO.belong = belong;
             if (projectCode != "") QueryDbscriptDTO.projectid = projectCode;
             if (moduleCode != "") QueryDbscriptDTO.moduleid = moduleCode;
             if (dbscript != "") QueryDbscriptDTO.dbscript = dbscript;
-            if (description != "") QueryDbscriptDTO.description = description;
             if (applier != "") QueryDbscriptDTO.applier = applier;
             if (formatedCreatetimeBegin != "") QueryDbscriptDTO.formatedCreatetimeBegin = formatedCreatetimeBegin;
             if (formatedCreatetimeEnd != "") QueryDbscriptDTO.formatedCreatetimeEnd = formatedCreatetimeEnd;
@@ -445,6 +529,8 @@
             if (executestatusForSync != "") QueryDbscriptDTO.executestatusForSync = executestatusForSync;
             if (showExcuteOptionForSync != "") QueryDbscriptDTO.showExcuteOptionForSync = showExcuteOptionForSync;
             if (canexecute != "") QueryDbscriptDTO.canexecute = canexecute;
+            if (formatedExecutetimeforsyncBegin != "") QueryDbscriptDTO.formatedExecutetimeforsyncBegin = formatedExecutetimeforsyncBegin;
+            if (formatedExecutetimeforsyncEnd != "") QueryDbscriptDTO.formatedExecutetimeforsyncEnd = formatedExecutetimeforsyncEnd;
 
             $.ajax({
                 type: "POST",
@@ -1039,6 +1125,123 @@
             doQueryDetail(gDeployDbscriptId);
             doQuery();
         }
+
+        /**
+         * 设置执行脚本成功
+         */
+        function doAssignDeployDbscriptSuccess() {
+            var deployDbscriptDTO = {};
+            deployDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/assignDeployDbscriptSuccess",
+                async: false,       //false:同步
+                data:JSON.stringify(deployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "save data successfully") {
+                            alert(resultData.data[0]);
+                            doQueryDetailAgain();
+                        } else {
+                            alert(resultData.data[0]);
+                        }
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
+        /**
+         * 取消执行脚本成功
+         */
+        function doCancelDeployDbscriptSuccess() {
+            var deployDbscriptDTO = {};
+            deployDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/cancelDeployDbscriptSuccess",
+                async: false,       //false:同步
+                data:JSON.stringify(deployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "save data successfully") {
+                            alert(resultData.data[0]);
+                            doQueryDetailAgain();
+                        } else {
+                            alert(resultData.data[0]);
+                        }
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
+        /**
+         * 设置执行同步脚本成功
+         */
+        function doAssignDeployDbscriptForSyncSuccess() {
+            var deployDbscriptDTO = {};
+            deployDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/assignDeployDbscriptForSyncSuccess",
+                async: false,       //false:同步
+                data:JSON.stringify(deployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "save data successfully") {
+                            alert(resultData.data[0]);
+                            doQueryDetailAgain();
+                        } else {
+                            alert(resultData.data[0]);
+                        }
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
+        /**
+         * 取消执行同步脚本成功
+         */
+        function doCancelDeployDbscriptForSyncSuccess() {
+            var deployDbscriptDTO = {};
+            deployDbscriptDTO.deploydbscriptid = gDeployDbscriptId;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/cancelDeployDbscriptForSyncSuccess",
+                async: false,       //false:同步
+                data:JSON.stringify(deployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg == "save data successfully") {
+                            alert(resultData.data[0]);
+                            doQueryDetailAgain();
+                        } else {
+                            alert(resultData.data[0]);
+                        }
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
     </script>
 </head>
 <body>
@@ -1059,7 +1262,7 @@
 
     <div><font color="red" id="serverStatus" size="5"></font> </div>
 
-    <table align="center" width="80%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
+    <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
         <tr>
             <td align="right" colspan="4">
                 <input id="btnDbserversConfig" type="button" value="打开数据库连接配置管理的页面" onclick="openDbLinkConfigPage();">
@@ -1067,11 +1270,19 @@
         </tr>
         <tr bgcolor="#5f9ea0"><td align="left" colspan="4">脚本发布情况查询--条件区域</td></tr>
         <tr>
-            <td><font color="red">项目名称：</font>
-                <select id="projectcode" onchange="initModules();">
+            <td>
+                目标数据库：
+                <select id="belong">
+                    <option value="">全部</option>
+                    <option value="1">预发环境</option>
+                    <option value="2">生产环境</option>
                 </select>
             </td>
-            <td>模块：
+            <td>
+                <font color="red">项目名称：</font>
+                <select id="projectcode" onchange="initModules();">
+                </select>
+                模块：
                 <select id="modulecode">
                 </select>
             </td>
@@ -1085,14 +1296,12 @@
         </tr>
         <tr>
             <td colspan="2">脚本语句(模糊查询)：<br><textarea id="dbscript" cols="80" rows="3"></textarea></td>
-            <td colspan="2">附加描述(模糊查询)：<br><textarea id="description" cols="80" rows="3"></textarea></td>
-        </tr>
-        <tr>
-            <td>发布生产的日期范围：
+            <td>执行脚本的日期范围：
                 <input id="formatedExecutetimeBegin" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>到
                 <input id="formatedExecutetimeEnd" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>
             </td>
-            <td>脚本执行状态：
+            <td>
+                脚本执行状态：
                 <select id="executestatus">
                     <option value="">全部</option>
                     <option value="0">未执行</option>
@@ -1100,24 +1309,31 @@
                     <option value="-1">执行失败</option>
                 </select>
                 <br>
-                是否需要执行的选项：
+                是否只显示需要执行的脚本：
                 <select id="showExcuteOption">
                     <option value="">全部</option>
                     <option value="yes">只显示需要执行的脚本</option>
                 </select>
-                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>执行同步脚本的日期范围：
+                <input id="formatedExecutetimeforsyncBegin" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>到
+                <input id="formatedExecutetimeforsyncEnd" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>
+            </td>
+            <td>
                 同步脚本执行状态：
-                <select id="executestatus_sync">
+                <select id="executestatusforsync">
                     <option value="">全部</option>
                     <option value="0">未执行</option>
                     <option value="1">执行成功</option>
                     <option value="-1">执行失败</option>
                 </select>
                 <br>
-                同步脚本是否需要执行的选项：
-                <select id="showExcuteOption_sync">
+                是否只显示需要执行的同步脚本：
+                <select id="showExcuteOptionforsync">
                     <option value="">全部</option>
-                    <option value="yes">只显示需要执行的脚本</option>
+                    <option value="yes">只显示需要执行的同步脚本</option>
                 </select>
             </td>
             <td>执行报错原因(模糊查询)：<br><textarea id="failuremsg" cols="50" rows="4"></textarea></td>
@@ -1134,7 +1350,7 @@
         </tr>
     </table>
     <br>
-    <table align="center" width="80%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
+    <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
         <tr><td align="center" bgcolor="#9acd32"><font id="processAction">提示：请选择条件进行查询</font></td></tr>
         <tr>
             <td>
@@ -1203,11 +1419,11 @@
                 <td bgcolor='#ffe4c4'>执行状态:</td>
                 <td id="detail_executeStatusDesc">&nbsp;</td>
             </tr>
-            <tr>
+            <tr id="tr_detail_failuremsg">
                 <td bgcolor='#ffe4c4'>执行报错信息:</td>
                 <td><textarea id="detail_failuremsg" cols="110" rows="3" readonly></textarea></td>
             </tr>
-            <tr>
+            <tr id="tr_detail_executedSql">
                 <td bgcolor='#ffe4c4'>已经执行的sql:</td>
                 <td><textarea id="detail_executedSql" cols="110" rows="5" readonly></textarea></td>
             </tr>
@@ -1236,6 +1452,8 @@
                     <input id="btnAbandonDeployDbScript" type="button" value="放弃发布脚本" onclick="doAbandonDeployDbscript();">
                     <input id="btnApplyRedeployDbScript" type="button" value="申请重新发布脚本" onclick="doApplyRedeployDbscript();">
                     <input id="btnDeployDbScript" type="button" value="发布脚本" onclick="doDeployDbscript();">
+                    <input id="btnAssignDeployDbScriptSuccess" type="button" value="设置执行脚本成功" onclick="doAssignDeployDbscriptSuccess();" style="display: none">
+                    <input id="btnCancelDeployDbScriptSuccess" type="button" value="取消执行脚本成功" onclick="doCancelDeployDbscriptSuccess();" style="display: none">
                     <input type="button" value="关闭" onclick="doCloseDiv();">
                 </td>
             </tr>
@@ -1261,11 +1479,11 @@
                 <td bgcolor='#ffe4c4'>执行状态:</td>
                 <td id="detail_executeStatusDesc_sync">&nbsp;</td>
             </tr>
-            <tr>
+            <tr id="tr_detail_failuremsg_sync">
                 <td bgcolor='#ffe4c4'>执行报错信息:</td>
                 <td><textarea id="detail_failuremsg_sync" cols="110" rows="3" readonly></textarea></td>
             </tr>
-            <tr>
+            <tr id="tr_detail_executedSql_sync">
                 <td bgcolor='#ffe4c4'>已经执行的sql:</td>
                 <td><textarea id="detail_executedSql_sync" cols="110" rows="5" readonly></textarea></td>
             </tr>
@@ -1291,6 +1509,8 @@
                     <input id="btnAbandonDeployDbScriptForSync" type="button" value="放弃发布同步脚本" onclick="doAbandonDeployDbscriptForSync();">
                     <input id="btnApplyRedeployDbScriptForSync" type="button" value="申请重新发布同步脚本" onclick="doApplyRedeployDbscriptForSync();">
                     <input id="btnDeployDbScriptForSync" type="button" value="发布同步脚本" onclick="doDeployDbscriptForSync();">
+                    <input id="btnAssignDeployDbScriptForSyncSuccess" type="button" value="设置执行同步脚本成功" onclick="doAssignDeployDbscriptForSyncSuccess();" style="display: none">
+                    <input id="btnCancelDeployDbScriptForSyncSuccess" type="button" value="取消执行同步脚本成功" onclick="doCancelDeployDbscriptForSyncSuccess();" style="display: none">
                     <input type="button" value="关闭" onclick="doCloseDiv();">
                 </td>
             </tr>

@@ -411,6 +411,16 @@
     <if test="canexecute != null">
       and canexecute = #{canexecute}
     </if>
+    <if test="formatedExecutetimeforsyncBegin != null and formatedExecutetimeforsyncBegin != ''">
+      <![CDATA[
+      and executetimeforsync >= to_date(#{formatedExecutetimeforsyncBegin}, 'YYYY-MM-DD')
+    ]]>
+    </if>
+    <if test="formatedExecutetimeforsyncEnd != null and formatedExecutetimeforsyncEnd != ''">
+      <![CDATA[
+      and executetimeforsync < to_date(#{formatedExecutetimeforsyncEnd}, 'YYYY-MM-DD') + interval '1d'
+    ]]>
+    </if>
     ORDER BY createtime DESC
   </select>
 </mapper>
