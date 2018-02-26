@@ -416,6 +416,24 @@ public class DeployDBScriptService extends CommonDataService {
         return deployDbscriptDAO.updateByPrimaryKeySelective(deployDbscriptPO);
     }
 
+    public List<DeployDbscript> selectOnlyNeedDeployByQueryDbscriptDO(QueryDbscriptDO queryDbscriptDO) throws Exception {
+        QueryDbscriptPO queryDbscriptPO = new QueryDbscriptPO();
+        BeanUtils.copyProperties(queryDbscriptDO, queryDbscriptPO, true);
+        List<DeployDbscriptPO> deployDbscriptPOList = deployDbscriptDAO.selectOnlyNeedDeployByQueryDbscriptPO(queryDbscriptPO);
+        if (deployDbscriptPOList == null) {
+            return null;
+        }
+        List<DeployDbscript> deployDbscriptList = new ArrayList<DeployDbscript>();
+        for (DeployDbscriptPO deployDbscriptPO : deployDbscriptPOList) {
+            DeployDbscript deployDbscript = new DeployDbscript();
+            BeanUtils.copyProperties(deployDbscriptPO, deployDbscript, true);
+            fillDeployDbscript(deployDbscript);
+            deployDbscriptList.add(deployDbscript);
+        }
+        return deployDbscriptList;
+    }
+
+
     private void fillDeployDbscript(DeployDbscript deployDbscript) {
         if (deployDbscript == null) {
             return;

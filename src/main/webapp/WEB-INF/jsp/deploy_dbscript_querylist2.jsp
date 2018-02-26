@@ -12,7 +12,7 @@
 %>
 <html>
 <head>
-    <title>脚本发布情况查询</title>
+    <title>脚本发布情况查询(专门用于查看有哪些需要发布)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="<%=basePath%>resources/core/css/remodal.css">
     <link rel="stylesheet" href="<%=basePath%>resources/core/css/remodal-default-theme.css">
@@ -58,6 +58,7 @@
             initBeatPicker();
 
             setInterval("doRetrieveMsg()", 3000);
+            doQuery();
         });
 
         function doRetrieveMsg() {
@@ -472,44 +473,6 @@
             var belong = $("#belong").val();
             var projectCode = $("#projectcode").val();
             var moduleCode = $("#modulecode").val();
-            var applier = $("#applier").val();
-            var formatedCreatetimeBegin = $("#formatedCreatetimeBegin").val();
-            var formatedCreatetimeEnd = $("#formatedCreatetimeEnd").val();
-            var dbscript = $("#dbscript").val();
-            var formatedExecutetimeBegin = $("#formatedExecutetimeBegin").val();
-            var formatedExecutetimeEnd = $("#formatedExecutetimeEnd").val();
-            var executestatus = $("#executestatus").val();
-            var failuremsg = $("#failuremsg").val();
-            var showExcuteOption = $("#showExcuteOption").val();
-            var executestatusForSync = $("#executestatusforsync").val();
-            var showExcuteOptionForSync = $("#showExcuteOptionforsync").val();
-            var canexecute = $("#canexecute").val();
-            var formatedExecutetimeforsyncBegin = $("#formatedExecutetimeforsyncBegin").val();
-            var formatedExecutetimeforsyncEnd = $("#formatedExecutetimeforsyncEnd").val();
-
-
-            if (projectCode == "") {
-                alert("必须选择项目");
-                return;
-            }
-            if (formatedCreatetimeBegin == "") {
-                alert("查询条件中的申请起始日期不能为空");
-                return;
-            }
-            var valveDateOfHalfYearBefore = getValveDateOfHalfYearBefore();
-            if (formatedCreatetimeBegin != "" && formatedCreatetimeBegin < valveDateOfHalfYearBefore) {
-                alert("查询条件中的申请起始日期不能小于" + valveDateOfHalfYearBefore);
-                return;
-            }
-            if (formatedCreatetimeEnd != "" && formatedCreatetimeEnd < valveDateOfHalfYearBefore) {
-                alert("查询条件中的申请结束日期不能小于" + valveDateOfHalfYearBefore);
-                return;
-            }
-            if (formatedCreatetimeEnd != "" && formatedCreatetimeEnd < formatedCreatetimeBegin) {
-                alert("查询条件中的申请结束日期不能小于" + formatedCreatetimeBegin);
-                return;
-            }
-
 
             $("#processAction").html("正在查询中......");
 
@@ -517,20 +480,6 @@
             if (belong != "")   QueryDbscriptDTO.belong = belong;
             if (projectCode != "") QueryDbscriptDTO.projectid = projectCode;
             if (moduleCode != "") QueryDbscriptDTO.moduleid = moduleCode;
-            if (dbscript != "") QueryDbscriptDTO.dbscript = dbscript;
-            if (applier != "") QueryDbscriptDTO.applier = applier;
-            if (formatedCreatetimeBegin != "") QueryDbscriptDTO.formatedCreatetimeBegin = formatedCreatetimeBegin;
-            if (formatedCreatetimeEnd != "") QueryDbscriptDTO.formatedCreatetimeEnd = formatedCreatetimeEnd;
-            if (formatedExecutetimeBegin != "") QueryDbscriptDTO.formatedExecutetimeBegin = formatedExecutetimeBegin;
-            if (formatedExecutetimeEnd != "") QueryDbscriptDTO.formatedExecutetimeEnd = formatedExecutetimeEnd;
-            if (executestatus != "") QueryDbscriptDTO.executestatus = executestatus;
-            if (failuremsg != "") QueryDbscriptDTO.failuremsg = failuremsg;
-            if (showExcuteOption != "") QueryDbscriptDTO.showExcuteOption = showExcuteOption;
-            if (executestatusForSync != "") QueryDbscriptDTO.executestatusForSync = executestatusForSync;
-            if (showExcuteOptionForSync != "") QueryDbscriptDTO.showExcuteOptionForSync = showExcuteOptionForSync;
-            if (canexecute != "") QueryDbscriptDTO.canexecute = canexecute;
-            if (formatedExecutetimeforsyncBegin != "") QueryDbscriptDTO.formatedExecutetimeforsyncBegin = formatedExecutetimeforsyncBegin;
-            if (formatedExecutetimeforsyncEnd != "") QueryDbscriptDTO.formatedExecutetimeforsyncEnd = formatedExecutetimeforsyncEnd;
 
             $.ajax({
                 type: "POST",
@@ -721,14 +670,6 @@
             $("#formatedCreatetimeBegin").val(getValveDateOfHalfYearBefore());
         }
         
-        function openDbLinkConfigPage() {
-            window.open("<%=basePath%>depdbservers/deploy_dbservers", "_blank");
-        }
-
-        function openQueryPageOfDbscriptOnlyNeedExecute() {
-            window.open("<%=basePath%>depdbscript/deploy_dbscript_querylist2", "_blank");
-        }
-
         function openEditStyle(deploydbserversid, belong) {
             var deployDbserversDTO = {};
             deployDbserversDTO.belong = belong;
@@ -1267,19 +1208,11 @@
     <div><font color="red" id="serverStatus" size="5"></font> </div>
 
     <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
-        <tr>
-            <td align="right" colspan="4">
-                <input id="btnDbserversConfig" type="button" value="打开数据库连接配置管理的页面" onclick="openDbLinkConfigPage();">
-                <input type="button" value="打开只查看需要发布的脚本的查询页面" onclick="openQueryPageOfDbscriptOnlyNeedExecute();">
-            </td>
-        </tr>
-        <tr bgcolor="#5f9ea0"><td align="left" colspan="4">脚本发布情况查询--条件区域</td></tr>
+        <tr bgcolor="#5f9ea0"><td align="center" colspan="4"><b>查询需要发布的脚本</b>--条件区域</td></tr>
         <tr>
             <td>
                 目标数据库：
                 <select id="belong">
-                    <option value="">全部</option>
-                    <option value="1">预发环境</option>
                     <option value="2">生产环境</option>
                 </select>
             </td>
@@ -1291,67 +1224,7 @@
                 <select id="modulecode">
                 </select>
             </td>
-            <td>申请者姓名：
-                <input id="applier" type="text">
-            </td>
-            <td>提交申请的日期范围：
-                <input id="formatedCreatetimeBegin" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>到
-                <input id="formatedCreatetimeEnd" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">脚本语句(模糊查询)：<br><textarea id="dbscript" cols="80" rows="3"></textarea></td>
-            <td>执行脚本的日期范围：
-                <input id="formatedExecutetimeBegin" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>到
-                <input id="formatedExecutetimeEnd" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>
-            </td>
-            <td>
-                脚本执行状态：
-                <select id="executestatus">
-                    <option value="">全部</option>
-                    <option value="0">未执行</option>
-                    <option value="1">执行成功</option>
-                    <option value="-1">执行失败</option>
-                </select>
-                <br>
-                是否只显示需要执行的脚本：
-                <select id="showExcuteOption">
-                    <option value="">全部</option>
-                    <option value="yes">只显示需要执行的脚本</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>执行同步脚本的日期范围：
-                <input id="formatedExecutetimeforsyncBegin" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>到
-                <input id="formatedExecutetimeforsyncEnd" type="text" data-beatpicker="true" data-beatpicker-disable="{from:[2018,1,1],to:'<'}"/>
-            </td>
-            <td>
-                同步脚本执行状态：
-                <select id="executestatusforsync">
-                    <option value="">全部</option>
-                    <option value="0">未执行</option>
-                    <option value="1">执行成功</option>
-                    <option value="-1">执行失败</option>
-                </select>
-                <br>
-                是否只显示需要执行的同步脚本：
-                <select id="showExcuteOptionforsync">
-                    <option value="">全部</option>
-                    <option value="yes">只显示需要执行的同步脚本</option>
-                </select>
-            </td>
-            <td>执行报错原因(模糊查询)：<br><textarea id="failuremsg" cols="50" rows="4"></textarea></td>
-            <td>
-                何时执行：
-                <select id="canexecute">
-                    <option value="">全部</option>
-                    <option value="0">暂缓执行</option>
-                    <option value="1">随时都可执行</option>
-                </select>
-                <br>
-                <input type="button" value="查询" onclick="doQuery();">
-            </td>
+            <td align="center"><input type="button" value="查询" onclick="doQuery();"></td>
         </tr>
     </table>
     <br>

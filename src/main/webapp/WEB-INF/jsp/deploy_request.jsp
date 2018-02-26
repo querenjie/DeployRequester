@@ -111,7 +111,11 @@
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
                             $.each(resultData.data, function(index) {
-                                $("#projectcode").append("<option value=\"" + resultData.data[index].id + "\">" + resultData.data[index].id + "-" + resultData.data[index].projectName + "</option>");
+                                alert(resultData.data[index].id);
+                                //目前只有大宗可用
+                                if (resultData.data[index].id == 3) {
+                                    $("#projectcode").append("<option value=\"" + resultData.data[index].id + "\">" + resultData.data[index].id + "-" + resultData.data[index].projectName + "</option>");
+                                }
                             });
                         }
                     }

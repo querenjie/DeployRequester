@@ -11,6 +11,7 @@ class KVConfig extends AbstractConfig {
         addProject(1, "翌能");
         addProject(2, "宁家");
         addProject(3, "大宗交易");
+        addProject(4, "大米商城");
         //addProject(4, "系统");
         /**********配置项目 ( end ) **************************************************/
 
@@ -141,11 +142,32 @@ class KVConfig extends AbstractConfig {
         addModuleDeployURL(3, "storage", "仓储管理(vr-bk-common-storage)", "provider", "http://172.16.36.69:8081/deploy/vr-bk-common/storage/provider/v1.0.0/20891/20891/test/172.16.53.8/host", "");
         addModuleDeployURL(3, "supplier", "供应商管理(vr-bk-common-supplier)", "rest", "http://172.16.36.69:8081/deploy/vr-bk-common/supplier/rest/v1.0.0/40889/8125/test/172.16.53.8/172.16.44.18", "");
         addModuleDeployURL(3, "supplier", "供应商管理(vr-bk-common-supplier)", "provider", "http://172.16.36.69:8081/deploy/vr-bk-common/supplier/provider/v1.0.0/20889/20889/test/172.16.53.8/host", "");
-        //4:系统
-        addModuleDeployURL(4, "system", "系统管理", "rest", "http://172.16.36.69:8080/deploy/system/rest/habjZOqHMFg1425Z", "http://172.16.36.69:8080/produceDeploy/system/rest/DAXtC80JSV5oK2xw");
-        addModuleDeployURL(4, "system", "系统管理", "provider", "http://172.16.36.69:8080/deploy/system/provider/habjZOqHMFg1425Z", "http://172.16.36.69:8080/produceDeploy/system/provider/DAXtC80JSV5oK2xw");
-        addModuleDeployURL(4, "base", "基础资源", "rest", "http://172.16.36.69:8080/deploy/base/rest/habjZOqHMFg1425Z", "http://172.16.36.69:8080/produceDeploy/base/rest/DAXtC80JSV5oK2xw");
-        addModuleDeployURL(4, "base", "基础资源", "provider", "http://172.16.36.69:8080/deploy/base/provider/habjZOqHMFg1425Z", "http://172.16.36.69:8080/produceDeploy/base/provider/DAXtC80JSV5oK2xw");
+
+        //4:大米商城
+        addModuleDeployURL(4, "system", "系统管理(supplychain-common-system)", "rest", "", "");
+        addModuleDeployURL(4, "system", "系统管理(supplychain-common-system)", "provider", "", "");
+        addModuleDeployURL(4, "base", "基础资源(supplychain-common-base)", "rest", "", "");
+        addModuleDeployURL(4, "base", "基础资源(supplychain-common-base)", "provider", "", "");
+        addModuleDeployURL(4, "contract", "合同管理(supplychain-common-contract)", "rest", "", "");
+        addModuleDeployURL(4, "contract", "合同管理(supplychain-common-contract)", "provider", "", "");
+        addModuleDeployURL(4, "finance", "财务管理(supplychain-common-finance)", "rest", "", "");
+        addModuleDeployURL(4, "finance", "财务管理(supplychain-common-finance)", "provider", "", "");
+        addModuleDeployURL(4, "reportform", "报表管理(supplychain-common-reportform)", "rest", "", "");
+        addModuleDeployURL(4, "reportform", "报表管理(supplychain-common-reportform)", "provider", "", "");
+        addModuleDeployURL(4, "goods", "商品管理(supplychain-common-goods)", "rest", "", "");
+        addModuleDeployURL(4, "goods", "商品管理(supplychain-common-goods)", "provider", "", "");
+        addModuleDeployURL(4, "purchase", "采购管理(supplychain-common-purchase)", "rest", "", "");
+        addModuleDeployURL(4, "purchase", "采购管理(supplychain-common-purchase)", "provider", "", "");
+        addModuleDeployURL(4, "sale", "零售管理(supplychain-common-sale)", "rest", "", "");
+        addModuleDeployURL(4, "sale", "零售管理(supplychain-common-sale)", "provider", "", "");
+        addModuleDeployURL(4, "supplier", "供应商管理(supplychain-common-supplier)", "rest", "", "");
+        addModuleDeployURL(4, "supplier", "供应商管理(supplychain-common-supplier)", "provider", "", "");
+        addModuleDeployURL(4, "kitchen", "后厨管理(supplychain-common-kitchen)", "rest", "", "");
+        addModuleDeployURL(4, "kitchen", "后厨管理(supplychain-common-kitchen)", "provider", "", "");
+        addModuleDeployURL(4, "wholesale", "批发管理(supplychain-common-wholesale)", "rest", "", "");
+        addModuleDeployURL(4, "wholesale", "批发管理(supplychain-common-wholesale)", "provider", "", "");
+        addModuleDeployURL(4, "storage", "仓储管理(supplychain-common-storage)", "rest", "", "");
+        addModuleDeployURL(4, "storage", "仓储管理(supplychain-common-storage)", "provider", "", "");
         /**********配置模块发布的URL (end) **************************************************/
 
         /**********配置测试环境的日志URL (begin) **************************************************/
@@ -263,29 +285,6 @@ class KVConfig extends AbstractConfig {
         addProductLogURL(1, "wholesale", "批发管理", "provider", "", "", "");
         addProductLogURL(1, "storage", "仓储管理", "rest", "http://172.16.36.69:8081/logs/scm/storage/rest/v1.0.0/40891/8111/produce/172.16.41.11,172.16.41.12", "http://172.16.36.69:8081/slogs/scm/storage/rest/v1.0.0/40891/8111/produce/172.16.41.11,172.16.41.12", "");
         addProductLogURL(1, "storage", "仓储管理", "provider", "http://172.16.36.69:8081/logs/scm/storage/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "http://172.16.36.69:8081/slogs/scm/storage/provider/v1.0.0/produce/172.16.41.16,172.16.41.18", "");
-
-//        addProductLogURL(1, "system", "系统管理", "rest", "http://172.16.36.69:8081/logs/common/system/rest/v1.0.0/produce/172.16.41.11,172.16.41.12", "http://172.16.36.69:8080/pslogs/system/rest", "http://172.16.36.69:8080/pstatus/system/rest");
-//        addProductLogURL(1, "system", "系统管理", "provider", "http://172.16.36.69:8080/plogs/system/provider", "http://172.16.36.69:8080/pslogs/system/provider", "http://172.16.36.69:8080/pstatus/system/provider");
-//        addProductLogURL(1, "base", "基础资源", "rest", "http://172.16.36.69:8080/plogs/base/rest", "http://172.16.36.69:8080/pslogs/base/rest", "http://172.16.36.69:8080/pstatus/base/rest");
-//        addProductLogURL(1, "base", "基础资源", "provider", "http://172.16.36.69:8080/plogs/base/provider", "http://172.16.36.69:8080/pslogs/base/provider", "http://172.16.36.69:8080/pstatus/base/provider");
-//        addProductLogURL(1, "contract", "合同管理", "rest", "http://172.16.36.69:8080/plogs/contract/rest", "http://172.16.36.69:8080/pslogs/contract/rest", "http://172.16.36.69:8080/pstatus/contract/rest");
-//        addProductLogURL(1, "contract", "合同管理", "provider", "http://172.16.36.69:8080/plogs/contract/provider", "http://172.16.36.69:8080/pslogs/contract/provider", "http://172.16.36.69:8080/pstatus/contract/provider");
-//        addProductLogURL(1, "finance", "财务管理", "rest", "http://172.16.36.69:8080/plogs/finance/rest", "http://172.16.36.69:8080/pslogs/finance/rest", "http://172.16.36.69:8080/pstatus/finance/rest");
-//        addProductLogURL(1, "finance", "财务管理", "provider", "http://172.16.36.69:8080/plogs/finance/provider", "http://172.16.36.69:8080/pslogs/finance/provider", "http://172.16.36.69:8080/pstatus/finance/provider");
-//        addProductLogURL(1, "reportform", "报表管理", "rest", "http://172.16.36.69:8080/plogs/reportform/rest", "http://172.16.36.69:8080/pslogs/reportform/rest", "http://172.16.36.69:8080/pstatus/reportform/rest");
-//        addProductLogURL(1, "reportform", "报表管理", "provider", "http://172.16.36.69:8080/plogs/reportform/provider", "http://172.16.36.69:8080/pslogs/reportform/provider", "http://172.16.36.69:8080/pstatus/reportform/provider");
-//        addProductLogURL(1, "goods", "商品管理", "rest", "http://172.16.36.69:8080/plogs/goods/rest", "http://172.16.36.69:8080/pslogs/goods/rest", "http://172.16.36.69:8080/pstatus/goods/rest");
-//        addProductLogURL(1, "goods", "商品管理", "provider", "http://172.16.36.69:8080/plogs/goods/provider", "http://172.16.36.69:8080/pslogs/goods/provider", "http://172.16.36.69:8080/pstatus/goods/provider");
-//        addProductLogURL(1, "purchase", "采购管理", "rest", "http://172.16.36.69:8080/plogs/purchase/rest", "http://172.16.36.69:8080/pslogs/purchase/rest", "http://172.16.36.69:8080/pstatus/purchase/rest");
-//        addProductLogURL(1, "purchase", "采购管理", "provider", "http://172.16.36.69:8080/plogs/purchase/provider", "http://172.16.36.69:8080/pslogs/purchase/provider", "http://172.16.36.69:8080/pstatus/purchase/provider");
-//        addProductLogURL(1, "sale", "零售管理", "rest", "http://172.16.36.69:8080/plogs/sale/rest", "http://172.16.36.69:8080/pslogs/sale/rest", "http://172.16.36.69:8080/pstatus/sale/rest");
-//        addProductLogURL(1, "sale", "零售管理", "provider", "http://172.16.36.69:8080/plogs/sale/provider", "http://172.16.36.69:8080/pslogs/sale/provider", "http://172.16.36.69:8080/pstatus/sale/provider");
-//        addProductLogURL(1, "supplier", "供应商管理", "rest", "http://172.16.36.69:8080/plogs/supplier/rest", "http://172.16.36.69:8080/pslogs/supplier/rest", "http://172.16.36.69:8080/pstatus/supplier/rest");
-//        addProductLogURL(1, "supplier", "供应商管理", "provider", "http://172.16.36.69:8080/plogs/supplier/provider", "http://172.16.36.69:8080/pslogs/supplier/provider", "http://172.16.36.69:8080/pstatus/supplier/provider");
-//        addProductLogURL(1, "wholesale", "批发管理", "rest", "http://172.16.36.69:8080/plogs/wholesale/rest", "http://172.16.36.69:8080/pslogs/wholesale/rest", "http://172.16.36.69:8080/pstatus/wholesale/rest");
-//        addProductLogURL(1, "wholesale", "批发管理", "provider", "http://172.16.36.69:8080/plogs/wholesale/provider", "http://172.16.36.69:8080/pslogs/wholesale/provider", "http://172.16.36.69:8080/pstatus/wholesale/provider");
-//        addProductLogURL(1, "storage", "仓储管理", "rest", "http://172.16.36.69:8080/plogs/storage/rest", "http://172.16.36.69:8080/pslogs/storage/rest", "http://172.16.36.69:8080/pstatus/storage/rest");
-//        addProductLogURL(1, "storage", "仓储管理", "provider", "http://172.16.36.69:8080/plogs/storage/provider", "http://172.16.36.69:8080/pslogs/storage/provider", "http://172.16.36.69:8080/pstatus/storage/provider");
 
         //2:宁家
         addProductLogURL(2, "system", "系统管理", "rest", "http://172.16.36.69:8081/logs/vr-wnnj/system/rest/v1.0.0/produce/172.16.51.9,172.16.51.10", "http://172.16.36.69:8081/slogs/vr-wnnj/system/rest/v1.0.0/produce/172.16.51.9,172.16.51.10", "");
@@ -417,6 +416,8 @@ class KVConfig extends AbstractConfig {
         addIpAndCrewNameMapping("172.19.14.212", "承宇", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.164", "元吉", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.213", "长风", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.145", "鲲鹏", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.202", "淡然", RoleEnum.DEVELOPER);
 
         addIpAndCrewNameMapping("172.19.14.211", "王志超", RoleEnum.TESTER);
         addIpAndCrewNameMapping("172.19.14.151", "宋伟", RoleEnum.TESTER);
@@ -453,6 +454,7 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.212", Config.USE_DEPLOY_URL);     //承宇
         addAllowedIpConfig("172.19.14.164", Config.USE_DEPLOY_URL);     //元吉
         addAllowedIpConfig("172.19.14.213", Config.USE_DEPLOY_URL);     //长风
+        addAllowedIpConfig("172.19.14.145", Config.USE_DEPLOY_URL);     //鲲鹏
 
         //显示发布路径的权限配置
         addAllowedIpConfig("172.19.14.144", Config.VIEW_DEPLOY_URL);
@@ -489,6 +491,7 @@ class KVConfig extends AbstractConfig {
         //发布数据库脚本到预发和生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯
+        addAllowedIpConfig("172.19.14.202", Config.DEPLOY_DBSCRIPT);        //淡然
 
         //修改是否可以随时发布脚本的权限配置
         addAllowedIpConfig("172.19.14.144", Config.CHANGE_CAN_EXEC_DBSCRIPT);

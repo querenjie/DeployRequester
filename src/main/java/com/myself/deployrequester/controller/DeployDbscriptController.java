@@ -58,6 +58,11 @@ public class DeployDbscriptController extends CommonMethodWrapper {
         return "deploy_dbscript_querylist";
     }
 
+    @RequestMapping("/deploy_dbscript_querylist2")
+    public String gotoDbscriptQuerylist2Form() {
+        return "deploy_dbscript_querylist2";
+    }
+
     @ResponseBody
     @RequestMapping(value = "/saveDBScript", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult saveDBScript(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
@@ -1029,6 +1034,32 @@ public class DeployDbscriptController extends CommonMethodWrapper {
             result.addData("更新记录出问题。");
             return result;
         }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/queryOnlyNeedDeploy", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult queryOnlyNeedDeploy(@RequestBody QueryDbscriptDTO queryDbscriptDTO, HttpServletRequest request) {
+        JsonResult result;
+
+        String clientIpAddr = getIpAddr(request);
+        QueryDbscriptDO queryDbscriptDO = new QueryDbscriptDO();
+        BeanUtils.copyProperties(queryDbscriptDTO, queryDbscriptDO, true);
+
+        try {
+            List<DeployDbscript> deployDbscriptList = deployDBScriptService.selectOnlyNeedDeployByQueryDbscriptDO(queryDbscriptDO);
+            if (deployDbscriptList != null) {
+                for (DeployDbscript deployDbscript : deployDbscriptList) {
+                    deployDbscript.setVisitorIp(clientIpAddr);
+                }
+            }
+            result = JsonResult.createSuccess("query data successfully");
+            result.addData(deployDbscriptList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "查询出现问题", e);
+            result = JsonResult.createFailed("query data failed");
+        }
+        return result;
     }
 
     /**
