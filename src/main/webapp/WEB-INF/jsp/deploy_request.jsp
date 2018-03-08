@@ -53,6 +53,7 @@
             getModuleTypes();
             getModifyTypes();
             getCrewName();
+            judgeCanAuditDeployRequest();
 
             setInterval("doRetrieveMsg()", 3000);
 
@@ -111,7 +112,6 @@
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
                             $.each(resultData.data, function(index) {
-                                alert(resultData.data[index].id);
                                 //目前只有大宗可用
                                 if (resultData.data[index].id == 3) {
                                     $("#projectcode").append("<option value=\"" + resultData.data[index].id + "\">" + resultData.data[index].id + "-" + resultData.data[index].projectName + "</option>");
@@ -315,11 +315,16 @@
                 contentType: "application/json; charset=utf-8",//此处不能省略
                 success:function(data){
                     if (data != null) {
+                        var deployrequestid = "";
                         if (data.msg == "insert data successfully") {
+                            deployrequestid = data.data[0];
                             //如果写数据库成功
                             if ($("#isautodeploytotestenv").val() == 1) {
                                 //如果是自动发布
                                 deployToTestEnv();
+                            } else {
+                                //进入这里表示不会自动发布，而是由测试人员进行发布。
+                                addToAudit(deployrequestid);
                             }
                         } else {
                             $("#taStatus").val(data.msg);
@@ -331,6 +336,29 @@
                     $("#submitButton").removeAttr("disabled");
                 }
             });
+        }
+
+        function addToAudit(deployrequestid) {
+            var deployRequesterDTO = {};
+            deployRequesterDTO.deployrequestid = deployrequestid;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depreqaudit/addDeployRequestAudit",
+                data:JSON.stringify(deployRequesterDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(data){
+                    if (data != null) {
+                        alert(data.data[0]);
+                        $("#taStatus").val(data.data[0]);
+                    }
+                },
+                error:function(data){
+                    $("#taStatus").val("发布系统停止运行，请耐心等待。。。");
+                    $("#submitButton").removeAttr("disabled");
+                }
+            });
+
         }
 
         function initModules() {
@@ -631,6 +659,37 @@
             });
         }
 
+        function openAuditListPage() {
+            window.open("<%=basePath%>depreqaudit/deploy_request_audit_querylist", "_blank");
+        }
+
+
+        function judgeCanAuditDeployRequest() {
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>configdata/judgeCanAuditDeployRequest",
+                async: false,       //false:同步
+                data:"",//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            $.each(resultData.data, function(index) {
+                                if (resultData.data[0] == "ok") {
+                                    $("#auditlistButton").removeAttr("disabled");
+                                } else {
+                                    $("#auditlistButton").attr("disabled", true);
+                                }
+                            });
+                        }
+                    }
+                },
+                error:function(resultData){
+                    //alert(resultData)
+                }
+            });
+        }
     </script>
 </head>
 <body>
@@ -683,6 +742,7 @@
             <td><font color="red">是否自动发布：</font> </td>
             <td>
                 <select id="isautodeploytotestenv">
+                    <option value="0">否</option>
                     <option value="1">是</option>
                 </select>
             </td>
@@ -706,6 +766,7 @@
                 <font color="red" id="promptMsg"></font>
                 <input id="submitButton" type="button" value="提交申请" onclick="submitRequest();">
                 <input id="queryButton" type="button" value="查询" onclick="openQueryPage();">
+                <input id="auditlistButton" type="button" value="打开发布测试的审核列表页面" onclick="openAuditListPage();">
             </td>
         </tr>
     </table>

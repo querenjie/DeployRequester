@@ -483,7 +483,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "<%=basePath%>depdbscript/query",
+                url: "<%=basePath%>depdbscript/queryOnlyNeedDeploy",
                 data:JSON.stringify(QueryDbscriptDTO),//json序列化
                 datatype:"json", //此处不能省略
                 contentType: "application/json; charset=utf-8",//此处不能省略

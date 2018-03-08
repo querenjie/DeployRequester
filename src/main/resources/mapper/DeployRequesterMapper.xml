@@ -303,4 +303,25 @@
     order by modulecode, createtime
   </select>
 
+  <select id="selectUnexecutedRequestByQueryDeployAuditPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.QueryDeployAuditPO">
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_request
+    where 1 = 1
+    <if test="projectCode != null">
+      and projectcode = #{projectCode}
+    </if>
+    <if test="moduleCode != null">
+      and modulecode = #{moduleCode}
+    </if>
+    <if test="moduleTypeCode != null">
+      and moduletypecode = #{moduleTypeCode}
+    </if>
+    <if test="developer != null">
+      and developer = #{developer}
+    </if>
+    and deployrequestid in (select deployrequestid from t_deploy_audit where deployswitchstatus = 0)
+    order by createtime
+  </select>
+
 </mapper>

@@ -439,22 +439,16 @@
       and moduleid = #{moduleid}
     </if>
     <![CDATA[
-      AND (
-          isabandoned = 0
-          AND executestatus <> 1
-          OR (
-              (
-                  isabandonedforsync IS NULL
-                  OR isabandonedforsync = 0
-              )
-              AND (
-                  executestatusforsync IS NULL
-                  OR executestatusforsync <> 1
-              )
-          )
+    AND (
+      isabandoned = 0
+      AND executestatus <> 1
+      OR (
+        executestatus = 1 AND isabandonedforsync = 0
+        AND executestatusforsync <> 1
       )
-      AND canexecute = 1
+    )
     ]]>
+    AND canexecute = 1
     ORDER BY createtime DESC
   </select>
 </mapper>

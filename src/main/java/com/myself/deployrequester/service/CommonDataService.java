@@ -2,9 +2,7 @@ package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.biz.config.sharedata.ConfigData;
 import com.myself.deployrequester.biz.config.sharedata.LockElement;
-import com.myself.deployrequester.biz.config.spi.Config;
 import com.myself.deployrequester.bo.*;
-import com.myself.deployrequester.controller.ConfigdataController;
 import com.myself.deployrequester.util.ListSorter;
 import org.springframework.stereotype.Service;
 
@@ -261,6 +259,21 @@ public class CommonDataService {
             return false;
         }
         if (ConfigData.ALLOWED_IP_CONFIG_USE_DEPLOY_URL.contains(ipAddr)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断此ip地址是否可以审核执行应用发布申请
+     * @param ipAddr
+     * @return
+     */
+    public boolean canAuditDeployRequest(String ipAddr) {
+        if (ConfigData.ALLOWED_IP_CONFIG_AUDIT_DEPLOY_REQUEST == null) {
+            return false;
+        }
+        if (ConfigData.ALLOWED_IP_CONFIG_AUDIT_DEPLOY_REQUEST.contains(ipAddr)) {
             return true;
         }
         return false;

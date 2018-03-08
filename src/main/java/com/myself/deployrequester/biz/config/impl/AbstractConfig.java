@@ -5,13 +5,10 @@ import com.myself.deployrequester.biz.config.sharedata.LockElement;
 import com.myself.deployrequester.biz.config.sharedata.RoleEnum;
 import com.myself.deployrequester.biz.config.spi.Config;
 import com.myself.deployrequester.bo.*;
-import com.myself.deployrequester.controller.ConfigdataController;
-import com.myself.deployrequester.util.Log4jUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
@@ -93,6 +90,11 @@ public abstract class AbstractConfig implements Config {
     protected Set<String> allowedIpForChangeCanExecDbscript;
 
     /**
+     * 允许审核执行应用发布到测试环境的操作人员的ip地址
+     */
+    protected Set<String> allowedIpForAuditDeployRequest;
+
+    /**
      * 客户端ip地址和对应的开发人员姓名
      */
     protected Map<String, String> ipAndCrewNameMap;
@@ -126,6 +128,7 @@ public abstract class AbstractConfig implements Config {
         allowedIpForLockDeployRequest = new HashSet<String>();
         allowedIpForDeployDbscript = new HashSet<String>();
         allowedIpForChangeCanExecDbscript = new HashSet<String>();
+        allowedIpForAuditDeployRequest = new HashSet<String>();
         ipAndCrewNameMap = new HashMap<String, String>();
         ipAndRoleMap = new HashMap<String, RoleEnum>();
         lockElementList = new ArrayList<LockElement>();
@@ -145,6 +148,7 @@ public abstract class AbstractConfig implements Config {
         ConfigData.ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST = allowedIpForLockDeployRequest;
         ConfigData.ALLOWED_IP_CONFIG_DEPLOY_DBSCRIPT = allowedIpForDeployDbscript;
         ConfigData.ALLOWED_IP_CONFIG_CHANGE_CAN_EXEC_DBSCRIPT = allowedIpForChangeCanExecDbscript;
+        ConfigData.ALLOWED_IP_CONFIG_AUDIT_DEPLOY_REQUEST = allowedIpForAuditDeployRequest;
         ConfigData.IP_CREWNAME_MAPPING = ipAndCrewNameMap;
         ConfigData.IP_ROLE_MAPPING = ipAndRoleMap;
         ConfigData.LOCK_ELEMENT_LIST = lockElementList;
@@ -364,6 +368,9 @@ public abstract class AbstractConfig implements Config {
         if (whichPrivilege == Config.CHANGE_CAN_EXEC_DBSCRIPT) {
             allowedIpForChangeCanExecDbscript.add(ipAddr);
         }
+        if (whichPrivilege == Config.AUDIT_DEPLOY_REQUEST) {
+            allowedIpForAuditDeployRequest.add(ipAddr);
+        }
     }
 
 
@@ -373,7 +380,7 @@ public abstract class AbstractConfig implements Config {
      */
     protected void addIpAndCrewNameMapping(Object[] config) {
         String ip = (String) config[0];
-        String developer = (String) config[1];
+        String name = (String) config[1];
 //        Log4jUtil.info(logger, "developer=" + developer);
 //        try {
 //            developer = new String(((String) config[1]).getBytes(), "GBK");
@@ -382,11 +389,11 @@ public abstract class AbstractConfig implements Config {
 //        }
         RoleEnum role = (RoleEnum) config[2];
 
-        if (StringUtils.isBlank(ip) || StringUtils.isBlank(developer)) {
+        if (StringUtils.isBlank(ip) || StringUtils.isBlank(name)) {
             return;
         }
 
-        ipAndCrewNameMap.put(ip, developer);
+        ipAndCrewNameMap.put(ip, name);
         ipAndRoleMap.put(ip, role);
     }
 

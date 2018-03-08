@@ -61,6 +61,7 @@ public class DeployRequesterController {
                 session.setAttribute(SessionData.KEY_DEPLOY_REQUEST, deployRequesterDO);
 
                 result = JsonResult.createSuccess("insert data successfully");
+                result.addData(deployRequesterDO.getDeployrequestid());     //记录的id返回给前端
             }
         } catch (Exception e) {
             result = JsonResult.createFailed("提交发布申请异常:" + e.getStackTrace().toString());

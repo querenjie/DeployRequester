@@ -267,6 +267,25 @@ public class ConfigdataController extends CommonMethodWrapper {
     }
 
     @ResponseBody
+    @RequestMapping(value="/judgeCanAuditDeployRequest", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult judgeCanAuditDeployRequest(HttpServletRequest request) {
+        JsonResult result;
+        List<String> resultList = new ArrayList<String>();
+
+        String ipAddr = getIpAddr(request);
+        boolean canUseDeployUrl = commonDataService.canAuditDeployRequest(ipAddr);
+        if (canUseDeployUrl == false) {
+            resultList.add("Sorry, you have no permission to audit and execute the deployment action.");
+        } else {
+            resultList.add("ok");
+        }
+
+        result = JsonResult.createSuccess("ok");
+        result.addDataAll(resultList);
+        return result;
+    }
+
+    @ResponseBody
     @RequestMapping(value="/judgeIfDeployRequestLocked", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult judgeIfDeployRequestLocked(@RequestBody DeployRequesterDTO deployRequesterDTO) {
         JsonResult result;

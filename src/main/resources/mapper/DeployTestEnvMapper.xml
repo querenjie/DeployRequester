@@ -115,4 +115,12 @@
       issuccess = #{issuccess,jdbcType=NUMERIC}
     where deploytestenvid = #{deploytestenvid,jdbcType=VARCHAR}
   </update>
+
+  <select id="selectByDeployRequestId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from t_deploy_testenv
+    where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
+  </select>
+
 </mapper>

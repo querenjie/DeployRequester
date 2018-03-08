@@ -1,11 +1,14 @@
 package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.dao.DeployTestEnvDAO;
+import com.myself.deployrequester.model.DeployRequesterDO;
 import com.myself.deployrequester.model.DeployTestEnvDO;
 import com.myself.deployrequester.po.DeployTestEnvPO;
 import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Created by QueRenJie on ${date}
@@ -39,5 +42,16 @@ public class DeployTestEnvService {
         DeployTestEnvPO deployTestEnvPO = new DeployTestEnvPO();
         BeanUtils.copyProperties(deployTestEnvDO, deployTestEnvPO, false);
         return deployTestEnvDAO.updateByPrimaryKeySelective(deployTestEnvPO);
+    }
+
+    public DeployTestEnvDO selectByDeployRequestId(String deployrequestid) throws Exception {
+        List<DeployTestEnvPO> deployTestEnvPOList = deployTestEnvDAO.selectByDeployRequestId(deployrequestid);
+        if (deployTestEnvPOList != null && deployTestEnvPOList.size() > 0) {
+            DeployTestEnvPO deployTestEnvPO = deployTestEnvPOList.get(0);
+            DeployTestEnvDO deployTestEnvDO = new DeployTestEnvDO();
+            BeanUtils.copyProperties(deployTestEnvPO, deployTestEnvDO, true);
+            return deployTestEnvDO;
+        }
+        return null;
     }
 }

@@ -77,6 +77,11 @@ public class ConfigData {
     public static Set<String> ALLOWED_IP_CONFIG_CHANGE_CAN_EXEC_DBSCRIPT = new HashSet<String>();
 
     /**
+     * 允许审核和执行应用发布到测试环境的操作人员的ip地址
+     */
+    public static Set<String> ALLOWED_IP_CONFIG_AUDIT_DEPLOY_REQUEST = new HashSet<String>();
+
+    /**
      * 客户端ip地址和对应的开发人员姓名的映射关系
      */
     public static Map<String, String> IP_CREWNAME_MAPPING = new HashMap<String, String>();

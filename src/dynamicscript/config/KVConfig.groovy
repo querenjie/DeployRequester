@@ -404,7 +404,8 @@ class KVConfig extends AbstractConfig {
         addIpAndCrewNameMapping("172.19.14.214", "任豪", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.154", "刘孝坡", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.177", "刘杰", RoleEnum.DEVELOPER);
-        addIpAndCrewNameMapping("172.19.14.198", "雷志伟", RoleEnum.DEVELOPER);
+//        addIpAndCrewNameMapping("172.19.14.198", "雷志伟", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.199", "雷志伟", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.236", "正卯", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.162", "明庆林", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.178", "明初", RoleEnum.DEVELOPER);
@@ -442,7 +443,8 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.214", Config.USE_DEPLOY_URL);     //任豪
         addAllowedIpConfig("172.19.14.154", Config.USE_DEPLOY_URL);     //刘孝坡
         addAllowedIpConfig("172.19.14.177", Config.USE_DEPLOY_URL);     //刘杰
-        addAllowedIpConfig("172.19.14.198", Config.USE_DEPLOY_URL);     //雷志伟
+//        addAllowedIpConfig("172.19.14.198", Config.USE_DEPLOY_URL);     //雷志伟
+        addAllowedIpConfig("172.19.14.199", Config.USE_DEPLOY_URL);     //雷志伟
         addAllowedIpConfig("172.19.14.236", Config.USE_DEPLOY_URL);     //正卯
         addAllowedIpConfig("172.19.14.162", Config.USE_DEPLOY_URL);     //明庆林
         addAllowedIpConfig("172.19.14.178", Config.USE_DEPLOY_URL);     //明初
@@ -469,7 +471,8 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.214", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.154", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.177", Config.VIEW_DEPLOY_URL);
-        addAllowedIpConfig("172.19.14.198", Config.VIEW_DEPLOY_URL);
+//        addAllowedIpConfig("172.19.14.198", Config.VIEW_DEPLOY_URL);
+        addAllowedIpConfig("172.19.14.199", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.236", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.162", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.178", Config.VIEW_DEPLOY_URL);
@@ -479,6 +482,7 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.212", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.164", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.213", Config.VIEW_DEPLOY_URL);
+        addAllowedIpConfig("172.19.14.145", Config.VIEW_DEPLOY_URL);     //鲲鹏
 
         //标识已经发布过生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.MARK_PRODUCT_DEPLOY);
@@ -496,6 +500,17 @@ class KVConfig extends AbstractConfig {
         //修改是否可以随时发布脚本的权限配置
         addAllowedIpConfig("172.19.14.144", Config.CHANGE_CAN_EXEC_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.CHANGE_CAN_EXEC_DBSCRIPT);        //正卯
+
+        //审核执行应用发布到测试环境的权限配置
+        addAllowedIpConfig("172.19.14.144", Config.AUDIT_DEPLOY_REQUEST);
+        addAllowedIpConfig("172.19.14.236", Config.AUDIT_DEPLOY_REQUEST);           //正卯
+        addAllowedIpConfig("172.19.14.211", Config.AUDIT_DEPLOY_REQUEST);           //王志超
+        addAllowedIpConfig("172.19.14.151", Config.AUDIT_DEPLOY_REQUEST);           //宋伟
+        addAllowedIpConfig("172.19.14.239", Config.AUDIT_DEPLOY_REQUEST);           //刘海涛
+        addAllowedIpConfig("172.19.14.180", Config.AUDIT_DEPLOY_REQUEST);           //罗竹
+        addAllowedIpConfig("172.19.14.182", Config.AUDIT_DEPLOY_REQUEST);           //吕玲玲
+        addAllowedIpConfig("172.19.14.170", Config.AUDIT_DEPLOY_REQUEST);           //齐薇薇
+        addAllowedIpConfig("172.19.14.226", Config.AUDIT_DEPLOY_REQUEST);           //沐风
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
     }
 }
