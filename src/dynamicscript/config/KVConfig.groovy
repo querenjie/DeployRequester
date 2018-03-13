@@ -504,7 +504,7 @@ class KVConfig extends AbstractConfig {
         //审核执行应用发布到测试环境的权限配置
         addAllowedIpConfig("172.19.14.144", Config.AUDIT_DEPLOY_REQUEST);
         addAllowedIpConfig("172.19.14.236", Config.AUDIT_DEPLOY_REQUEST);           //正卯
-        addAllowedIpConfig("172.19.14.211", Config.AUDIT_DEPLOY_REQUEST);           //王志超
+//        addAllowedIpConfig("172.19.14.211", Config.AUDIT_DEPLOY_REQUEST);           //王志超
         addAllowedIpConfig("172.19.14.151", Config.AUDIT_DEPLOY_REQUEST);           //宋伟
         addAllowedIpConfig("172.19.14.239", Config.AUDIT_DEPLOY_REQUEST);           //刘海涛
         addAllowedIpConfig("172.19.14.180", Config.AUDIT_DEPLOY_REQUEST);           //罗竹
@@ -513,4 +513,5 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.226", Config.AUDIT_DEPLOY_REQUEST);           //沐风
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
     }
+
 }

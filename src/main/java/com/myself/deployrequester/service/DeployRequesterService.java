@@ -329,6 +329,9 @@ public class DeployRequesterService extends CommonDataService {
         if (deployRequest.getTestflagmodifytime() != null) {
             deployRequest.setFormatedTestflagmodifytime(formatter.format(deployRequest.getTestflagmodifytime()));
         }
+        if (deployRequest.getDeploytimefortestenv() != null) {
+            deployRequest.setFormatedDeploytimefortestenv(formatter.format(deployRequest.getDeploytimefortestenv()));
+        }
         /********************补全deployRequest中的属性值( end )*******************************/
 
     }

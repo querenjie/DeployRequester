@@ -543,9 +543,10 @@
                         if (resultData.data != null && resultData.data.length > 0) {
                             var deployDbscriptList = resultData.data[0];
                             var tableHtml = "";
+                            var i = 0;
                             if (deployDbscriptList != null && deployDbscriptList.length > 0) {
-                                $("#processAction").html("查询结果如下");
                                 tableHtml += "<tr bgcolor='#ffe4c4'>";
+                                tableHtml += "<td align='center'><b>序号</b></td>";
                                 tableHtml += "<td align='center'><b>数据库环境</b></td>";
                                 tableHtml += "<td align='center'><b>项目名称</b></td>";
                                 tableHtml += "<td align='center'><b>模块名称</b></td>";
@@ -577,6 +578,7 @@
                                     bgColor = "gold";
                                 }
                                 tableHtml += "<tr bgcolor='" + bgColor + "'>";
+                                tableHtml += "<td>" + (++i) + "</td>";
                                 tableHtml += "<td>" + deployDbscript.belongDesc + "</td>";
                                 tableHtml += "<td>" + deployDbscript.projectName + "</td>";
                                 tableHtml += "<td>" + deployDbscript.moduleName + "</td>";
@@ -605,14 +607,18 @@
                                 tableHtml += "</tr>";
                             });
                             $("#tblResult").html(tableHtml);
+
+
+                            var goldChars = "<font color='gold'><b>黄底</b></font>";
+                            var greyChars = "<font color='grey'><b>灰底</b></font>";
+                            var greenChars = "<font color='green'><b>绿底</b></font>";
+                            var whiteChars = "<font color='white'><b>白底</b></font>";
+                            $("#processAction").html("查询到 " + deployDbscriptList.length + " 条记录，以下就是查询结果(提示：" + whiteChars + "和" + goldChars + "的表示可以继续发布执行的；" + greenChars + "的表示已经发布成功的；" + greyChars + "的表示已经放弃发布了。)");
+                        } else {
+                            $("#processAction").html("未查询到记录");
                         }
                     }
 
-                    var whiteChars = "<font color='white'><b>白底</b></font>";
-                    var goldChars = "<font color='gold'><b>黄底</b></font>";
-                    var greyChars = "<font color='grey'><b>灰底</b></font>";
-                    var greenChars = "<font color='green'><b>绿底</b></font>";
-                    $("#processAction").html("以下就是查询结果(提示：" + whiteChars + "和" + goldChars + "的表示可以继续发布执行的；" + greenChars + "的表示已经发布成功的；" + greyChars + "的表示已经放弃发布了。)");
                 },
                 error:function(resultData){
                     //$("#processAction").html("发布系统停止运行，请耐心等待。。。");

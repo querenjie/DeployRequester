@@ -17,7 +17,7 @@ public class DeployRequest extends DeployRequesterDO {
     private String testflagmodifier;        //修改测试环境是否通过的标志的人员姓名
     private String testflagmodifierip;      //修改测试环境是否通过的标志的人员的IP地址
     private String formatedTestflagmodifytime;      //修改测试环境是否通过的标志的时间。用系统当前时间。
-
+    private String formatedDeploytimefortestenv;    //格式化过的上测试环境的时间
 
     public String getProjectName() {
         return projectName;
@@ -109,5 +109,13 @@ public class DeployRequest extends DeployRequesterDO {
 
     public void setFormatedTestflagmodifytime(String formatedTestflagmodifytime) {
         this.formatedTestflagmodifytime = formatedTestflagmodifytime;
+    }
+
+    public String getFormatedDeploytimefortestenv() {
+        return formatedDeploytimefortestenv;
+    }
+
+    public void setFormatedDeploytimefortestenv(String formatedDeploytimefortestenv) {
+        this.formatedDeploytimefortestenv = formatedDeploytimefortestenv;
     }
 }

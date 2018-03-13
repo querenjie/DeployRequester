@@ -55,6 +55,7 @@
             getProjects();
             getModuleTypes();
             getCrewName();
+            doQuery();
 
             setInterval("doRetrieveMsg()", 3000);
         });
@@ -244,8 +245,16 @@
                                             } else {
                                                 tableResultContent += "<td><input type='button' value='expand' disabled></td>";
                                             }
-                                            tableResultContent += "<td><input id='btn_deploy_rest_" + moduleId + "' type='button' value='发布rest' onclick='doDeploy(this);'></td>";
-                                            tableResultContent += "<td><input id='btn_deploy_provider_" + moduleId + "' type='button' value='发布provider' onclick='doDeploy(this);'></td>";
+                                            if (moduleRestCount > 0) {
+                                                tableResultContent += "<td><input id='btn_deploy_rest_" + moduleId + "' type='button' value='发布rest' onclick='doDeploy(this);'></td>";
+                                            } else {
+                                                tableResultContent += "<td>&nbsp;</td>";
+                                            }
+                                            if (moduleProviderCount > 0) {
+                                                tableResultContent += "<td><input id='btn_deploy_provider_" + moduleId + "' type='button' value='发布provider' onclick='doDeploy(this);'></td>";
+                                            } else {
+                                                tableResultContent += "<td>&nbsp;</td>";
+                                            }
                                             tableResultContent += "</tr>";
                                             tableResultContent += "<tr id='tr_" + moduleId + "' bgcolor='#add8e6' style='border-top:2px solid black; display:none'>";
                                             tableResultContent += "<td colspan='5'><font id='deploy_status_msg_" + moduleId + "'></font></td>";
@@ -260,7 +269,7 @@
                                                 tableResultContent += "<td>改动描述</td>";
                                                 tableResultContent += "<td>对应菜单</td>";
                                                 tableResultContent += "<td>开发人员</td>";
-                                                tableResultContent += "<td>发布到测试环境的时间</td>";
+                                                tableResultContent += "<td>记录生成的时间</td>";
                                                 tableResultContent += "</tr>";
 
                                                 for (var i = 0; i < deployRequestList.length; i++) {
@@ -508,27 +517,30 @@
                                     resultMsg = resultData.data[index].resultMsg;
                                     suggestion = resultData.data[index].suggestion;
                                 });
-                                var result = "";
+                                var result = $("#deploy_status_msg_" + moduleId).html() + "<br>";
                                 if (isSuccessDeployed) {
-                                    result = "发布测试环境成功";
-                                    result += "\n" + $.trim(resultMsg);
-                                    result += "\n" + "发布耗时：" + duration + " 毫秒";
+                                    result += "发布测试环境成功";
+                                    result += "<br>" + $.trim(resultMsg);
+                                    result += "<br>" + "发布耗时：" + duration + " 毫秒";
                                 } else {
-                                    result = "发布测试环境失败";
-                                    result += "\n" + $.trim(resultMsg);
-                                    result += "\n" + suggestion;
+                                    result += "发布测试环境失败";
+                                    result += "<br>" + $.trim(resultMsg);
+                                    result += "<br>" + suggestion;
                                 }
-                                $("#taStatus").val(result);
+                                $("#deploy_status_msg_" + moduleId).html(result);
                             }
                         } else {
-                            $("#taStatus").val(resultData.msg);
+                            if (resultData.data != null && resultData.data.length > 0) {
+                                var msg = $("#deploy_status_msg_" + moduleId).html() + "<br>";
+                                msg += resultData.data[0];
+                                $("#deploy_status_msg_" + moduleId).html(msg);
+                            }
                         }
                     }
-                    $("#submitButton").removeAttr("disabled");
+                    $("#" + eleObj.id).hide();
                 },
                 error:function(data){
-                    $("#taStatus").val(data);
-                    $("#submitButton").removeAttr("disabled");
+                    $("#" + eleObj.id).hide();
                 }
             });
 

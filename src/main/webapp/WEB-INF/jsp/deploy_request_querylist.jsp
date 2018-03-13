@@ -282,7 +282,7 @@
                                                 tableResultContent += "<td>改动描述</td>";
                                                 tableResultContent += "<td>对应菜单</td>";
                                                 tableResultContent += "<td>开发人员</td>";
-                                                tableResultContent += "<td>发布到测试环境的时间</td>";
+                                                tableResultContent += "<td>提交申请的时间</td>";
                                                 tableResultContent += "</tr>";
 
                                                 for (var i = 0; i < deployRequestList.length; i++) {
@@ -375,6 +375,8 @@
                             $("#detail_formatedTestflagmodifytime").html(deployRequest.formatedTestflagmodifytime);
                             $("#detail_hasdeployedtoprodenv").html(deployRequest.deployStatusForProdEnvDesc);
                             $("#detail_createtime").html(deployRequest.formatedCreateDate);
+                            $("#detail_executorfortestenv").html(deployRequest.executorfortestenv);
+                            $("#detail_deploytimefortestenv").html(deployRequest.formatedDeploytimefortestenv);
                         }
                     }
                 },
@@ -808,8 +810,16 @@
                 <td id="detail_hasdeployedtoprodenv">&nbsp;</td>
             </tr>
             <tr>
-                <td>本记录生成时间:</td>
+                <td>提交申请的时间:</td>
                 <td id="detail_createtime">&nbsp;</td>
+            </tr>
+            <tr>
+                <td>测试环境的发布人员姓名:</td>
+                <td id="detail_executorfortestenv">&nbsp;</td>
+            </tr>
+            <tr>
+                <td>上测试环境的时间:</td>
+                <td id="detail_deploytimefortestenv">&nbsp;</td>
             </tr>
         </table>
         <table width="100%">
