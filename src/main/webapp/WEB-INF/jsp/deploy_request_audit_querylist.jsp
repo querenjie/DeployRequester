@@ -122,6 +122,7 @@
                                 //目前只有大宗可用
                                 if (resultData.data[index].id == 3) {
                                     $("#projectcode").append("<option value=\"" + resultData.data[index].id + "\">" + resultData.data[index].id + "-" + resultData.data[index].projectName + "</option>");
+                                    initModules();
                                 }
                             });
                         }
@@ -529,11 +530,9 @@
                                 }
                                 $("#deploy_status_msg_" + moduleId).html(result);
                             }
-                        } else {
+                        } else if (resultData.msg == "failed") {
                             if (resultData.data != null && resultData.data.length > 0) {
-                                var msg = $("#deploy_status_msg_" + moduleId).html() + "<br>";
-                                msg += resultData.data[0];
-                                $("#deploy_status_msg_" + moduleId).html(msg);
+                                alert(resultData.data[0]);
                             }
                         }
                     }
