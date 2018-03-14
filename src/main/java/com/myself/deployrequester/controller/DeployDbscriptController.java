@@ -1159,13 +1159,20 @@ public class DeployDbscriptController extends CommonMethodWrapper {
      */
     @ResponseBody
     @RequestMapping(value = "/generatorid", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public JsonResult generatorid() {
+    public JsonResult generatorid(@RequestBody Integer num) {
         JsonResult result = null;
 
-        long id = IdCreator.getNextId();
-
+        StringBuffer sbIds = new StringBuffer();
+        for (int i = 0; i < num; i++) {
+            long id = IdCreator.getNextId();
+            if (i < num - 1) {
+                sbIds.append(String.valueOf(id)).append("\n");
+            } else {
+                sbIds.append(String.valueOf(id));
+            }
+        }
         result = JsonResult.createSuccess("ok");
-        result.addData(id);
+        result.addData(sbIds.toString());
         return result;
     }
 

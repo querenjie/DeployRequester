@@ -286,18 +286,64 @@
             window.open("<%=basePath%>depdbscript/deploy_dbscript_querylist", "_blank");
         }
 
+        function showOrHideDiv(divId, showOrHide, self) {
+            var selfTop = $(self).offset().top;
+            var selfHeight = parseInt($(self).css("height"));
+            var selfWidth = parseInt($(self).css("width"));
+            var selfLeft = $(self).offset().left;
+
+            if (showOrHide == "show") {
+                $("#" + divId).show();
+            } else {
+                $("#" + divId).hide();
+            }
+
+            $("#" + divId).height(250);
+            $("#" + divId).width(selfWidth);
+            $("#" + divId).css("left", selfLeft);
+            $("#" + divId).css("top", selfTop + selfHeight);
+        }
+
+        window.onscroll = function () {
+            var left = $("#btnIdGen").offset().left;
+            $("#divIdGenerator").css("left", left);
+        }
+
+        function doCheckNum(self) {
+            var val = self.value;
+            var reg = new RegExp("^[1-9][0-9]*$","g");
+            if (!reg.test(val)) {
+                self.focus();
+                return false;
+            }
+            return true;
+        }
+
+        function doCheckNum2(val) {
+            var reg = new RegExp("^[1-9][0-9]*$","g");
+            if (!reg.test(val)) {
+                return false;
+            }
+            return true;
+        }
         function doGenId() {
+            var num = $("#num").val();
+            if (!doCheckNum2(num)) {
+                alert('请输入正整数');
+                $("#num").focus();
+                return;
+            }
+
             $.ajax({
                 type: "POST",
                 url: "<%=basePath%>depdbscript/generatorid",
-                data:"",//json序列化
-                datatype:"json", //此处不能省略
+                data: num,
                 contentType: "application/json; charset=utf-8",//此处不能省略
                 success:function(resultData){
                     if (resultData != null) {
                         if (resultData.data != null && resultData.data.length > 0) {
                             if (resultData.msg == "ok") {
-                                $("#id").html(resultData.data[0]);
+                                $("#id_result").val(resultData.data[0]);
                             }
                         }
                     }
@@ -317,7 +363,7 @@
 </head>
 <body>
 <font color="blue">建议使用chrome浏览器，在其他浏览器上运行有可能不正常。(chrome is a strong recommendation, others may cause malfunction.)</font>
-<table width="100%"><tr><td align="right"><input type="button" value="用IdCreator.getNextId()生成18位长度的id" onclick="doGenId();"> <font id="id"></font></td> </tr></table>
+<table width="100%"><tr><td align="right"><input id="btnIdGen" type="button" value="用IdCreator.getNextId()生成18位长度的id" onclick="showOrHideDiv('divIdGenerator', 'show', this);"></td> </tr></table>
 
 <div class="remodal-bg">
     <a id="callModal" href="#" data-remodal-target="modal5" style="visibility: hidden;">Call</a>
@@ -405,7 +451,23 @@
         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>附加描述可以为空，通常用来简单描述一下脚本的用处，对应的什么需求、为何要有这个脚本等内容。</li></td></tr>
     </table>
 </form>
-<br>
+
+<div id="divIdGenerator" style="position: absolute; border: 1px solid #08575B; background:#FFF; color:#000; z-index: 100; overflow:auto; display:none">
+    <table align="center" width="100%"  border="0" bordercolor="#a0c6e5" style="border-collapse:collapse;">
+        <tr><td colspan="2" align="center" bgcolor="#0000ff" style="color:#FFF">批量生成id的小窗口</td></tr>
+        <tr>
+            <td bgcolor='#ffe4c4'>我想生成<input id="num" size="4" value="10" maxlength="4" onkeyup="doCheckNum(this);">个id。 <input type="button" value="generate" onclick="doGenId();"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <textarea id="id_result" cols="33" rows="10" readonly></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="right"><input type="button" value="关闭" onclick="showOrHideDiv('divIdGenerator', 'hide', this)"></td>
+        </tr>
+    </table>
+</div>
 
 </body>
 </html>
