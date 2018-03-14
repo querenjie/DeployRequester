@@ -9,6 +9,7 @@ import com.myself.deployrequester.service.*;
 import com.myself.deployrequester.util.DBScriptUtil;
 import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.MD5Util;
+import com.myself.deployrequester.util.idcreator.IdCreator;
 import com.myself.deployrequester.util.json.JsonResult;
 import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1059,6 +1060,112 @@ public class DeployDbscriptController extends CommonMethodWrapper {
             Log4jUtil.error(logger, "查询出现问题", e);
             result = JsonResult.createFailed("query data failed");
         }
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/assignDeployedFlag", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult assignDeployedFlag(@RequestBody DeployDbscriptDTO deployDbscriptDTO, HttpServletRequest request) {
+        JsonResult result = null;
+
+        if (StringUtils.isBlank(deployDbscriptDTO.getDeploydbscriptid())) {
+            result = JsonResult.createFailed("save data failed");
+            result.addData("缺少主键，操作中止。");
+            return result;
+        }
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canDeployDbscript(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限设置脚本的执行状态,请找管理员开权限。");
+            return result;
+        }
+
+        try {
+            DeployDbscript deployDbscript = deployDBScriptService.getDeployDbscriptById(deployDbscriptDTO.getDeploydbscriptid());
+            if (deployDbscript == null) {
+                result = JsonResult.createFailed("failed");
+                result.addData("根据主键未能查询到脚本记录。主键：" + deployDbscriptDTO.getDeploydbscriptid());
+                return result;
+            }
+
+            boolean blnNeedAssignExecuteFlag = false;           //是否应该设置记录的主库发布标识
+            boolean blnNeedAssignExecuteFlagForSyncDb = false;  //是否应该设置记录的同步库发布标识
+
+            if (deployDbscript.getExecutestatus() == null || deployDbscript.getExecutestatus().intValue() != DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+                //如果发布主库的状态为空或者不为成功状态
+                List<DeployDbscriptDetailsqlDO> deployDbscriptDetailsqlDOList = deployDbscriptDetailsqlService.selectUnexecutedByDeployDbscriptId(deployDbscriptDTO.getDeploydbscriptid());
+                if (deployDbscriptDetailsqlDOList != null && deployDbscriptDetailsqlDOList.size() > 0) {
+                    blnNeedAssignExecuteFlag = true;
+                }
+            }
+            if (deployDbscript.getExecutestatusforsync() == null || deployDbscript.getExecutestatusforsync().intValue() != DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode()) {
+                //如果发布同步库的状态为空或者不为成功状态
+                List<DeployDbscriptSyncDetailsqlDO> deployDbscriptSyncDetailsqlDOList = deployDbscriptSyncDetailsqlService.selectUnexecutedByDeployDbscriptId(deployDbscriptDTO.getDeploydbscriptid());
+                if (deployDbscriptSyncDetailsqlDOList != null && deployDbscriptSyncDetailsqlDOList.size() > 0) {
+                    blnNeedAssignExecuteFlagForSyncDb = true;
+                }
+            }
+
+            if (!blnNeedAssignExecuteFlag && !blnNeedAssignExecuteFlagForSyncDb) {
+                result = JsonResult.createFailed("failed");
+                result.addData("这条记录无需设置发布成功的标志，主键：" + deployDbscript.getDeploydbserversid());
+                return result;
+            }
+
+            if (blnNeedAssignExecuteFlag) {
+                deployDbscriptDTO.setExecutor(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+                deployDbscriptDTO.setExecutorip(clientIpAddr);
+                deployDbscriptDTO.setExecutetime(new Date());
+                deployDbscriptDTO.setExecutestatus(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+            }
+            if (blnNeedAssignExecuteFlagForSyncDb) {
+                deployDbscriptDTO.setExecutorforsync(ConfigData.IP_CREWNAME_MAPPING.get(clientIpAddr));
+                deployDbscriptDTO.setExecutoripforsync(clientIpAddr);
+                deployDbscriptDTO.setExecutetimeforsync(new Date());
+                deployDbscriptDTO.setExecutestatusforsync(Short.valueOf(String.valueOf(DBExecuteStatusEnum.EXECUTE_SUCCESSFULLY.getCode())));
+            }
+
+            DeployDbscriptDO deployDbscriptDO = new DeployDbscriptDO();
+            BeanUtils.copyProperties(deployDbscriptDTO, deployDbscriptDO, true);
+            int updateSuccessCount = deployDBScriptService.modifiy(deployDbscriptDO);
+            if (updateSuccessCount == 1) {
+                result = JsonResult.createSuccess("ok");
+                result.addData("设置成功。");
+                return result;
+            } else if (updateSuccessCount == 0) {
+                result = JsonResult.createFailed("failed");
+                result.addData("貌似没找到需要更新的记录。主键：" + deployDbscriptDO.getDeploydbscriptid());
+                return result;
+            } else {
+                result = JsonResult.createFailed("failed");
+                result.addData("更新的记录数量多余一条(更新了 " + updateSuccessCount + " 条记录)，这不正常。主键：" + deployDbscriptDO.getDeploydbscriptid());
+                return result;
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log4jUtil.error(logger, "根据主键查询脚本记录出错。主键：" + deployDbscriptDTO.getDeploydbscriptid(), e);
+            result = JsonResult.createFailed("failed");
+            result.addData("根据主键查询脚本记录出错。主键：" + deployDbscriptDTO.getDeploydbscriptid());
+            return result;
+        }
+    }
+
+    /**
+     * 用IdCreator.getNextId()生成Id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/generatorid", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult generatorid() {
+        JsonResult result = null;
+
+        long id = IdCreator.getNextId();
+
+        result = JsonResult.createSuccess("ok");
+        result.addData(id);
         return result;
     }
 

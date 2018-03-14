@@ -286,11 +286,38 @@
             window.open("<%=basePath%>depdbscript/deploy_dbscript_querylist", "_blank");
         }
 
-
+        function doGenId() {
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/generatorid",
+                data:"",//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            if (resultData.msg == "ok") {
+                                $("#id").html(resultData.data[0]);
+                            }
+                        }
+                    }
+                },
+                error:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.data != null && resultData.data.length > 0) {
+                            alert(resultData.data[0]);
+                            return;
+                        }
+                    }
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
     </script>
 </head>
 <body>
 <font color="blue">建议使用chrome浏览器，在其他浏览器上运行有可能不正常。(chrome is a strong recommendation, others may cause malfunction.)</font>
+<table width="100%"><tr><td align="right"><input type="button" value="用IdCreator.getNextId()生成18位长度的id" onclick="doGenId();"> <font id="id"></font></td> </tr></table>
 
 <div class="remodal-bg">
     <a id="callModal" href="#" data-remodal-target="modal5" style="visibility: hidden;">Call</a>

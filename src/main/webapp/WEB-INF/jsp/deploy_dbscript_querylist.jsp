@@ -284,16 +284,16 @@
                             $("#detail_isabandoned").html(deployDbscript.isabandonedDesc);
 
                             highlightOrDisableDeployButton(deployDbscript);
-                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                            if (deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") {
                                 $("#detail_unexecutedSql").removeAttr("readonly");
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布脚本’按钮。
                                 $("#btnApplyRedeployDbScript").removeAttr("disabled");
                             } else {
                                 $("#btnApplyRedeployDbScript").attr("disabled", true);
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布脚本’按钮。
                                 $("#btnAbandonDeployDbScript").removeAttr("disabled");
                             } else {
@@ -382,16 +382,16 @@
                             $("#detail_isabandoned_sync").html(deployDbscript.isabandonedDescForSync);
 
                             highlightOrDisableDeployButtonForSync(deployDbscript);
-                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                            if (deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") {
                                 $("#detail_unexecutedSql_sync").removeAttr("readonly");
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2)) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2)) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布同步脚本’按钮。
                                 $("#btnApplyRedeployDbScriptForSync").removeAttr("disabled");
                             } else {
                                 $("#btnApplyRedeployDbScriptForSync").attr("disabled", true);
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2) && deployDbscript.isabandonedforsync == 0) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2) && deployDbscript.isabandonedforsync == 0) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布同步脚本’按钮。
                                 $("#btnAbandonDeployDbScriptForSync").removeAttr("disabled");
                             } else {
@@ -1276,7 +1276,7 @@
         <tr>
             <td align="right" colspan="4">
                 <input id="btnDbserversConfig" type="button" value="打开数据库连接配置管理的页面" onclick="openDbLinkConfigPage();">
-                <input type="button" value="打开只查看需要发布的脚本的查询页面" onclick="openQueryPageOfDbscriptOnlyNeedExecute();">
+                <input type="button" value="打开需要发布到生产的脚本的查询页面" onclick="openQueryPageOfDbscriptOnlyNeedExecute();">
             </td>
         </tr>
         <tr bgcolor="#5f9ea0"><td align="left" colspan="4">脚本发布情况查询--条件区域</td></tr>

@@ -56,7 +56,7 @@
         $(document).ready(function() {
             getProjects();
             initBeatPicker();
-
+            judgeCanDeployDbscript();
             setInterval("doRetrieveMsg()", 3000);
             doQuery();
         });
@@ -285,16 +285,16 @@
                             $("#detail_isabandoned").html(deployDbscript.isabandonedDesc);
 
                             highlightOrDisableDeployButton(deployDbscript);
-                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                            if (deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") {
                                 $("#detail_unexecutedSql").removeAttr("readonly");
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布脚本’按钮。
                                 $("#btnApplyRedeployDbScript").removeAttr("disabled");
                             } else {
                                 $("#btnApplyRedeployDbScript").attr("disabled", true);
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布脚本’按钮。
                                 $("#btnAbandonDeployDbScript").removeAttr("disabled");
                             } else {
@@ -383,16 +383,16 @@
                             $("#detail_isabandoned_sync").html(deployDbscript.isabandonedDescForSync);
 
                             highlightOrDisableDeployButtonForSync(deployDbscript);
-                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                            if (deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") {
                                 $("#detail_unexecutedSql_sync").removeAttr("readonly");
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2)) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2)) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布同步脚本’按钮。
                                 $("#btnApplyRedeployDbScriptForSync").removeAttr("disabled");
                             } else {
                                 $("#btnApplyRedeployDbScriptForSync").attr("disabled", true);
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2) && deployDbscript.isabandonedforsync == 0) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2) && deployDbscript.isabandonedforsync == 0) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布同步脚本’按钮。
                                 $("#btnAbandonDeployDbScriptForSync").removeAttr("disabled");
                             } else {
@@ -469,6 +469,20 @@
 
         }
 
+        function doCheckOrCancelAll(eleObj) {
+            if (eleObj.checked) {
+                var checkboxesOfRecords = $("input[name^='chkRecord']");
+                for (var i = 0; i < checkboxesOfRecords.length; i++) {
+                    checkboxesOfRecords[i].checked = true;
+                }
+            } else {
+                var checkboxesOfRecords = $("input[name^='chkRecord']");
+                for (var i = 0; i < checkboxesOfRecords.length; i++) {
+                    checkboxesOfRecords[i].checked = false;
+                }
+            }
+        }
+
         function doQuery() {
             var belong = $("#belong").val();
             var projectCode = $("#projectcode").val();
@@ -494,7 +508,14 @@
                             var tableHtml = "";
                             var i = 0;
                             if (deployDbscriptList != null && deployDbscriptList.length > 0) {
+                                if (gCanDeployDbscript == "yes") {
+                                    $("#btnAssignAllDeployed").removeAttr("disabled");
+                                } else {
+                                    $("#btnAssignAllDeployed").attr("disabled", true);
+                                }
+
                                 tableHtml += "<tr bgcolor='#ffe4c4'>";
+                                tableHtml += "<td align='center'><input type='checkbox' id='chkAll' onclick='doCheckOrCancelAll(this)'></td>";
                                 tableHtml += "<td align='center'><b>序号</b></td>";
                                 tableHtml += "<td align='center'><b>数据库环境</b></td>";
                                 tableHtml += "<td align='center'><b>项目名称</b></td>";
@@ -506,6 +527,8 @@
                                 tableHtml += "<td align='center'><b>脚本执行状态</b></td>";
                                 tableHtml += "<td align='center'><b>脚本执行时间</b></td>";
                                 tableHtml += "<td align='center'><b>操作</b></td>";
+                            } else {
+                                $("#btnAssignAllDeployed").attr("disabled", true);
                             }
                             $.each(deployDbscriptList, function(index) {
                                 var deployDbscript = deployDbscriptList[index];
@@ -527,6 +550,7 @@
                                     bgColor = "gold";
                                 }
                                 tableHtml += "<tr bgcolor='" + bgColor + "'>";
+                                tableHtml += "<td><input type='checkbox' name='chkRecord' value='" + deployDbscript.deploydbscriptid + "'></td>";
                                 tableHtml += "<td>" + (++i) + "</td>";
                                 tableHtml += "<td>" + deployDbscript.belongDesc + "</td>";
                                 tableHtml += "<td>" + deployDbscript.projectName + "</td>";
@@ -564,6 +588,7 @@
                             $("#processAction").html("查询到 " + deployDbscriptList.length + " 条记录，以下就是查询结果(提示：" + whiteChars + "和" + goldChars + "的表示可以继续发布执行的；" + greenChars + "的表示已经发布成功的；" + greyChars + "的表示已经放弃发布了。)");
                         } else {
                             $("#processAction").html("没查到记录");
+                            $("#btnAssignAllDeployed").attr("disabled", true);
                         }
                     }
 
@@ -1192,6 +1217,51 @@
             });
         }
 
+        function  doGroupAssignDeployDbscriptSuccess() {
+            var checkboxesOfRecords = $("input[name^='chkRecord']");
+            var deploydbscriptidStrs = "";
+            for (var i = 0; i < checkboxesOfRecords.length; i++) {
+                if (checkboxesOfRecords[i].checked) {
+                    deploydbscriptidStrs += "," + checkboxesOfRecords[i].value;
+                }
+            }
+            if (deploydbscriptidStrs == "") {
+                alert("请勾选要标志发生产成功的记录！");
+                return;
+            } else {
+                deploydbscriptidStrs = deploydbscriptidStrs.substring(1);
+            }
+            var deploydbscriptidArray = deploydbscriptidStrs.split(",");
+            for (var i = 0; i < deploydbscriptidArray.length; i++) {
+                var deploydbscriptid = deploydbscriptidArray[i];
+                doAssignExecuteFlag(deploydbscriptid);
+            }
+            alert("批量设置为已上生产的标志过程执行完成。");
+        }
+
+        function doAssignExecuteFlag(deploydbscriptid) {
+            var deployDbscriptDTO = {};
+            deployDbscriptDTO.deploydbscriptid = deploydbscriptid;
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/assignDeployedFlag",
+                async: false,       //false:同步
+                data:JSON.stringify(deployDbscriptDTO),//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        if (resultData.msg != "ok") {
+                            alert(resultData.data[0]);
+                        }
+                        doQuery();
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
     </script>
 </head>
 <body>
@@ -1213,7 +1283,7 @@
     <div><font color="red" id="serverStatus" size="5"></font> </div>
 
     <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
-        <tr bgcolor="#5f9ea0"><td align="center" colspan="4"><b>查询需要发布的脚本</b>--条件区域</td></tr>
+        <tr bgcolor="#5f9ea0"><td align="center" colspan="4"><b>查询需要发布到生产的脚本</b>--条件区域</td></tr>
         <tr>
             <td>
                 目标数据库：
@@ -1235,6 +1305,7 @@
     <br>
     <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
         <tr><td align="center" bgcolor="#9acd32"><font id="processAction">提示：请选择条件进行查询</font></td></tr>
+        <tr><td align="left" bgcolor="#9acd32">动作：<input id="btnAssignAllDeployed" type="button" value="批量设置为已上生产的标志" onclick="doGroupAssignDeployDbscriptSuccess()" ></td></tr>
         <tr>
             <td>
                 <table id="tblResult" width="100%" border="1" style="border-collapse:collapse;">
