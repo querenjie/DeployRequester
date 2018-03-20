@@ -742,7 +742,7 @@
             <td>
                 <input type="button" value="查询" onclick="doQuery();">
                 <input type="button" value="生成上线申请" onclick="produceApplication('product');">
-                <input type="button" value="生成预发布申请" onclick="produceApplication('preproduct');">
+                <!--input type="button" value="生成预发布申请" onclick="produceApplication('preproduct');"-->
             </td>
         </tr>
     </table>

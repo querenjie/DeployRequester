@@ -11,7 +11,7 @@ class KVConfig extends AbstractConfig {
         addProject(1, "翌能");
         addProject(2, "宁家");
         addProject(3, "大宗交易");
-        addProject(4, "大米商城");
+        addProject(4, "翌捷");
         //addProject(4, "系统");
         /**********配置项目 ( end ) **************************************************/
 

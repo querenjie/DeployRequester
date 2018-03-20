@@ -14,6 +14,7 @@ import com.myself.deployrequester.po.DeployRequesterPO;
 import com.myself.deployrequester.po.ProduceApplicationQueryCriteriaPO;
 import com.myself.deployrequester.po.QueryCriteriaPO;
 import com.myself.deployrequester.util.Log4jUtil;
+import com.myself.deployrequester.util.MD5Util;
 import com.myself.deployrequester.util.reflect.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -23,7 +24,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by QueRenJie on ${date}
@@ -348,6 +353,8 @@ public class DeployRequesterService extends CommonDataService {
         }
 
         StringBuffer sbApplicationStr = new StringBuffer();
+        StringBuffer sbApplicationDetailStr = new StringBuffer();
+        Set<String> signedDescriptionSet = new HashSet<String>();
         /**
          * 开设一个最多能存放30个模块标记的记录的数组，每个模块记录有4个标记
          * arrProjModules[i][0]：存放项目id。事实上整个数组中只存放一种项目id
@@ -357,11 +364,34 @@ public class DeployRequesterService extends CommonDataService {
          */
         int[][] arrProjModules = new int[30][4];
 
+        int idx = 0;
         for (DeployRequesterDO deployRequesterDO : deployRequesterDOList) {
             int projectId = deployRequesterDO.getProjectcode().intValue();
             int moduleId = deployRequesterDO.getModulecode().intValue();
             int moduleTypeId = deployRequesterDO.getModuletypecode().intValue();
             changeArray(arrProjModules, projectId, moduleId, moduleTypeId);
+
+            String moduleCodeAndName = "";
+            Module module = getModuleById(Short.valueOf(String.valueOf(moduleId)));
+            if (module != null) {
+                moduleCodeAndName = module.getCode() + "(" + module.getName() + ")";
+            }
+            String menuName = deployRequesterDO.getMenuname();
+            String description = deployRequesterDO.getDescription();
+
+            Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+            Matcher m = p.matcher(description);
+            String strNoBlank = m.replaceAll("");
+            strNoBlank = strNoBlank.toLowerCase();
+            String signedDescription = MD5Util.sign(strNoBlank, "utf-8");
+
+            if (!signedDescriptionSet.contains(signedDescription)) {
+                signedDescriptionSet.add(signedDescription);
+                sbApplicationDetailStr.append(++idx).append("、");
+                sbApplicationDetailStr.append("模块：" + moduleCodeAndName).append("\t");
+                sbApplicationDetailStr.append("菜单：" + menuName).append("\t");
+                sbApplicationDetailStr.append("改动内容：" + description).append("\n");
+            }
         }
 
         boolean writeTitle = true;
@@ -402,7 +432,7 @@ public class DeployRequesterService extends CommonDataService {
             }
             sbApplicationStr.append("\n");
         }
-        return sbApplicationStr.toString();
+        return sbApplicationStr.toString() + "\n" + sbApplicationDetailStr.toString();
     }
 
     private void changeArray(int[][] arrProjectModules, int projectId, int moduleId, int moduleTypeId) {
