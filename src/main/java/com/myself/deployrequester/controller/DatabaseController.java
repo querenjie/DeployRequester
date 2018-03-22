@@ -34,10 +34,10 @@ public class DatabaseController extends CommonMethodWrapper {
     //获取树信息
     @ResponseBody
     @RequestMapping(value = "/initTreeNode",method =RequestMethod.POST)
-    public JsonResult qureyAllTreeNode(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public JsonResult qureyAllTreeNode(HttpServletRequest request, HttpServletResponse response,@RequestParam("typeCode") String typeCode) throws Exception {
         //获取DBServer中id相同的库中所有的数据库,然后返回给页面
         JsonResult result = null;
-        List<ZtreeType> ztreeData = queryDatabaseService.getZtreeData();
+        List<ZtreeType> ztreeData = queryDatabaseService.getZtreeData(typeCode);
         if(ztreeData !=null && ztreeData.size()>0){
             result = JsonResult.createSuccess("ok");
             result.addDataAll(ztreeData);
