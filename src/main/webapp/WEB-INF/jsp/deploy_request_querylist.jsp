@@ -398,6 +398,9 @@
         function openNoticeBoardPage() {
             window.open("<%=basePath%>noticeboard/notice_board", "_blank");
         }
+        function openQueryDataBasePage() {
+            window.open("<%=basePath%>queryDatabase/query_database", "_blank");
+        }
 
         window.onscroll = function () {
             var divTop = $(document).scrollTop() + 50 + "px";
@@ -695,6 +698,7 @@
     <table align="center" width="80%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
         <tr>
             <td align="right" colspan="4">
+                <input type="button" value="打开查询数据表的页面" onclick="openQueryDataBasePage();">
                 <input type="button" value="打开发布公告的页面" onclick="openNoticeBoardPage();">
                 <input id="btnMarkProductDeploy" type="button" value="设置已经上生产的标志" onclick="openAlreadyDeployedToProdDiv();">
                 <input type="button" value="打开统计测试情况的页面" onclick="openStatistics1Page();">

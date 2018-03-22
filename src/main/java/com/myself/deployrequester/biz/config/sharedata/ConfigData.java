@@ -108,4 +108,10 @@ public class ConfigData {
      */
     public static Set<String> ALLOWED_IP_CONFIG_LOCK_DEPLOY_REQUEST = new HashSet<String>();
 
+
+    /**
+     * 用于反映template1数据库中的数据库
+     */
+    public static List<DBServer> DATABASE_LIST = new ArrayList<DBServer>();
+
 }

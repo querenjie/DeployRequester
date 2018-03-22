@@ -1,6 +1,7 @@
 import com.myself.deployrequester.biz.config.impl.AbstractConfig
 import com.myself.deployrequester.biz.config.sharedata.RoleEnum;
-import com.myself.deployrequester.biz.config.spi.Config;
+import com.myself.deployrequester.biz.config.spi.Config
+import com.myself.deployrequester.bo.DBServer;
 
 /**
  *   Created by QueRenJie on ${date}*/
@@ -512,6 +513,17 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.170", Config.AUDIT_DEPLOY_REQUEST);           //齐薇薇
         addAllowedIpConfig("172.19.14.226", Config.AUDIT_DEPLOY_REQUEST);           //沐风
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
+
+
+        //配置预发布环境template1数据库中的数据库信息
+        addDatabaseConfig("DBServer1","172.16.54.12", "template1", "postgres", "suneeedba", "5440","大米预发布服务器172.16.54.12:5440");//大米预发布
+        addDatabaseConfig("DBServer2","172.16.54.11", "template1", "postgres", "suneeedba", "5441","大米预发布服务器172.16.54.11:5441");//大米预发布
+
+        addDatabaseConfig("DBServer3","172.16.41.14", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.41.14:5432");//宁家预发布
+        addDatabaseConfig("DBServer4","172.16.36.66", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.36.66:5432");//宁家预发布
+
+        addDatabaseConfig( "DBServer5","172.16.41.20", "template1", "postgres", "suneeedba", "5432","翌能预发布服务器172.16.41.20:5432");//翌能预发布
+        /**********************配置预发布环境据库信息(end)**************************************************/
     }
 
 }

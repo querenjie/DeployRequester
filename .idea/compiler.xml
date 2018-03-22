@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="DeployRequester" />
       </profile>
+
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
       <module name="DeployRequester" target="1.5" />

@@ -110,6 +110,13 @@ public abstract class AbstractConfig implements Config {
     protected List<LockElement> lockElementList;
 
     /**
+     * 存放所有template1的子数据库
+     */
+    protected List<DBServer> databaseList;
+
+
+
+    /**
      * 构建配置
      */
     public final void build() {
@@ -132,6 +139,7 @@ public abstract class AbstractConfig implements Config {
         ipAndCrewNameMap = new HashMap<String, String>();
         ipAndRoleMap = new HashMap<String, RoleEnum>();
         lockElementList = new ArrayList<LockElement>();
+        databaseList=new ArrayList<DBServer>();
         this.buildConfig();
         ConfigData.MODULE_CONFIG = moduleList;
         ConfigData.MODULE_DEPLOY_URL_CONFIG = moduleDeployURLConfig;
@@ -152,6 +160,7 @@ public abstract class AbstractConfig implements Config {
         ConfigData.IP_CREWNAME_MAPPING = ipAndCrewNameMap;
         ConfigData.IP_ROLE_MAPPING = ipAndRoleMap;
         ConfigData.LOCK_ELEMENT_LIST = lockElementList;
+        ConfigData.DATABASE_LIST = databaseList;
     }
 
     public abstract void buildConfig();
@@ -407,6 +416,29 @@ public abstract class AbstractConfig implements Config {
         logURL.setStartLogUrl((String)logURLConfig[5]);
         logURL.setStartStatusLogUrl((String)logURLConfig[6]);
         return logURL;
+    }
+
+    /**
+     * 添加预发布环境template1数据库中的数据库
+     * @param config
+     */
+    protected void addDatabaseConfig(Object[] config) {
+        DBServer dbServer =new DBServer();
+        String id =(String)config[0];
+        String ip =(String)config[1];
+        String templateDBName=(String)config[2];
+        String userName=(String)config[3];
+        String password=(String)config[4];
+        String port=(String)config[5];
+        String comment =(String) config[6];
+        dbServer.setId(id);
+        dbServer.setIp(ip);
+        dbServer.setTemplateDBName(templateDBName);
+        dbServer.setUserName(userName);
+        dbServer.setPassword(password);
+        dbServer.setPort(port);
+        dbServer.setComment(comment);
+        databaseList.add(dbServer);
     }
 
 
