@@ -205,22 +205,24 @@ public class QueryDatabaseService  extends CommonDataService{
         return columnList;
     }
 
-    public List<ZtreeType>  getZtreeData(){
+    public List<ZtreeType>  getZtreeData(String typeCode){
+        System.out.println("getZtreeData 方法的方法入参为:"+typeCode);
         List<DBServer> dbServer = ConfigData.DATABASE_LIST;
         List<ZtreeType> ztreeTypeList =new ArrayList<ZtreeType>();
         if (dbServer !=null && dbServer.size()>0) {
-            for (DBServer db :dbServer){
-                ZtreeType ztreeTypeDBServer =new ZtreeType();
+            for (DBServer db :dbServer) {
+                if(db.getTypeCode().equalsIgnoreCase(typeCode)){
+                ZtreeType ztreeTypeDBServer = new ZtreeType();
                 ztreeTypeDBServer.setId(db.getId());
                 ztreeTypeDBServer.setpId("0");
                 ztreeTypeDBServer.setName(db.getComment());
                 ztreeTypeDBServer.setIsparent(true);
                 ztreeTypeList.add(ztreeTypeDBServer);
                 try {
-                    List<Database> databases =getDatabases(db);
-                    if(databases !=null && databases.size()>0){
+                    List<Database> databases = getDatabases(db);
+                    if (databases != null && databases.size() > 0) {
                         for (Database database : databases) {
-                            ZtreeType ztreeTypeDatabase =new ZtreeType();
+                            ZtreeType ztreeTypeDatabase = new ZtreeType();
                             ztreeTypeDatabase.setId(database.getId());
                             ztreeTypeDatabase.setpId(db.getId());
                             ztreeTypeDatabase.setName(database.getDataBaseName());
@@ -228,9 +230,9 @@ public class QueryDatabaseService  extends CommonDataService{
                             ztreeTypeList.add(ztreeTypeDatabase);
 
                             List<Table> tableList = database.getTableList();
-                            if (tableList !=null && tableList.size()>0){
-                                for (Table table: tableList){
-                                    ZtreeType ztreeTypeTable =new ZtreeType();
+                            if (tableList != null && tableList.size() > 0) {
+                                for (Table table : tableList) {
+                                    ZtreeType ztreeTypeTable = new ZtreeType();
                                     ztreeTypeTable.setId(table.getId());
                                     ztreeTypeTable.setpId(database.getId());
                                     ztreeTypeTable.setName(table.getTableName());
@@ -252,8 +254,8 @@ public class QueryDatabaseService  extends CommonDataService{
                     Log4jUtil.error(logger, "查询出现问题", e);
                 }
             }
+            }
         }
         return ztreeTypeList;
     }
-
 }
