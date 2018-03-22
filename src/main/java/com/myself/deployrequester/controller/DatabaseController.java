@@ -1,7 +1,5 @@
 package com.myself.deployrequester.controller;
 
-import com.myself.deployrequester.biz.config.sharedata.ConfigData;
-import com.myself.deployrequester.biz.config.sharedata.ZtreeDataConfig;
 import com.myself.deployrequester.bo.*;
 import com.myself.deployrequester.service.QueryDatabaseService;
 import com.myself.deployrequester.util.Log4jUtil;
