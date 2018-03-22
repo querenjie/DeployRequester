@@ -735,6 +735,9 @@
             window.open("<%=basePath%>depdbscript/deploy_dbscript_querylist2", "_blank");
         }
 
+        function openQueryDataBasePage() {
+            window.open("<%=basePath%>queryDatabase/query_database", "_blank");
+        }
         function openEditStyle(deploydbserversid, belong) {
             var deployDbserversDTO = {};
             deployDbserversDTO.belong = belong;
@@ -1275,6 +1278,7 @@
     <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
         <tr>
             <td align="right" colspan="4">
+                <input type="button" value="打开查询数据表的页面" onclick="openQueryDataBasePage();">
                 <input id="btnDbserversConfig" type="button" value="打开数据库连接配置管理的页面" onclick="openDbLinkConfigPage();">
                 <input type="button" value="打开需要发布到生产的脚本的查询页面" onclick="openQueryPageOfDbscriptOnlyNeedExecute();">
             </td>
