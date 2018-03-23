@@ -11,6 +11,15 @@ public class DBServer {
     private String port;        //端口
     private String comment;  //备注
     private List<Database> databaseList;
+    private String typeCode;
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
+    }
 
     public String getIp() {
         return ip;
