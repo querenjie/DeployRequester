@@ -43,7 +43,7 @@
         }
     </style>
     <script type="text/javascript">
-
+        var DBServerTypeValue="";
         var oldNodes = [];
         var setting = {
             view: {
@@ -75,24 +75,6 @@
             },
             check: {// 设置 zTree 的节点上是否显示 checkbox / radio ,默认为false
                 enable: false
-            },
-            async: {
-                enable: true,
-                type: "POST",
-                url: "<%=basePath%>queryDatabase/initTreeNode",
-                data:"",
-                autoParam: ["id"],
-                dataType: "json",
-                dataFilter: function (treeId, parentNode, responseData) {
-                    //console.info(" dataFilter");
-                    console.info(responseData);
-
-                    if (responseData.data && responseData.data == "[]") {
-                        return null;
-                    } else {
-                        return responseData;
-                    }
-                }
             }
         };
 
@@ -199,7 +181,9 @@
             $.ajax({
                 url: "<%=basePath%>queryDatabase/initTreeNode",
                 type: "POST",
-                data:"",
+                data:{
+                    typeCode:DBServerTypeValue
+                },
                 dataType: "json",
                 success: function (data) {
 
@@ -229,6 +213,8 @@
                     $("#tree").show();
                     $("#columnTable").show();
                     $("#columnTableTR").show();
+                    //("#DBServerTypeCode").show();
+                    //$("#DBServerTypeCodeTR").show();
 
                 }
             });
@@ -236,28 +222,30 @@
 
         $(document).ready(function(){
             setTimeout(initLoadTree(),2000);
-            function initLoadTree(){
-                debugger;
-                codeid = "1";
-                codename = "";
-                codeendflag = "";
-                codelevel = "0";
-                initTree();
-                $("#searchTabletypeCode").hide();
-                $("#SearchTable").hide();
-                $("#treeDiv").hide();
-                $("#columnTableDiv").hide();
-                $("#searchTableName").hide();
-                $("#tree").hide();
-                $("#columnTable").hide();
-                $("#columnTableTR").hide();
-            }
-
+            $("#fontTableCode").hide();
         });
+        function initLoadTree(){
+            debugger;
+            codeid = "1";
+            codename = "";
+            codeendflag = "";
+            codelevel = "0";
+            //initTree();
+            $("#searchTabletypeCode").hide();
+            $("#SearchTable").hide();
+            $("#treeDiv").hide();
+            $("#columnTableDiv").hide();
+            $("#searchTableName").hide();
+            $("#tree").hide();
+            $("#columnTable").hide();
+            $("#columnTableTR").hide();
+            //$("#DBServerTypeCode").hide();
+            //$("#DBServerTypeCodeTR").hide();
+        }
         function searchTable() {
             $("#columnTable").empty();
             var searchValue = $("#searchTabletypeCode").val();
-            searchNode (searchValue);
+                searchNode (searchValue);
         }
         function searchNode (text) {
             if (text == "") {
@@ -277,6 +265,21 @@
                 treeObj.expandNode(oldNodes[i].getParentNode(), flag, null, null, false);
             }
         }
+
+        function queryDatabaseType(){
+           DBServerTypeValue= $("#DBServerTypeCode").val();
+            if(DBServerTypeValue !=""){
+                //$("#fontTableCode").hide();
+                initTree();
+                $("#fontTableCode").show();
+                $("#searchTabletypeCode").val("");
+                $("#columnTable").empty();
+            }
+            $("#columnTableTR").hide();
+            $("#searchTabletypeCode").hide();
+            $("#SearchTable").hide();
+            $("#searchTableName").hide();
+        }
     </script>
 </head>
 <body>
@@ -288,7 +291,14 @@
         <td align="center"  bgcolor="#5f9ea0" colspan="2">条件区域</td>
     </tr>
     <tr>
-        <td colspan="2"><span id="searchTableName">请输入表名：</span>
+        <td colspan="1" id="DBServerTypeCodeTR">请选择服务器类型:
+            <select id="DBServerTypeCode" onchange="queryDatabaseType()">
+                <option  value="">--请选择--</option>
+                <option  value="2">生产服务器</option>
+                <option  value="1">预发布服务器</option>
+            </select>
+        </td>
+        <td  colspan="1"><span id="searchTableName">请输入表名：</span>
             <input id="searchTabletypeCode"></input>
             <input type="button" id="SearchTable" value="查询" onclick =searchTable()></input>
             <div id="fontTableCode" align="center"><font color="#ed2b4c" size="10px">正在加载中,大约30s,请稍候...</font></div>
