@@ -431,6 +431,7 @@ public abstract class AbstractConfig implements Config {
         String password=(String)config[4];
         String port=(String)config[5];
         String comment =(String) config[6];
+        String typeCode =(String) config[7];
         dbServer.setId(id);
         dbServer.setIp(ip);
         dbServer.setTemplateDBName(templateDBName);
@@ -438,6 +439,7 @@ public abstract class AbstractConfig implements Config {
         dbServer.setPassword(password);
         dbServer.setPort(port);
         dbServer.setComment(comment);
+        dbServer.setTypeCode(typeCode);
         databaseList.add(dbServer);
     }
 
