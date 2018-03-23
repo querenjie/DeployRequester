@@ -516,16 +516,30 @@ class KVConfig extends AbstractConfig {
 
 
         //配置预数据库中的数据库信息
-        addDatabaseConfig("DBServer1","172.16.54.12", "template1", "postgres", "suneeedba", "5440","大米预发布服务器172.16.54.12:5440","1");//大米预发布
-        addDatabaseConfig("DBServer2","172.16.54.11", "template1", "postgres", "suneeedba", "5441","大米预发布服务器172.16.54.11:5441","1");//大米预发布
+        addDatabaseConfig("DBServer1","172.16.54.12", "template1", "postgres", "suneeedba", "5440","翌捷预发布服务器172.16.54.12:5440","1");//翌捷预发布
+        addDatabaseConfig("DBServer2","172.16.54.11", "template1", "postgres", "suneeedba", "5441","翌捷预发布服务器172.16.54.11:5441","1");//翌捷预发布
+        addDatabaseConfig("DBServer3","172.16.54.12", "template1", "postgres", "suneeedba", "5441","翌捷预发布服务器172.16.54.12:5441","1");//翌捷预发布
 
-        addDatabaseConfig("DBServer3","172.16.41.14", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.41.14:5432","1");//宁家预发布
-        addDatabaseConfig("DBServer4","172.16.36.66", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.36.66:5432","1");//宁家预发布
 
-        addDatabaseConfig( "DBServer5","172.16.41.20", "template1", "postgres", "suneeedba", "5432","翌能预发布服务器172.16.41.20:5432","1");//翌能预发布
+        addDatabaseConfig("DBServer4","172.16.41.14", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.41.14:5432","1");//宁家预发布
+        addDatabaseConfig("DBServer5","172.16.36.66", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.36.66:5432","1");//宁家预发布
 
-        addDatabaseConfig( "DBServer6","172.16.41.26", "template1", "postgres", "suneeedba", "5433","翌能生产服务器172.16.41.26:5433","2");//翌能生产
-        addDatabaseConfig( "DBServer7","172.16.41.24", "template1", "postgres", "suneeedba", "5433","翌能生产服务器172.16.41.24:5433","2");//翌能生产
+        addDatabaseConfig("DBServer6","172.16.41.20", "template1", "postgres", "suneeedba", "5432","翌能预发布服务器172.16.41.20:5432","1");//翌能预发布
+
+
+        addDatabaseConfig("DBServer7","172.16.41.26", "template1", "postgres", "suneeedba", "5433","翌能生产服务器172.16.41.26:5433","2");//翌能生产
+        addDatabaseConfig("DBServer8","172.16.41.24", "template1", "postgres", "suneeedba", "5433","翌能生产服务器172.16.41.24:5433","2");//翌能生产
+
+        addDatabaseConfig("DBServer9","172.16.54.73", "template1", "postgres", "suneeedba", "5434","大宗生产服务器172.16.54.73:5434","2");//大宗生产
+        addDatabaseConfig("DBServer10","172.16.54.72", "template1", "postgres", "suneeedba", "5432","大宗生产服务器172.16.54.72:5432","2");//大宗生产
+
+        addDatabaseConfig("DBServer11","172.16.51.12", "template1", "postgres", "suneeedba", "5433","宁家生产服务器172.16.51.12:5433","2");//宁家生产
+        addDatabaseConfig("DBServer12","172.16.51.11", "template1", "postgres", "suneeedba", "5433","宁家生产服务器172.16.51.11:5433","2");//宁家生产
+
+        addDatabaseConfig("DBServer13","172.16.54.10", "template1", "postgres", "suneeedba", "5440","翌捷生产服务器172.16.54.10:5440","2");//翌捷生产
+        addDatabaseConfig("DBServer14","172.16.54.11", "template1", "postgres", "suneeedba", "5441","翌捷生产服务器172.16.54.11:5441","2");//翌捷生产
+
+
         /**********************配置预发布环境据库信息(end)**************************************************/
     }
 }
