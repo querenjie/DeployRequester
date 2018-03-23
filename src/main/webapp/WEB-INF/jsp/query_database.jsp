@@ -294,8 +294,8 @@
         <td colspan="1" id="DBServerTypeCodeTR">请选择服务器类型:
             <select id="DBServerTypeCode" onchange="queryDatabaseType()">
                 <option  value="">--请选择--</option>
-                <option  value="2">生产服务器</option>
                 <option  value="1">预发布服务器</option>
+                <option  value="2">生产服务器</option>
             </select>
         </td>
         <td  colspan="1"><span id="searchTableName">请输入表名：</span>
