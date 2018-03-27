@@ -20,6 +20,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -59,6 +60,9 @@ public class DeployController extends CommonMethodWrapper {
     @RequestMapping(value="deployToTestEnv", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public JsonResult deployToTestEnv(HttpSession session, HttpServletRequest request) {
         JsonResult result = null;
+        String clientIpAddr = getIpAddr(request);
+        String clientName = commonDataService.obtainCrewName(clientIpAddr);
+
         DeployResult deployResult = null;
         String deployRequestId = (String) session.getAttribute(SessionData.KEY_DEPLOY_REQUEST_ID);
         DeployTestEnvDO deployTestEnvDO = new DeployTestEnvDO();
@@ -76,7 +80,6 @@ public class DeployController extends CommonMethodWrapper {
                 }
                 DeployRequesterDO deployRequesterDO = (DeployRequesterDO) session.getAttribute(SessionData.KEY_DEPLOY_REQUEST);
 
-                String clientIpAddr = getIpAddr(request);
                 Map<String, Object> otherParamMap = new HashMap<String, Object>();
                 otherParamMap.put("clientIpAddr", clientIpAddr);
                 //发布
@@ -103,19 +106,24 @@ public class DeployController extends CommonMethodWrapper {
                         deployRequesterDO1.setProjectcode(deployRequesterDO.getProjectcode());
                         deployRequesterDO1.setDeployrequestid(deployRequesterDO.getDeployrequestid());
                         deployRequesterDO1.setDeploystatusfortestenv(deployTestEnvDO.getIssuccess());
+                        deployRequesterDO1.setExecutorfortestenv(clientName);
+                        deployRequesterDO1.setExecutoripfortestenv(clientIpAddr);
+                        deployRequesterDO1.setDeploytimefortestenv(new Date());
                         int updateSuccessCountForDeployRequest = deployRequesterService.updateByPrimaryKeySelective(deployRequesterDO1);
                         if (updateSuccessCountForDeployRequest != 1) {
                             result = JsonResult.createFailed("update t_deploy_request failed.");
                             return result;
                         }
-                        if (deployTestEnvDO.getIssuccess().shortValue() == Short.valueOf(DeployEnum.DEPLOY_SUCCESS.getCode()).shortValue()) {
-                            //向t_deploy_performance表中写数据
-                            DeployPerformanceDO deployPerformanceDO = new DeployPerformanceDO();
-                            deployPerformanceDO.setProjectcode(deployRequesterDO.getProjectcode());
-                            deployPerformanceDO.setModulecode(deployRequesterDO.getModulecode());
-                            deployPerformanceDO.setModuletypecode(deployRequesterDO.getModuletypecode());
-                            deployPerformanceDO.setDeployduration(deployResult.getDuration());
-                            deployPerformanceService.recordPerformance(deployPerformanceDO);
+                        if (deployResult.isSuccessDeployed()) {
+                            if (deployTestEnvDO.getIssuccess().shortValue() == Short.valueOf(DeployEnum.DEPLOY_SUCCESS.getCode()).shortValue()) {
+                                //向t_deploy_performance表中写数据
+                                DeployPerformanceDO deployPerformanceDO = new DeployPerformanceDO();
+                                deployPerformanceDO.setProjectcode(deployRequesterDO.getProjectcode());
+                                deployPerformanceDO.setModulecode(deployRequesterDO.getModulecode());
+                                deployPerformanceDO.setModuletypecode(deployRequesterDO.getModuletypecode());
+                                deployPerformanceDO.setDeployduration(deployResult.getDuration());
+                                deployPerformanceService.recordPerformance(deployPerformanceDO);
+                            }
                         }
                     } else {
                         result = JsonResult.createFailed("update t_deploy_testenv failed.");
@@ -137,7 +145,7 @@ public class DeployController extends CommonMethodWrapper {
 
     @ResponseBody
     @RequestMapping(value="deployToTestEnvForAudit", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public JsonResult deployToTestEnvForAudit(DeployRequesterDTO deployRequesterDTO, HttpServletRequest request) {
+    public JsonResult deployToTestEnvForAudit(@RequestBody DeployRequesterDTO deployRequesterDTO, HttpServletRequest request) {
         JsonResult result = null;
         String clientIpAddr = getIpAddr(request);
         String clientName = commonDataService.obtainCrewName(clientIpAddr);
@@ -283,11 +291,13 @@ public class DeployController extends CommonMethodWrapper {
                         }
 
                         DeployRequest deployRequest = deployRequesterService.getDeployRequestById(deployRequestId);
-                        DeployRequesterDO deployRequesterDO = deployRequest;
                         DeployRequesterDO deployRequesterDO1 = new DeployRequesterDO();
-                        deployRequesterDO1.setProjectcode(deployRequesterDO.getProjectcode());
-                        deployRequesterDO1.setDeployrequestid(deployRequesterDO.getDeployrequestid());
+                        deployRequesterDO1.setProjectcode(deployRequest.getProjectcode());
+                        deployRequesterDO1.setDeployrequestid(deployRequest.getDeployrequestid());
                         deployRequesterDO1.setDeploystatusfortestenv(deployTestEnvDO.getIssuccess());
+                        deployRequesterDO1.setExecutorfortestenv(clientName);
+                        deployRequesterDO1.setExecutoripfortestenv(clientIpAddr);
+                        deployRequesterDO1.setDeploytimefortestenv(new Date());
                         int updateSuccessCountForDeployRequest = deployRequesterService.updateByPrimaryKeySelective(deployRequesterDO1);
                         if (updateSuccessCountForDeployRequest != 1) {
                             //删除全局变量中的发布信息内容
@@ -299,9 +309,9 @@ public class DeployController extends CommonMethodWrapper {
                         if (deployTestEnvDO.getIssuccess().shortValue() == Short.valueOf(DeployEnum.DEPLOY_SUCCESS.getCode()).shortValue()) {
                             //向t_deploy_performance表中写数据
                             DeployPerformanceDO deployPerformanceDO = new DeployPerformanceDO();
-                            deployPerformanceDO.setProjectcode(deployRequesterDO.getProjectcode());
-                            deployPerformanceDO.setModulecode(deployRequesterDO.getModulecode());
-                            deployPerformanceDO.setModuletypecode(deployRequesterDO.getModuletypecode());
+                            deployPerformanceDO.setProjectcode(deployRequest.getProjectcode());
+                            deployPerformanceDO.setModulecode(deployRequest.getModulecode());
+                            deployPerformanceDO.setModuletypecode(deployRequest.getModuletypecode());
                             deployPerformanceDO.setDeployduration(deployResult.getDuration());
                             deployPerformanceService.recordPerformance(deployPerformanceDO);
                         }
@@ -334,11 +344,14 @@ public class DeployController extends CommonMethodWrapper {
                         }
 
                         DeployRequest deployRequest = deployRequesterService.getDeployRequestById(deployRequestId);
-                        DeployRequesterDO deployRequesterDO = deployRequest;
                         DeployRequesterDO deployRequesterDO1 = new DeployRequesterDO();
-                        deployRequesterDO1.setProjectcode(deployRequesterDO.getProjectcode());
-                        deployRequesterDO1.setDeployrequestid(deployRequesterDO.getDeployrequestid());
+                        deployRequesterDO1.setProjectcode(deployRequest.getProjectcode());
+                        deployRequesterDO1.setDeployrequestid(deployRequest.getDeployrequestid());
                         deployRequesterDO1.setDeploystatusfortestenv(deployTestEnvDO.getIssuccess());
+                        deployRequesterDO1.setExecutorfortestenv(clientName);
+                        deployRequesterDO1.setExecutoripfortestenv(clientIpAddr);
+                        deployRequesterDO1.setDeploytimefortestenv(new Date());
+
                         int updateSuccessCountForDeployRequest = deployRequesterService.updateByPrimaryKeySelective(deployRequesterDO1);
                         if (updateSuccessCountForDeployRequest != 1) {
                             //删除全局变量中的发布信息内容
@@ -346,15 +359,6 @@ public class DeployController extends CommonMethodWrapper {
                             result = JsonResult.createFailed("failed");
                             result.addData("update t_deploy_request failed.");
                             return result;
-                        }
-                        if (deployTestEnvDO.getIssuccess().shortValue() == Short.valueOf(DeployEnum.DEPLOY_SUCCESS.getCode()).shortValue()) {
-                            //向t_deploy_performance表中写数据
-                            DeployPerformanceDO deployPerformanceDO = new DeployPerformanceDO();
-                            deployPerformanceDO.setProjectcode(deployRequesterDO.getProjectcode());
-                            deployPerformanceDO.setModulecode(deployRequesterDO.getModulecode());
-                            deployPerformanceDO.setModuletypecode(deployRequesterDO.getModuletypecode());
-                            deployPerformanceDO.setDeployduration(deployResult.getDuration());
-                            deployPerformanceService.recordPerformance(deployPerformanceDO);
                         }
                     } catch (Exception e) {
                         //删除全局变量中的发布信息内容

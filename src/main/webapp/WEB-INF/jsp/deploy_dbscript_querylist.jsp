@@ -284,16 +284,16 @@
                             $("#detail_isabandoned").html(deployDbscript.isabandonedDesc);
 
                             highlightOrDisableDeployButton(deployDbscript);
-                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                            if (deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") {
                                 $("#detail_unexecutedSql").removeAttr("readonly");
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2)) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布脚本’按钮。
                                 $("#btnApplyRedeployDbScript").removeAttr("disabled");
                             } else {
                                 $("#btnApplyRedeployDbScript").attr("disabled", true);
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatus != 1 && deployDbscript.executestatus != 2) && deployDbscript.isabandoned == 0) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布脚本’按钮。
                                 $("#btnAbandonDeployDbScript").removeAttr("disabled");
                             } else {
@@ -382,16 +382,16 @@
                             $("#detail_isabandoned_sync").html(deployDbscript.isabandonedDescForSync);
 
                             highlightOrDisableDeployButtonForSync(deployDbscript);
-                            if (deployDbscript.visitorIp == deployDbscript.applierip) {
+                            if (deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") {
                                 $("#detail_unexecutedSql_sync").removeAttr("readonly");
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2)) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2)) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态，点亮‘申请重新发布同步脚本’按钮。
                                 $("#btnApplyRedeployDbScriptForSync").removeAttr("disabled");
                             } else {
                                 $("#btnApplyRedeployDbScriptForSync").attr("disabled", true);
                             }
-                            if (deployDbscript.visitorIp == deployDbscript.applierip && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2) && deployDbscript.isabandonedforsync == 0) {
+                            if ((deployDbscript.visitorIp == deployDbscript.applierip || gCanDeployDbscript == "yes") && (deployDbscript.executestatusforsync != 1 && deployDbscript.executestatusforsync != 2) && deployDbscript.isabandonedforsync == 0) {
                                 //如果是自己创建的申请记录并且此记录的执行状态不是成功或者正在执行状态并且没有放弃剩余sql的可执行性，点亮‘放弃发布同步脚本’按钮。
                                 $("#btnAbandonDeployDbScriptForSync").removeAttr("disabled");
                             } else {
@@ -543,9 +543,10 @@
                         if (resultData.data != null && resultData.data.length > 0) {
                             var deployDbscriptList = resultData.data[0];
                             var tableHtml = "";
+                            var i = 0;
                             if (deployDbscriptList != null && deployDbscriptList.length > 0) {
-                                $("#processAction").html("查询结果如下");
                                 tableHtml += "<tr bgcolor='#ffe4c4'>";
+                                tableHtml += "<td align='center'><b>序号</b></td>";
                                 tableHtml += "<td align='center'><b>数据库环境</b></td>";
                                 tableHtml += "<td align='center'><b>项目名称</b></td>";
                                 tableHtml += "<td align='center'><b>模块名称</b></td>";
@@ -577,6 +578,7 @@
                                     bgColor = "gold";
                                 }
                                 tableHtml += "<tr bgcolor='" + bgColor + "'>";
+                                tableHtml += "<td>" + (++i) + "</td>";
                                 tableHtml += "<td>" + deployDbscript.belongDesc + "</td>";
                                 tableHtml += "<td>" + deployDbscript.projectName + "</td>";
                                 tableHtml += "<td>" + deployDbscript.moduleName + "</td>";
@@ -605,14 +607,18 @@
                                 tableHtml += "</tr>";
                             });
                             $("#tblResult").html(tableHtml);
+
+
+                            var goldChars = "<font color='gold'><b>黄底</b></font>";
+                            var greyChars = "<font color='grey'><b>灰底</b></font>";
+                            var greenChars = "<font color='green'><b>绿底</b></font>";
+                            var whiteChars = "<font color='white'><b>白底</b></font>";
+                            $("#processAction").html("查询到 " + deployDbscriptList.length + " 条记录，以下就是查询结果(提示：" + whiteChars + "和" + goldChars + "的表示可以继续发布执行的；" + greenChars + "的表示已经发布成功的；" + greyChars + "的表示已经放弃发布了。)");
+                        } else {
+                            $("#processAction").html("未查询到记录");
                         }
                     }
 
-                    var whiteChars = "<font color='white'><b>白底</b></font>";
-                    var goldChars = "<font color='gold'><b>黄底</b></font>";
-                    var greyChars = "<font color='grey'><b>灰底</b></font>";
-                    var greenChars = "<font color='green'><b>绿底</b></font>";
-                    $("#processAction").html("以下就是查询结果(提示：" + whiteChars + "和" + goldChars + "的表示可以继续发布执行的；" + greenChars + "的表示已经发布成功的；" + greyChars + "的表示已经放弃发布了。)");
                 },
                 error:function(resultData){
                     //$("#processAction").html("发布系统停止运行，请耐心等待。。。");
@@ -1274,7 +1280,7 @@
             <td align="right" colspan="4">
                 <input type="button" value="打开查询数据表的页面" onclick="openQueryDataBasePage();">
                 <input id="btnDbserversConfig" type="button" value="打开数据库连接配置管理的页面" onclick="openDbLinkConfigPage();">
-                <input type="button" value="打开只查看需要发布的脚本的查询页面" onclick="openQueryPageOfDbscriptOnlyNeedExecute();">
+                <input type="button" value="打开需要发布到生产的脚本的查询页面" onclick="openQueryPageOfDbscriptOnlyNeedExecute();">
             </td>
         </tr>
         <tr bgcolor="#5f9ea0"><td align="left" colspan="4">脚本发布情况查询--条件区域</td></tr>

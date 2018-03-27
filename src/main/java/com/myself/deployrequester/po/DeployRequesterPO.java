@@ -36,6 +36,12 @@ public class DeployRequesterPO {
 
     private Date testflagmodifytime;      //修改测试环境是否通过的标志的时间。用系统当前时间。
 
+    private String executorfortestenv;      //测试环境的发布人员姓名
+
+    private String executoripfortestenv;    //测试环境的发布人员的ip地址
+
+    private Date deploytimefortestenv;      //上测试环境的时间
+
     public String getDeployrequestid() {
         return deployrequestid;
     }
@@ -162,5 +168,29 @@ public class DeployRequesterPO {
 
     public void setTestflagmodifytime(Date testflagmodifytime) {
         this.testflagmodifytime = testflagmodifytime;
+    }
+
+    public String getExecutorfortestenv() {
+        return executorfortestenv;
+    }
+
+    public void setExecutorfortestenv(String executorfortestenv) {
+        this.executorfortestenv = executorfortestenv;
+    }
+
+    public String getExecutoripfortestenv() {
+        return executoripfortestenv;
+    }
+
+    public void setExecutoripfortestenv(String executoripfortestenv) {
+        this.executoripfortestenv = executoripfortestenv;
+    }
+
+    public Date getDeploytimefortestenv() {
+        return deploytimefortestenv;
+    }
+
+    public void setDeploytimefortestenv(Date deploytimefortestenv) {
+        this.deploytimefortestenv = deploytimefortestenv;
     }
 }

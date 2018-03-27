@@ -421,7 +421,7 @@
       and executetimeforsync < to_date(#{formatedExecutetimeforsyncEnd}, 'YYYY-MM-DD') + interval '1d'
     ]]>
     </if>
-    ORDER BY createtime DESC
+    ORDER BY projectid, moduleid, createtime
   </select>
 
   <select id="selectOnlyNeedDeployByQueryDbscriptPO" resultMap="BaseResultMap" parameterType="com.myself.deployrequester.po.QueryDbscriptPO">
@@ -449,6 +449,6 @@
     )
     ]]>
     AND canexecute = 1
-    ORDER BY createtime DESC
+    ORDER BY projectid, moduleid, createtime
   </select>
 </mapper>

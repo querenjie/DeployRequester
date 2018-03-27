@@ -206,7 +206,6 @@ public class QueryDatabaseService  extends CommonDataService{
     }
 
     public List<ZtreeType>  getZtreeData(String typeCode){
-        System.out.println("getZtreeData 方法的方法入参为:"+typeCode);
         List<DBServer> dbServer = ConfigData.DATABASE_LIST;
         List<ZtreeType> ztreeTypeList =new ArrayList<ZtreeType>();
         if (dbServer !=null && dbServer.size()>0) {

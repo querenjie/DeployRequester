@@ -18,11 +18,15 @@
     <result column="testflagmodifier" property="testflagmodifier" jdbcType="VARCHAR" />
     <result column="testflagmodifierip" property="testflagmodifierip" jdbcType="VARCHAR" />
     <result column="testflagmodifytime" property="testflagmodifytime" jdbcType="TIMESTAMP" />
+    <result column="executorfortestenv" property="executorfortestenv" jdbcType="VARCHAR" />
+    <result column="executoripfortestenv" property="executoripfortestenv" jdbcType="VARCHAR" />
+    <result column="deploytimefortestenv" property="deploytimefortestenv" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
     deployrequestid, projectcode, modulecode, moduletypecode, modifytype, description, 
     developer, isautodeploytotestenv, deploystatusfortestenv, istestok, deploystatusforprodenv, 
-    createtime, menuname, testflagmodifier, testflagmodifierip, testflagmodifytime
+    createtime, menuname, testflagmodifier, testflagmodifierip, testflagmodifytime,
+    executorfortestenv, executoripfortestenv, deploytimefortestenv
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -179,6 +183,15 @@
       <if test="testflagmodifytime != null" >
         testflagmodifytime = cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE),
       </if>
+      <if test="executorfortestenv != null" >
+        executorfortestenv = #{executorfortestenv,jdbcType=VARCHAR},
+      </if>
+      <if test="executoripfortestenv != null" >
+        executoripfortestenv = #{executoripfortestenv,jdbcType=VARCHAR},
+      </if>
+      <if test="deploytimefortestenv != null" >
+        deploytimefortestenv = cast(CURRENT_TIMESTAMP(6) as TIMESTAMP without time ZONE),
+      </if>
     </set>
     where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
   </update>
@@ -198,7 +211,10 @@
       menuname = #{menuname,jdbcType=VARCHAR},
       testflagmodifier = #{testflagmodifier,jdbcType=VARCHAR},
       testflagmodifierip = #{testflagmodifierip,jdbcType=VARCHAR},
-      testflagmodifytime = #{testflagmodifytime,jdbcType=TIMESTAMP}
+      testflagmodifytime = #{testflagmodifytime,jdbcType=TIMESTAMP},
+      executorfortestenv = #{executorfortestenv,jdbcType=VARCHAR},
+      executoripfortestenv = #{executoripfortestenv,jdbcType=VARCHAR},
+      deploytimefortestenv = #{deploytimefortestenv,jdbcType=TIMESTAMP}
     where deployrequestid = #{deployrequestid,jdbcType=VARCHAR}
   </update>
 
@@ -206,7 +222,7 @@
     select
     <include refid="Base_Column_List" />
     from t_deploy_request
-    where 1 = 1 and deploystatusfortestenv = 2
+    where 1 = 1 and deploystatusfortestenv = 2 and executorfortestenv is not null
     <if test="projectcode != null">
       and projectcode = #{projectcode}
     </if>
@@ -284,7 +300,7 @@
     select
     <include refid="Base_Column_List" />
     from t_deploy_request
-    where 1 = 1 and deploystatusfortestenv = 2
+    where 1 = 1 and deploystatusfortestenv = 2 and executorfortestenv is not null
     <if test="projectcode != null">
       and projectcode = #{projectcode}
     </if>

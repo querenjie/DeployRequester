@@ -12,7 +12,7 @@ class KVConfig extends AbstractConfig {
         addProject(1, "翌能");
         addProject(2, "宁家");
         addProject(3, "大宗交易");
-        addProject(4, "大米商城");
+        addProject(4, "翌捷");
         //addProject(4, "系统");
         /**********配置项目 ( end ) **************************************************/
 
@@ -505,7 +505,7 @@ class KVConfig extends AbstractConfig {
         //审核执行应用发布到测试环境的权限配置
         addAllowedIpConfig("172.19.14.144", Config.AUDIT_DEPLOY_REQUEST);
         addAllowedIpConfig("172.19.14.236", Config.AUDIT_DEPLOY_REQUEST);           //正卯
-        addAllowedIpConfig("172.19.14.211", Config.AUDIT_DEPLOY_REQUEST);           //王志超
+//        addAllowedIpConfig("172.19.14.211", Config.AUDIT_DEPLOY_REQUEST);           //王志超
         addAllowedIpConfig("172.19.14.151", Config.AUDIT_DEPLOY_REQUEST);           //宋伟
         addAllowedIpConfig("172.19.14.239", Config.AUDIT_DEPLOY_REQUEST);           //刘海涛
         addAllowedIpConfig("172.19.14.180", Config.AUDIT_DEPLOY_REQUEST);           //罗竹
@@ -542,4 +542,5 @@ class KVConfig extends AbstractConfig {
 
         /**********************配置预发布环境据库信息(end)**************************************************/
     }
+
 }
