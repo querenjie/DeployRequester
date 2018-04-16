@@ -565,7 +565,10 @@ class KVConfig extends AbstractConfig {
         /**********数据库服务器的配置信息 ( end ) **************************************************/
 
         /**********配置主题和RabbitMQ配置的对应关系 (begin) **************************************************/
+        //本地开发环境
         addSubjectRabbitMQConfigMapping("createDbscriptFile", "172.19.14.201", "5672", "querenjie", "querenjie", "message_queue_1");
+        //正式环境
+//        addSubjectRabbitMQConfigMapping("createDbscriptFile", "http://172.19.14.237", "5672", "querenjie", "querenjie", "message_queue_1");
         /**********配置主题和RabbitMQ配置的对应关系 ( end ) **************************************************/
     }
 
