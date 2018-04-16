@@ -114,4 +114,13 @@ public class ConfigData {
      */
     public static List<DBServer> DATABASE_LIST = new ArrayList<DBServer>();
 
+    /**
+     * 主题和RabbitMQ配置的对应关系
+     */
+    public static Map<String, RabbitMQConf> SUBJECT_RABBITMQCONF_MAPPING = new HashMap<String, RabbitMQConf>();
+
+    /**
+     * 允许生成数据库脚本的ip地址
+     */
+    public static Set<String> ALLOWED_IP_CONFIG_GENERATE_DBSCRIPT_FILE = new HashSet<String>();
 }

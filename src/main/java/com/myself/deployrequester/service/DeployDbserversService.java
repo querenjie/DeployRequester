@@ -1,6 +1,7 @@
 package com.myself.deployrequester.service;
 
 import com.myself.deployrequester.biz.config.sharedata.EnvOfDBEnum;
+import com.myself.deployrequester.bo.DBScriptInfoForFileGenerate;
 import com.myself.deployrequester.bo.DeployDbservers;
 import com.myself.deployrequester.bo.Module;
 import com.myself.deployrequester.bo.Project;
@@ -10,6 +11,7 @@ import com.myself.deployrequester.model.DeployRequesterDO;
 import com.myself.deployrequester.po.DeployDbserversPO;
 import com.myself.deployrequester.po.DeployRequesterPO;
 import com.myself.deployrequester.util.reflect.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,6 +193,34 @@ public class DeployDbserversService extends CommonDataService {
             deployDbserversList.add(deployDbservers);
         }
         return deployDbserversList;
+    }
+
+    /**
+     * 填充数组对象中的每个DBScriptInfoForFileGenerate对象中的属性值
+     * @param dbScriptInfoForFileGenerateList
+     * @param isSync        是否为同步。
+     * @return
+     * @throws Exception
+     */
+    public List<DBScriptInfoForFileGenerate> fillObject(List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList, boolean isSync) throws Exception {
+        for (DBScriptInfoForFileGenerate dbScriptInfoForFileGenerate : dbScriptInfoForFileGenerateList) {
+            String deploydbserversid = dbScriptInfoForFileGenerate.getDeploydbserversid();
+            if (StringUtils.isBlank(deploydbserversid)) {
+                continue;
+            }
+            DeployDbserversPO deployDbserversPO = deployDbserversDAO.selectByPrimaryKey(deploydbserversid);
+            if (deployDbserversPO == null) {
+                continue;
+            }
+            if (isSync) {
+                //如果是同步库的话数据库名称直接写死了。目前各项目的同步库名称都是这个。
+                //理论上不该写死，但是这样会比较消耗cpu。
+                dbScriptInfoForFileGenerate.setDbname("vr-reportcenter");
+            } else {
+                dbScriptInfoForFileGenerate.setDbname(deployDbserversPO.getDbname());
+            }
+        }
+        return dbScriptInfoForFileGenerateList;
     }
 
     private void fillDeployDbservers(DeployDbservers deployDbservers) {

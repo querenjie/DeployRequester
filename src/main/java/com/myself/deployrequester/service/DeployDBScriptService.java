@@ -433,6 +433,30 @@ public class DeployDBScriptService extends CommonDataService {
         return deployDbscriptList;
     }
 
+    /**
+     * 组装DBScriptInfoForFileGenerate对象数组
+     * @param dbscriptIdArray
+     * @return
+     * @throws Exception
+     */
+    public List<DBScriptInfoForFileGenerate> assembleDBScriptInfoForFileGenerateList(String[] dbscriptIdArray) throws Exception {
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList = new ArrayList<DBScriptInfoForFileGenerate>();
+        for (String dbscriptId : dbscriptIdArray) {
+            DeployDbscriptPO deployDbscriptPO = deployDbscriptDAO.selectByPrimaryKey(dbscriptId);
+            if (deployDbscriptPO == null) {
+                continue;
+            }
+            DBScriptInfoForFileGenerate dbScriptInfoForFileGenerate = new DBScriptInfoForFileGenerate();
+            dbScriptInfoForFileGenerate.setDeploydbscriptid(deployDbscriptPO.getDeploydbscriptid());
+            dbScriptInfoForFileGenerate.setApplier(deployDbscriptPO.getApplier());
+            dbScriptInfoForFileGenerate.setDescription(deployDbscriptPO.getDescription());
+            dbScriptInfoForFileGenerate.setDeploydbserversid(deployDbscriptPO.getDeploydbserversid());
+            dbScriptInfoForFileGenerate.setProjectCode(String.valueOf(deployDbscriptPO.getProjectid()));
+
+            dbScriptInfoForFileGenerateList.add(dbScriptInfoForFileGenerate);
+        }
+        return dbScriptInfoForFileGenerateList;
+    }
 
     private void fillDeployDbscript(DeployDbscript deployDbscript) {
         if (deployDbscript == null) {

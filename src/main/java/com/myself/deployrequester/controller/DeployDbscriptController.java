@@ -1,8 +1,10 @@
 package com.myself.deployrequester.controller;
 
 import com.myself.deployrequester.biz.config.sharedata.*;
+import com.myself.deployrequester.bo.DBScriptInfoForFileGenerate;
 import com.myself.deployrequester.bo.DeployDbscript;
 import com.myself.deployrequester.bo.DeployDbservers;
+import com.myself.deployrequester.bo.TotalDBScriptInfoForFileGenerate;
 import com.myself.deployrequester.dto.*;
 import com.myself.deployrequester.model.*;
 import com.myself.deployrequester.service.*;
@@ -11,7 +13,10 @@ import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.MD5Util;
 import com.myself.deployrequester.util.idcreator.IdCreator;
 import com.myself.deployrequester.util.json.JsonResult;
+import com.myself.deployrequester.util.rabbitmq.RabbitMQUtil;
 import com.myself.deployrequester.util.reflect.BeanUtils;
+import com.rabbitmq.client.Channel;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -23,10 +28,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by QueRenJie on ${date}
@@ -48,6 +53,8 @@ public class DeployDbscriptController extends CommonMethodWrapper {
     private DeployDbserversService deployDbserversService;
     @Autowired
     private DeployDbscriptSyncDetailsqlService deployDbscriptSyncDetailsqlService;
+    @Autowired
+    private CommunicationService communicationService;
 
     @RequestMapping("/deploy_dbscript_insert")
     public String gotoDbscriptInsertForm() {
@@ -1176,6 +1183,104 @@ public class DeployDbscriptController extends CommonMethodWrapper {
         return result;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/downloadToLocal", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult downloadToLocal(@RequestBody String dbscriptIds, HttpServletRequest request) {
+        JsonResult result = null;
+
+        String clientIpAddr = getIpAddr(request);
+        if (!commonDataService.canGenerateDbscriptFile(clientIpAddr)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("您没有权限生成本地的脚本文件,请找管理员开权限。");
+            return result;
+        }
+        if (StringUtils.isBlank(dbscriptIds)) {
+            result = JsonResult.createFailed("failed");
+            result.addData("未选择记录，进程终止。");
+            return result;
+        }
+
+        String[] dbscriptIdArray = dbscriptIds.split(",");
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList = getDBScriptInfoForGenerate(dbscriptIdArray);
+
+        //通过RibbitMQ发送消息
+        RabbitMQUtil rabbitMQUtil = new RabbitMQUtil("createDbscriptFile", clientIpAddr);
+
+        if (dbScriptInfoForFileGenerateList != null) {
+            TotalDBScriptInfoForFileGenerate totalDBScriptInfoForFileGenerate = new TotalDBScriptInfoForFileGenerate();
+            totalDBScriptInfoForFileGenerate.setClientIpAddress(clientIpAddr);
+            totalDBScriptInfoForFileGenerate.setDbScriptInfoForFileGenerateList(dbScriptInfoForFileGenerateList);
+
+            try {
+                rabbitMQUtil.sendBizDataToClient(totalDBScriptInfoForFileGenerate);
+            } catch (IOException e) {
+                Log4jUtil.error(logger, "通过RabbitMQ发送消息报错", e);
+                result = JsonResult.createFailed("failed");
+                result.addData("通过RabbitMQ发送消息报错，原因：" + e);
+                return result;
+            } catch (TimeoutException e) {
+                Log4jUtil.error(logger, "通过RabbitMQ发送消息报错", e);
+                result = JsonResult.createFailed("failed");
+                result.addData("通过RabbitMQ发送消息报错，原因：" + e);
+                return result;
+            }
+        }
+
+        result = JsonResult.createSuccess("ok");
+        result.addData("已发送业务数据到本地客户端，由客户端生成文件！5秒之后会反馈消息。");
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/retrieveRabbitMQStatusInfoMessage", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public JsonResult retrieveRabbitMQStatusInfoMessage(HttpServletRequest request) {
+        JsonResult result = null;
+
+        String clientIpAddr = getIpAddr(request);
+        List<String> totalMessageList = new ArrayList<String>();
+        boolean hasFeedbackMsg = false;
+        while (true) {
+            List<String> messageList = null;
+            for (int i = 0; i < 5; i++) {
+                messageList = RabbitMQReceiveSumForCreateDbscriptFile.read(clientIpAddr);
+                if (messageList != null && messageList.size() > 0) {
+                    break;
+                } else {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Log4jUtil.error(logger, "调用Thread.sleep(1000)失败", e);
+                    }
+                }
+            }
+            if (messageList == null || messageList.size() == 0) {
+                if (hasFeedbackMsg) {
+                    break;
+                }
+                totalMessageList.add("5秒内未能收到来自客户端的响应。");
+                totalMessageList.add("如果是未启动客户端，请手动通过java -jar localsocket-0.0.1-SNAPSHOT.jar命令启动。");
+                totalMessageList.add("如果想继续获取来自客户端的反馈信息，请点击“是”，5秒后会继续弹出信息。否则点“否”。");
+                hasFeedbackMsg = false;
+                break;
+            }
+            if (messageList != null && messageList.size() > 0) {
+                hasFeedbackMsg = true;
+                for (int i = 0; i < messageList.size(); i++) {
+                    totalMessageList.add(messageList.get(i));
+                }
+                RabbitMQReceiveSumForCreateDbscriptFile.delete(clientIpAddr, messageList.size());
+            }
+        }
+        if (hasFeedbackMsg) {
+            result = JsonResult.createSuccess("ok,has data.");
+        } else {
+            result = JsonResult.createSuccess("ok,no data.");
+        }
+        result.addDataAll(totalMessageList);
+        return result;
+    }
+
+
     /**
      * 判断是否有drop或delete语句在里面。如果有则返回true，否则返回false。
      * @param seperatedStatementList
@@ -1192,6 +1297,70 @@ public class DeployDbscriptController extends CommonMethodWrapper {
             }
         }
         return false;
+    }
+
+    /**
+     * 处理非同步库的脚本
+     * @param dbscriptIdArray
+     * @return
+     */
+    private List<DBScriptInfoForFileGenerate> getDBScriptInfoForGenerate1(String[] dbscriptIdArray) {
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList = new ArrayList<DBScriptInfoForFileGenerate>();
+        try {
+            dbScriptInfoForFileGenerateList = deployDBScriptService.assembleDBScriptInfoForFileGenerateList(dbscriptIdArray);
+            dbScriptInfoForFileGenerateList = deployDbserversService.fillObject(dbScriptInfoForFileGenerateList, false);
+            dbScriptInfoForFileGenerateList = deployDbscriptDetailsqlService.fillObject(dbScriptInfoForFileGenerateList);
+        } catch (Exception e) {
+            Log4jUtil.error(logger, "报错了", e);
+        }
+        return dbScriptInfoForFileGenerateList;
+    }
+
+    /**
+     * 处理同步库的脚本
+     * @param dbscriptIdArray
+     * @return
+     */
+    private List<DBScriptInfoForFileGenerate> getDBScriptInfoForGenerate2(String[] dbscriptIdArray) {
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList = new ArrayList<DBScriptInfoForFileGenerate>();
+        try {
+            dbScriptInfoForFileGenerateList = deployDBScriptService.assembleDBScriptInfoForFileGenerateList(dbscriptIdArray);
+            dbScriptInfoForFileGenerateList = deployDbserversService.fillObject(dbScriptInfoForFileGenerateList, true);
+            dbScriptInfoForFileGenerateList = deployDbscriptSyncDetailsqlService.fillObject(dbScriptInfoForFileGenerateList);
+        } catch (Exception e) {
+            Log4jUtil.error(logger, "报错了", e);
+        }
+        return dbScriptInfoForFileGenerateList;
+    }
+
+    /**
+     * 生成DBScriptInfoForFileGenerate的对象数组
+     * @param dbscriptIdArray
+     * @return
+     */
+    private List<DBScriptInfoForFileGenerate> getDBScriptInfoForGenerate(String[] dbscriptIdArray) {
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList1 = getDBScriptInfoForGenerate1(dbscriptIdArray);
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList2 = getDBScriptInfoForGenerate2(dbscriptIdArray);
+        List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList = new ArrayList<DBScriptInfoForFileGenerate>();
+        if (dbScriptInfoForFileGenerateList1 != null) {
+            for (DBScriptInfoForFileGenerate dbScriptInfoForFileGenerate : dbScriptInfoForFileGenerateList1) {
+                List<String> subsqlList = dbScriptInfoForFileGenerate.getSubsqlList();
+                if (subsqlList == null || subsqlList.size() == 0) {
+                    continue;
+                }
+                dbScriptInfoForFileGenerateList.add(dbScriptInfoForFileGenerate);
+            }
+        }
+        if (dbScriptInfoForFileGenerateList2 != null) {
+            for (DBScriptInfoForFileGenerate dbScriptInfoForFileGenerate : dbScriptInfoForFileGenerateList2) {
+                List<String> subsqlList = dbScriptInfoForFileGenerate.getSubsqlList();
+                if (subsqlList == null || subsqlList.size() == 0) {
+                    continue;
+                }
+                dbScriptInfoForFileGenerateList.add(dbScriptInfoForFileGenerate);
+            }
+        }
+        return dbScriptInfoForFileGenerateList;
     }
 
 }

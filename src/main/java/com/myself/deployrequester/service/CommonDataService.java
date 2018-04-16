@@ -234,6 +234,21 @@ public class CommonDataService {
     }
 
     /**
+     * 判断此ip地址是否可以生成数据库脚本文件
+     * @param ipAddr
+     * @return
+     */
+    public boolean canGenerateDbscriptFile(String ipAddr) {
+        if (ConfigData.ALLOWED_IP_CONFIG_GENERATE_DBSCRIPT_FILE == null) {
+            return false;
+        }
+        if (ConfigData.ALLOWED_IP_CONFIG_GENERATE_DBSCRIPT_FILE.contains(ipAddr)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 判断此ip地址是否可以修改是否可以随时发布脚本的权限
      * @param ipAddr
      * @return

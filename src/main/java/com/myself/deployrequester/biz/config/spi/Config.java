@@ -12,6 +12,7 @@ public interface Config {
     public static int DEPLOY_DBSCRIPT = 5;      //发布数据库脚本
     public static int CHANGE_CAN_EXEC_DBSCRIPT = 6; //设置是否可以执行脚本的权限
     public static int AUDIT_DEPLOY_REQUEST = 7;     //设置审核执行应用发布的测试环境的权限
+    public static int GENERATE_DBSCRIPT_FILE = 8;   //生成本地数据库脚本文件的权限
 
     /**
      * 构建配置

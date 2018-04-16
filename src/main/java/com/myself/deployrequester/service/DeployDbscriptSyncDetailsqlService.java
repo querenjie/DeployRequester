@@ -1,11 +1,13 @@
 package com.myself.deployrequester.service;
 
+import com.myself.deployrequester.bo.DBScriptInfoForFileGenerate;
 import com.myself.deployrequester.dao.DeployDbscriptSyncDetailsqlDAO;
 import com.myself.deployrequester.model.DeployDbscriptDetailsqlDO;
 import com.myself.deployrequester.model.DeployDbscriptSyncDetailsqlDO;
 import com.myself.deployrequester.po.DeployDbscriptDetailsqlPO;
 import com.myself.deployrequester.po.DeployDbscriptSyncDetailsqlPO;
 import com.myself.deployrequester.util.reflect.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,5 +118,31 @@ public class DeployDbscriptSyncDetailsqlService {
      */
     public Short selectMaxSeqno(String deployDbscriptId) throws Exception {
         return deployDbscriptSyncDetailsqlDAO.selectMaxSeqno(deployDbscriptId);
+    }
+
+    /**
+     * 填充数组对象中的每个DBScriptInfoForFileGenerate对象中的属性值
+     * @param dbScriptInfoForFileGenerateList
+     * @return
+     * @throws Exception
+     */
+    public List<DBScriptInfoForFileGenerate> fillObject(List<DBScriptInfoForFileGenerate> dbScriptInfoForFileGenerateList) throws Exception {
+        for (DBScriptInfoForFileGenerate dbScriptInfoForFileGenerate : dbScriptInfoForFileGenerateList) {
+            String deploydbscriptid = dbScriptInfoForFileGenerate.getDeploydbscriptid();
+            if (StringUtils.isBlank(deploydbscriptid)) {
+                continue;
+            }
+            //获取指定的脚本申请记录中尚未执行过的sql信息记录
+            List<DeployDbscriptSyncDetailsqlPO> deployDbscriptSyncDetailsqlPOList = deployDbscriptSyncDetailsqlDAO.selectUnexecutedByDeployDbscriptId(deploydbscriptid);
+            if (deployDbscriptSyncDetailsqlPOList == null) {
+                continue;
+            }
+            List<String> subsqlList = new ArrayList<String>();
+            for (DeployDbscriptSyncDetailsqlPO deployDbscriptSyncDetailsqlPO : deployDbscriptSyncDetailsqlPOList) {
+                subsqlList.add(deployDbscriptSyncDetailsqlPO.getSubsql());
+            }
+            dbScriptInfoForFileGenerate.setSubsqlList(subsqlList);
+        }
+        return dbScriptInfoForFileGenerateList;
     }
 }

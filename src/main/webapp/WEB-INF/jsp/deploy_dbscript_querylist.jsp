@@ -546,6 +546,7 @@
                             var i = 0;
                             if (deployDbscriptList != null && deployDbscriptList.length > 0) {
                                 tableHtml += "<tr bgcolor='#ffe4c4'>";
+                                tableHtml += "<td align='center'><input type='checkbox' id='chkAll' onchange='checkOrUncheckAll(this)'></td>";
                                 tableHtml += "<td align='center'><b>序号</b></td>";
                                 tableHtml += "<td align='center'><b>数据库环境</b></td>";
                                 tableHtml += "<td align='center'><b>项目名称</b></td>";
@@ -578,6 +579,7 @@
                                     bgColor = "gold";
                                 }
                                 tableHtml += "<tr bgcolor='" + bgColor + "'>";
+                                tableHtml += "<td><input type='checkbox' name='chkRecord' value='" + deployDbscript.deploydbscriptid + "'></td>";
                                 tableHtml += "<td>" + (++i) + "</td>";
                                 tableHtml += "<td>" + deployDbscript.belongDesc + "</td>";
                                 tableHtml += "<td>" + deployDbscript.projectName + "</td>";
@@ -1255,6 +1257,98 @@
             });
         }
 
+
+        /**
+         *
+         */
+        function generateLocalDBScriptFile() {
+            var checkboxesOfRecords = $("input[name^='chkRecord']");
+            var deploydbscriptidStrs = "";
+            for (var i = 0; i < checkboxesOfRecords.length; i++) {
+                if (checkboxesOfRecords[i].checked) {
+                    deploydbscriptidStrs += "," + checkboxesOfRecords[i].value;
+                }
+            }
+            if (deploydbscriptidStrs == "") {
+                alert("请勾选要下载到本地文件的记录！");
+                return;
+            } else {
+                deploydbscriptidStrs = deploydbscriptidStrs.substring(1);
+
+                $.ajax({
+                    type: "POST",
+                    url: "<%=basePath%>depdbscript/downloadToLocal",
+                    async: false,       //false:同步
+                    data:deploydbscriptidStrs,//json序列化
+                    datatype:"json", //此处不能省略
+                    contentType: "application/json; charset=utf-8",//此处不能省略
+                    success:function(resultData){
+                        if (resultData != null) {
+                            alert(resultData.data[0]);
+                            if (resultData.msg == "failed") {
+                                return;
+                            }
+                            retrieveRabbitMQStatusInfoMessage();
+                        }
+                    },
+                    error:function(resultData){
+                        $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                    }
+                });
+
+            }
+
+        }
+
+
+        function retrieveRabbitMQStatusInfoMessage() {
+            $.ajax({
+                type: "POST",
+                url: "<%=basePath%>depdbscript/retrieveRabbitMQStatusInfoMessage",
+                async: false,       //false:同步
+                data:null,//json序列化
+                datatype:"json", //此处不能省略
+                contentType: "application/json; charset=utf-8",//此处不能省略
+                success:function(resultData){
+                    if (resultData != null) {
+                        var resultStr = "";
+
+                        if (resultData.data.length > 0) {
+                            for (var i = 0; i < resultData.data.length; i++) {
+                                resultStr += resultData.data[i] + "\n";
+                            }
+                        }
+                        if (resultData.msg == "ok,has data.") {
+                            alert(resultStr);
+                        } else {
+                            if (confirm(resultStr)) {
+                                retrieveRabbitMQStatusInfoMessage();
+                            }
+                        }
+                    }
+                },
+                error:function(resultData){
+                    $("#serverStatus").html("发布系统停止运行，请耐心等待。。。");
+                }
+            });
+        }
+
+        /**
+         *
+         */
+        function checkOrUncheckAll(eleObj) {
+            if (eleObj.checked) {
+                var checkboxesOfRecords = $("input[name^='chkRecord']");
+                for (var i = 0; i < checkboxesOfRecords.length; i++) {
+                    checkboxesOfRecords[i].checked = true;
+                }
+            } else {
+                var checkboxesOfRecords = $("input[name^='chkRecord']");
+                for (var i = 0; i < checkboxesOfRecords.length; i++) {
+                    checkboxesOfRecords[i].checked = false;
+                }
+            }
+        }
     </script>
 </head>
 <body>
@@ -1366,9 +1460,16 @@
     </table>
     <br>
     <table align="center" width="90%"  border="1" bordercolor="#a0c6e5" style="border-collapse:collapse;">
-        <tr><td align="center" bgcolor="#9acd32"><font id="processAction">提示：请选择条件进行查询</font></td></tr>
         <tr>
-            <td>
+            <td align="center" bgcolor="#9acd32">
+                <font id="processAction">提示：请选择条件进行查询</font>
+            </td>
+            <td align="center" width="10%" bgcolor="#9acd32">
+                <input type="button" value="生成本地脚本文件" onclick="generateLocalDBScriptFile();">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
                 <table id="tblResult" width="100%" border="1" style="border-collapse:collapse;">
 
                 </table>

@@ -420,6 +420,10 @@ class KVConfig extends AbstractConfig {
         addIpAndCrewNameMapping("172.19.14.213", "长风", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.145", "鲲鹏", RoleEnum.DEVELOPER);
         addIpAndCrewNameMapping("172.19.14.202", "淡然", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.248", "谷风", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.176", "显文", RoleEnum.DEVELOPER);
+        addIpAndCrewNameMapping("172.19.14.186", "酉黍", RoleEnum.DEVELOPER);
+
 
         addIpAndCrewNameMapping("172.19.14.211", "王志超", RoleEnum.TESTER);
         addIpAndCrewNameMapping("172.19.14.151", "宋伟", RoleEnum.TESTER);
@@ -428,6 +432,7 @@ class KVConfig extends AbstractConfig {
         addIpAndCrewNameMapping("172.19.14.182", "吕玲玲", RoleEnum.TESTER);
         addIpAndCrewNameMapping("172.19.14.170", "齐薇薇", RoleEnum.TESTER);
         addIpAndCrewNameMapping("172.19.14.226", "沐风", RoleEnum.TESTER);
+
         /*********************添加客户端ip地址和对应的开发人员的映射关系 ( end ) **********************/
 
         /**********配置允许访问此发布申请系统的ip地址 (begin) **************************************************/
@@ -459,6 +464,10 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.213", Config.USE_DEPLOY_URL);     //长风
         addAllowedIpConfig("172.19.14.145", Config.USE_DEPLOY_URL);     //鲲鹏
 
+        addAllowedIpConfig("172.19.14.248", Config.USE_DEPLOY_URL);     //谷风
+        addAllowedIpConfig("172.19.14.176", Config.USE_DEPLOY_URL);     //显文
+        addAllowedIpConfig("172.19.14.186", Config.USE_DEPLOY_URL);     //酉黍
+
         //显示发布路径的权限配置
         addAllowedIpConfig("172.19.14.144", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.173", Config.VIEW_DEPLOY_URL);
@@ -484,23 +493,36 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.164", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.213", Config.VIEW_DEPLOY_URL);
         addAllowedIpConfig("172.19.14.145", Config.VIEW_DEPLOY_URL);     //鲲鹏
+        addAllowedIpConfig("172.19.14.247", Config.VIEW_DEPLOY_URL);     //恒砺
+        addAllowedIpConfig("172.19.14.248", Config.VIEW_DEPLOY_URL);     //谷风
+        addAllowedIpConfig("172.19.14.176", Config.VIEW_DEPLOY_URL);     //显文
+        addAllowedIpConfig("172.19.14.186", Config.VIEW_DEPLOY_URL);     //酉黍
 
         //标识已经发布过生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.MARK_PRODUCT_DEPLOY);
         addAllowedIpConfig("172.19.14.236", Config.MARK_PRODUCT_DEPLOY);    //正卯
+        addAllowedIpConfig("172.19.14.247", Config.MARK_PRODUCT_DEPLOY);    //恒砺
 
         //锁定发布申请的权限配置
         addAllowedIpConfig("172.19.14.144", Config.LOCK_DEPLOY_REQUEST);
         addAllowedIpConfig("172.19.14.236", Config.LOCK_DEPLOY_REQUEST);    //正卯
+        addAllowedIpConfig("172.19.14.247", Config.LOCK_DEPLOY_REQUEST);    //恒砺
 
         //发布数据库脚本到预发和生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯
         addAllowedIpConfig("172.19.14.202", Config.DEPLOY_DBSCRIPT);        //淡然
+        addAllowedIpConfig("172.19.14.247", Config.DEPLOY_DBSCRIPT);        //恒砺
+
+        //生成数据库脚本文件的权限配置
+        addAllowedIpConfig("172.19.14.144", Config.GENERATE_DBSCRIPT_FILE);
+        addAllowedIpConfig("172.19.14.236", Config.GENERATE_DBSCRIPT_FILE);        //正卯
+        addAllowedIpConfig("172.19.14.247", Config.GENERATE_DBSCRIPT_FILE);        //恒砺
 
         //修改是否可以随时发布脚本的权限配置
         addAllowedIpConfig("172.19.14.144", Config.CHANGE_CAN_EXEC_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.CHANGE_CAN_EXEC_DBSCRIPT);        //正卯
+        addAllowedIpConfig("172.19.14.247", Config.CHANGE_CAN_EXEC_DBSCRIPT);        //恒砺
 
         //审核执行应用发布到测试环境的权限配置
         addAllowedIpConfig("172.19.14.144", Config.AUDIT_DEPLOY_REQUEST);
@@ -515,7 +537,7 @@ class KVConfig extends AbstractConfig {
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
 
 
-        //配置预数据库中的数据库信息
+        /**********数据库服务器的配置信息 (begin) **************************************************/
         addDatabaseConfig("DBServer1","172.16.54.12", "template1", "postgres", "suneeedba", "5440","翌捷预发布服务器172.16.54.12:5440","1");//翌捷预发布
         addDatabaseConfig("DBServer2","172.16.54.11", "template1", "postgres", "suneeedba", "5441","翌捷预发布服务器172.16.54.11:5441","1");//翌捷预发布
         addDatabaseConfig("DBServer3","172.16.54.12", "template1", "postgres", "suneeedba", "5441","翌捷预发布服务器172.16.54.12:5441","1");//翌捷预发布
@@ -540,7 +562,11 @@ class KVConfig extends AbstractConfig {
         addDatabaseConfig("DBServer14","172.16.54.11", "template1", "postgres", "suneeedba", "5441","翌捷生产服务器172.16.54.11:5441","2");//翌捷生产
 
 
-        /**********************配置预发布环境据库信息(end)**************************************************/
+        /**********数据库服务器的配置信息 ( end ) **************************************************/
+
+        /**********配置主题和RabbitMQ配置的对应关系 (begin) **************************************************/
+        addSubjectRabbitMQConfigMapping("createDbscriptFile", "172.19.14.201", "5672", "querenjie", "querenjie", "message_queue_1");
+        /**********配置主题和RabbitMQ配置的对应关系 ( end ) **************************************************/
     }
 
 }

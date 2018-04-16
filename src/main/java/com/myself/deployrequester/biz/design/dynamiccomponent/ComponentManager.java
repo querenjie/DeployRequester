@@ -10,8 +10,12 @@ import com.myself.deployrequester.biz.design.dynamiccomponent.scanner.FolderScan
 import com.myself.deployrequester.biz.design.dynamiccomponent.spi.ComponentContainer;
 import com.myself.deployrequester.biz.design.dynamiccomponent.util.AutowireUtils;
 import com.myself.deployrequester.biz.design.dynamiccomponent.util.ComponentUtils;
+import com.myself.deployrequester.bo.TotalDBScriptInfoForFileGenerate;
+import com.myself.deployrequester.rabbitmq.RabbitMQListener;
 import com.myself.deployrequester.util.Log4jUtil;
 import com.myself.deployrequester.util.LoggerUtil;
+import com.myself.deployrequester.util.rabbitmq.RabbitMQUtil;
+import com.rabbitmq.client.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
@@ -21,6 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +68,17 @@ public class ComponentManager implements InitializingBean,
 		}
 		// 设置到全局变量
 		ComponentUtils.setInstance(this);
+
+		/*********************启动RabbitMQ监听服务（开始）********************************/
+		Log4jUtil.info(logger,"开始启动RabbitMQ监听服务");
+		RabbitMQListener rabbitMQListener = new RabbitMQListener("createDbscriptFile");
+		rabbitMQListener.start();
+		/*********************启动RabbitMQ监听服务（结束）********************************/
+
+
 	}
+
+
 
 	/**
 	 * 搜索到文件时的回调

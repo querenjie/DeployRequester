@@ -85,6 +85,11 @@ public abstract class AbstractConfig implements Config {
     protected Set<String> allowedIpForDeployDbscript;
 
     /**
+     * 允许生成数据库脚本文件的操作人员的ip地址
+     */
+    protected Set<String> allowedIpForGenerateDbscriptFile;
+
+    /**
      * 允许设置是否可以随时发布数据库脚本的操作人员的ip地址
      */
     protected Set<String> allowedIpForChangeCanExecDbscript;
@@ -114,7 +119,10 @@ public abstract class AbstractConfig implements Config {
      */
     protected List<DBServer> databaseList;
 
-
+    /**
+     * 主题和RabbitMQ配置的对应关系
+     */
+    protected Map<String, RabbitMQConf> subjectRabbitMQConfMap;
 
     /**
      * 构建配置
@@ -140,6 +148,8 @@ public abstract class AbstractConfig implements Config {
         ipAndRoleMap = new HashMap<String, RoleEnum>();
         lockElementList = new ArrayList<LockElement>();
         databaseList=new ArrayList<DBServer>();
+        subjectRabbitMQConfMap = new HashMap<String, RabbitMQConf>();
+        allowedIpForGenerateDbscriptFile = new HashSet<String>();
         this.buildConfig();
         ConfigData.MODULE_CONFIG = moduleList;
         ConfigData.MODULE_DEPLOY_URL_CONFIG = moduleDeployURLConfig;
@@ -161,6 +171,8 @@ public abstract class AbstractConfig implements Config {
         ConfigData.IP_ROLE_MAPPING = ipAndRoleMap;
         ConfigData.LOCK_ELEMENT_LIST = lockElementList;
         ConfigData.DATABASE_LIST = databaseList;
+        ConfigData.SUBJECT_RABBITMQCONF_MAPPING = subjectRabbitMQConfMap;
+        ConfigData.ALLOWED_IP_CONFIG_GENERATE_DBSCRIPT_FILE = allowedIpForGenerateDbscriptFile;
     }
 
     public abstract void buildConfig();
@@ -380,6 +392,9 @@ public abstract class AbstractConfig implements Config {
         if (whichPrivilege == Config.AUDIT_DEPLOY_REQUEST) {
             allowedIpForAuditDeployRequest.add(ipAddr);
         }
+        if (whichPrivilege == Config.GENERATE_DBSCRIPT_FILE) {
+            allowedIpForGenerateDbscriptFile.add(ipAddr);
+        }
     }
 
 
@@ -443,5 +458,23 @@ public abstract class AbstractConfig implements Config {
         databaseList.add(dbServer);
     }
 
-
+    /**
+     * 添加主题和RabbitMQ配置的对应关系
+     * @param config
+     */
+    protected void addSubjectRabbitMQConfigMapping(Object[] config) {
+        RabbitMQConf rabbitMQConf = new RabbitMQConf();
+        String subject = (String)config[0];
+        String rabbitmqHost = (String)config[1];
+        String rabbitmqPort = (String)config[2];
+        String userName = (String)config[3];
+        String password = (String)config[4];
+        String queueName = (String)config[5];
+        rabbitMQConf.setRabbitmqHost(rabbitmqHost);
+        rabbitMQConf.setRabbitmqPort(Integer.parseInt(rabbitmqPort));
+        rabbitMQConf.setUserName(userName);
+        rabbitMQConf.setPassword(password);
+        rabbitMQConf.setQueueName(queueName);
+        subjectRabbitMQConfMap.put(subject, rabbitMQConf);
+    }
 }
