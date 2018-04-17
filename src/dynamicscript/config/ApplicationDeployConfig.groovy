@@ -1,50 +1,13 @@
-import com.myself.deployrequester.biz.config.impl.AbstractConfig
-import com.myself.deployrequester.biz.config.sharedata.RoleEnum;
+import com.myself.deployrequester.biz.config.impl.AbstractApplicationDeployConfig
+import com.myself.deployrequester.biz.config.sharedata.RoleEnum
 import com.myself.deployrequester.biz.config.spi.Config
-import com.myself.deployrequester.bo.DBServer;
 
 /**
  *   Created by QueRenJie on ${date}*/
-class KVConfig extends AbstractConfig {
+class ApplicationDeployConfig extends AbstractApplicationDeployConfig {
 
-    void buildConfig() {
-        /**********配置项目 (begin) **************************************************/
-        addProject(1, "翌能");
-        addProject(2, "宁家");
-        addProject(3, "大宗交易");
-        addProject(4, "翌捷");
-        //addProject(4, "系统");
-        /**********配置项目 ( end ) **************************************************/
-
-        /**********配置模块 (begin) **************************************************/
-        addModule(Short.valueOf("1"), "system", "系统管理");
-        addModule(Short.valueOf("2"), "base", "基础资源");
-        addModule(Short.valueOf("3"), "contract", "合同管理");
-        addModule(Short.valueOf("4"), "finance", "财务管理");
-        addModule(Short.valueOf("5"), "reportform", "报表管理");
-        addModule(Short.valueOf("6"), "goods", "商品管理");
-        addModule(Short.valueOf("7"), "purchase", "采购管理");
-        addModule(Short.valueOf("8"), "sale", "零售管理");
-        addModule(Short.valueOf("9"), "supplier", "供应商管理");
-        addModule(Short.valueOf("10"), "wholesale", "批发管理");
-        addModule(Short.valueOf("11"), "kitchen", "后厨管理");
-        addModule(Short.valueOf("12"), "market", "市场营销");
-        addModule(Short.valueOf("13"), "storage", "仓储管理");
-        addModule(Short.valueOf("14"), "bkcontract", "大宗交易合同管理");
-        addModule(Short.valueOf("15"), "bkfinance", "大宗交易财务管理");
-        addModule(Short.valueOf("16"), "bksale", "大宗交易零售管理");
-        addModule(Short.valueOf("17"), "bksettlement", "大宗交易结算管理");
-        addModule(Short.valueOf("18"), "bktender", "大宗交易招投标管理");
-        addModule(Short.valueOf("19"), "bktransportmanage", "大宗交易运输管理");
-        addModule(Short.valueOf("20"), "bkstorage", "大宗交易仓储管理");
-        addModule(Short.valueOf("21"), "bkreportform", "大宗交易报表模块");
-        /**********配置模块 ( end ) **************************************************/
-
-        /**********配置模块类型 (begin) **************************************************/
-        addModuleType(Short.valueOf("1"), "rest");
-        addModuleType(Short.valueOf("2"), "provider");
-        /**********配置模块类型 ( end ) **************************************************/
-
+    @Override
+    void buildApplicationDeployConfig() {
         /**********配置修改类型 (begin) **************************************************/
         addModifyType(1, "bug fix");
         addModifyType(2, "new feature development");
@@ -508,21 +471,6 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.236", Config.LOCK_DEPLOY_REQUEST);    //正卯
         addAllowedIpConfig("172.19.14.247", Config.LOCK_DEPLOY_REQUEST);    //恒砺
 
-        //发布数据库脚本到预发和生产的权限配置
-        addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
-        addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯
-        addAllowedIpConfig("172.19.14.202", Config.DEPLOY_DBSCRIPT);        //淡然
-        addAllowedIpConfig("172.19.14.247", Config.DEPLOY_DBSCRIPT);        //恒砺
-
-        //生成数据库脚本文件的权限配置
-        addAllowedIpConfig("172.19.14.144", Config.GENERATE_DBSCRIPT_FILE);
-        addAllowedIpConfig("172.19.14.236", Config.GENERATE_DBSCRIPT_FILE);        //正卯
-        addAllowedIpConfig("172.19.14.247", Config.GENERATE_DBSCRIPT_FILE);        //恒砺
-
-        //修改是否可以随时发布脚本的权限配置
-        addAllowedIpConfig("172.19.14.144", Config.CHANGE_CAN_EXEC_DBSCRIPT);
-        addAllowedIpConfig("172.19.14.236", Config.CHANGE_CAN_EXEC_DBSCRIPT);        //正卯
-        addAllowedIpConfig("172.19.14.247", Config.CHANGE_CAN_EXEC_DBSCRIPT);        //恒砺
 
         //审核执行应用发布到测试环境的权限配置
         addAllowedIpConfig("172.19.14.144", Config.AUDIT_DEPLOY_REQUEST);
@@ -536,40 +484,6 @@ class KVConfig extends AbstractConfig {
         addAllowedIpConfig("172.19.14.226", Config.AUDIT_DEPLOY_REQUEST);           //沐风
         /**********配置允许访问此发布申请系统的ip地址 (end) **************************************************/
 
-
-        /**********数据库服务器的配置信息 (begin) **************************************************/
-        addDatabaseConfig("DBServer1","172.16.54.12", "template1", "postgres", "suneeedba", "5440","翌捷预发布服务器172.16.54.12:5440","1");//翌捷预发布
-        addDatabaseConfig("DBServer2","172.16.54.11", "template1", "postgres", "suneeedba", "5441","翌捷预发布服务器172.16.54.11:5441","1");//翌捷预发布
-        addDatabaseConfig("DBServer3","172.16.54.12", "template1", "postgres", "suneeedba", "5441","翌捷预发布服务器172.16.54.12:5441","1");//翌捷预发布
-
-
-        addDatabaseConfig("DBServer4","172.16.41.14", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.41.14:5432","1");//宁家预发布
-        addDatabaseConfig("DBServer5","172.16.36.66", "template1", "postgres", "suneeedba", "5432","宁家预发布服务器172.16.36.66:5432","1");//宁家预发布
-
-        addDatabaseConfig("DBServer6","172.16.41.20", "template1", "postgres", "suneeedba", "5432","翌能预发布服务器172.16.41.20:5432","1");//翌能预发布
-
-
-        addDatabaseConfig("DBServer7","172.16.41.26", "template1", "postgres", "suneeedba", "5433","翌能生产服务器172.16.41.26:5433","2");//翌能生产
-        addDatabaseConfig("DBServer8","172.16.41.24", "template1", "postgres", "suneeedba", "5433","翌能生产服务器172.16.41.24:5433","2");//翌能生产
-
-        addDatabaseConfig("DBServer9","172.16.54.73", "template1", "postgres", "suneeedba", "5434","大宗生产服务器172.16.54.73:5434","2");//大宗生产
-        addDatabaseConfig("DBServer10","172.16.54.72", "template1", "postgres", "suneeedba", "5432","大宗生产服务器172.16.54.72:5432","2");//大宗生产
-
-        addDatabaseConfig("DBServer11","172.16.51.12", "template1", "postgres", "suneeedba", "5433","宁家生产服务器172.16.51.12:5433","2");//宁家生产
-        addDatabaseConfig("DBServer12","172.16.51.11", "template1", "postgres", "suneeedba", "5433","宁家生产服务器172.16.51.11:5433","2");//宁家生产
-
-        addDatabaseConfig("DBServer13","172.16.54.10", "template1", "postgres", "suneeedba", "5440","翌捷生产服务器172.16.54.10:5440","2");//翌捷生产
-        addDatabaseConfig("DBServer14","172.16.54.11", "template1", "postgres", "suneeedba", "5441","翌捷生产服务器172.16.54.11:5441","2");//翌捷生产
-
-
-        /**********数据库服务器的配置信息 ( end ) **************************************************/
-
-        /**********配置主题和RabbitMQ配置的对应关系 (begin) **************************************************/
-        //本地开发环境
-        addSubjectRabbitMQConfigMapping("createDbscriptFile", "172.19.14.201", "5672", "querenjie", "querenjie", "message_queue_1");
-        //正式环境
-//        addSubjectRabbitMQConfigMapping("createDbscriptFile", "http://172.19.14.237", "5672", "querenjie", "querenjie", "message_queue_1");
-        /**********配置主题和RabbitMQ配置的对应关系 ( end ) **************************************************/
     }
 
 }
