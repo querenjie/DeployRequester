@@ -108,13 +108,14 @@
                         if(resultData.data !=null){
                             $("#columnTable").empty();
                             var resultColumnData =resultData.data;
-                            var htmlText="<table  height='300' width='100%' border='1'  cellpadding='1' cellspacing='1'><tr  align='center' border='1' ><td colspan ='5' style='font-weight:bold'>"+
+                            var htmlText="<table  height='300' width='100%' border='1'  cellpadding='1' cellspacing='1'><tr  align='center' border='1' ><td colspan ='6' style='font-weight:bold'>"+
                                 "表名："+treeNode.name+"</td>"+  "</tr><tr>"+
                                 "<td id='serial_number' width='5%' align='center' style='font-weight:bold'>序号</td>" +
                                 "<td id='field_name' width='30%' align='center' style='font-weight:bold'>字段名</td>" +
                                 "<td id='type_size' width='30%' align='center' style='font-weight:bold'>类型/大小</td>" +
                                 "<td id='remarks' width='25%' align='center' style='font-weight:bold'>备注</td>" +
-                                "<td id='primary' width='10%' align='center' style='font-weight:bold'>是否主键</td>"+
+                                "<td id='isNotNull' width='5%' align='center' style='font-weight:bold'>是否Not Null</td>"+
+                                "<td id='primary' width='5%' align='center' style='font-weight:bold'>是否主键</td>"+
                                 "</tr>";
 
                             for (var i = 0;i < resultColumnData.length ; i ++){
@@ -122,6 +123,7 @@
                                 var columnName="";
                                 var columnType="";
                                 var comment="";
+                                var isNotNull = false;
                                 var primaryKey="";
                                 for(var key in columnBean){
                                     if(key == "columnName"){
@@ -142,12 +144,15 @@
                                             comment ="";
                                         }
                                     }
+                                    if(key == "notNull"){
+                                        isNotNull = columnBean[key];
+                                    }
                                     if(key == "primaryKey"){
                                         primaryKey = columnBean[key];
                                         if(primaryKey ==columnName){
                                             primaryKey ="是";
                                         }else {
-                                            primaryKey ="否";
+                                            primaryKey ="";
                                         }
                                     }
                                 }
@@ -156,6 +161,7 @@
                                     "<td align='center'>"+columnName+"</td>"+
                                     "<td align='center'>"+columnType+"</td>"+
                                     "<td align='center'>"+comment+"</td>"+
+                                    "<td align='center'>"+(isNotNull ? "是" : " ")+"</td>"+
                                     "<td align='center'>"+primaryKey+"</td>"+
                                     "</tr>"
                             }

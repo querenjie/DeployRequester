@@ -153,15 +153,29 @@ public class QueryDatabaseService  extends CommonDataService{
                 " pg_constraint  " +
                 "INNER JOIN pg_class ON pg_constraint.conrelid = pg_class.oid  " +
                 "INNER JOIN pg_attribute ON pg_attribute.attrelid = pg_class.oid  " +
-                "AND pg_attribute.attnum = pg_constraint.conkey [ 1 ]  " +
+                "AND pg_attribute.attnum = any(pg_constraint.conkey)  " +
                 "INNER JOIN pg_type ON pg_type.oid = pg_attribute.atttypid  " +
                 "WHERE  " +
                 " pg_class.relname = '" + codename + "'  " +
                 "AND pg_constraint.contype = 'p'  " +
                 "AND pg_table_is_visible (pg_class.oid)";
 
-        ResultSet rs = jdbcUtilForPostgres1.executeQuery(sql, conn);
+
+        //执行查询主键的sql，对于一张表而且可能会查出多条主键记录
         ResultSet rs1 = jdbcUtilForPostgres1.executeQuery(sql1, conn);
+        List<String> primaryKeyColumnNameList = new ArrayList<String>();
+        if (rs1 != null) {
+            while (rs1.next()) {
+                primaryKeyColumnNameList.add(rs1.getString(1));
+            }
+            try{
+                rs1.close() ;
+            }catch(SQLException e){
+                Log4jUtil.error(logger, "关闭记录集出错", e);
+            }
+        }
+
+        ResultSet rs = jdbcUtilForPostgres1.executeQuery(sql, conn);
         if (rs != null ) {
             columnList = new ArrayList<Column>();
             while (rs.next()) {
@@ -174,13 +188,17 @@ public class QueryDatabaseService  extends CommonDataService{
                 column.setColumnType(type);
                 column.setComment(comment);
                 column.setNotNull("t".equalsIgnoreCase(notNull) ? true : false);
-                columnList.add(column);
-                if (rs1 != null) {
-                    while (rs1.next()) {
-                        String primaryKey = rs1.getString(1);//查询的是主键
-                        column.setPrimaryKey(primaryKey);
+
+                //设置主键
+                if (primaryKeyColumnNameList != null) {
+                    for (String primaryKeyColumnName : primaryKeyColumnNameList) {
+                        if (name.equals(primaryKeyColumnName)) {
+                            column.setPrimaryKey(name);
+                            break;
+                        }
                     }
                 }
+                columnList.add(column);
             }
         }
         if(rs != null)
@@ -188,15 +206,7 @@ public class QueryDatabaseService  extends CommonDataService{
             try{
                 rs.close() ;
             }catch(SQLException e){
-                e.printStackTrace() ;
-            }
-        }
-        if(rs1 != null)
-        {   // 关闭记录集
-            try{
-                rs1.close() ;
-            }catch(SQLException e){
-                e.printStackTrace() ;
+                Log4jUtil.error(logger, "关闭记录集出错", e);
             }
         }
         if (conn != null) {
