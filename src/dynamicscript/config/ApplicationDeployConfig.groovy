@@ -1,13 +1,20 @@
 import com.myself.deployrequester.biz.config.impl.AbstractApplicationDeployConfig
 import com.myself.deployrequester.biz.config.sharedata.RoleEnum
 import com.myself.deployrequester.biz.config.spi.Config
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import com.myself.deployrequester.util.Log4jUtil;
 
 /**
  *   Created by QueRenJie on ${date}*/
 class ApplicationDeployConfig extends AbstractApplicationDeployConfig {
+    /** 日志 */
+    private static final Logger logger = LogManager.getLogger(ApplicationDeployConfig.class);
 
     @Override
     void buildApplicationDeployConfig() {
+        Log4jUtil.info(logger, "加载ApplicationDeployConfig.groovy...");
+
         /**********配置修改类型 (begin) **************************************************/
         addModifyType(1, "bug fix");
         addModifyType(2, "new feature development");

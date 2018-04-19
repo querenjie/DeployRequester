@@ -1,5 +1,10 @@
 package com.myself.deployrequester.biz.config.sharedata;
 
+import com.myself.deployrequester.biz.design.dynamiccomponent.ComponentManager;
+import com.myself.deployrequester.util.Log4jUtil;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +16,9 @@ import java.util.Map;
  * 这是专门用于汇总脚本文件生成这个主题下的回馈消息
  */
 public class RabbitMQReceiveSumForCreateDbscriptFile {
+    /** 日志 */
+    private static final Logger logger = LogManager.getLogger(RabbitMQReceiveSumForCreateDbscriptFile.class);
+
     /**
      * key:         clientIp
      * value:       消息列表
@@ -20,6 +28,7 @@ public class RabbitMQReceiveSumForCreateDbscriptFile {
     public static Map<String, List<String>> CLIENTIP_MSGLIST_MAPPING = new HashMap<String, List<String>>();
 
     synchronized public static void add(String clientIp, List<String> messageList) {
+        Log4jUtil.info(logger, "向服务器全局变量中写接收到的消息。。。");
         synchronized (CLIENTIP_MSGLIST_MAPPING) {
             List<String> originalMessageList = CLIENTIP_MSGLIST_MAPPING.get(clientIp);
             if (originalMessageList == null || originalMessageList.size() == 0) {
@@ -33,6 +42,12 @@ public class RabbitMQReceiveSumForCreateDbscriptFile {
                     CLIENTIP_MSGLIST_MAPPING.put(clientIp, newMessageList);
                 }
             }
+            List<String> nowMsgList = CLIENTIP_MSGLIST_MAPPING.get(clientIp);
+            int size = 0;
+            if (nowMsgList != null) {
+                size = nowMsgList.size();
+            }
+            Log4jUtil.info(logger, "接收了来自" + clientIp + "的消息，目前该IP下的消息有 " + size + " 条");
         }
     }
 
@@ -42,9 +57,7 @@ public class RabbitMQReceiveSumForCreateDbscriptFile {
      * @return
      */
     public static List<String> read(String clientIp) {
-        synchronized (CLIENTIP_MSGLIST_MAPPING) {
-            return CLIENTIP_MSGLIST_MAPPING.get(clientIp);
-        }
+        return CLIENTIP_MSGLIST_MAPPING.get(clientIp);
     }
 
     /**

@@ -1,11 +1,18 @@
 import com.myself.deployrequester.biz.config.impl.AbstractModulesConfig
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import com.myself.deployrequester.util.Log4jUtil;
 
 /**
  *   Created by QueRenJie on ${date}*/
 class ModulesConfig extends AbstractModulesConfig {
+    /** 日志 */
+    private static final Logger logger = LogManager.getLogger(ModulesConfig.class);
 
     @Override
     void buildModulesConfig() {
+        Log4jUtil.info(logger, "加载ModulesConfig.groovy...");
+
         /**********配置项目 (begin) **************************************************/
         addProject(1, "翌能");
         addProject(2, "宁家");

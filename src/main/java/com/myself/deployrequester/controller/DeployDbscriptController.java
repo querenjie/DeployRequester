@@ -1227,7 +1227,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
         }
 
         result = JsonResult.createSuccess("ok");
-        result.addData("已发送业务数据到本地客户端，由客户端生成文件！5秒之后会反馈消息。");
+        result.addData("已发送业务数据到本地客户端，由客户端生成文件！2秒之后会反馈消息。");
         return result;
     }
 
@@ -1241,7 +1241,7 @@ public class DeployDbscriptController extends CommonMethodWrapper {
         boolean hasFeedbackMsg = false;
         while (true) {
             List<String> messageList = null;
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 2; i++) {
                 messageList = RabbitMQReceiveSumForCreateDbscriptFile.read(clientIpAddr);
                 if (messageList != null && messageList.size() > 0) {
                     break;
@@ -1257,9 +1257,9 @@ public class DeployDbscriptController extends CommonMethodWrapper {
                 if (hasFeedbackMsg) {
                     break;
                 }
-                totalMessageList.add("5秒内未能收到来自客户端的响应。");
+                totalMessageList.add("2秒内未能收到来自客户端的响应。");
                 totalMessageList.add("如果是未启动客户端，请手动通过java -jar localsocket-0.0.1-SNAPSHOT.jar命令启动。");
-                totalMessageList.add("如果想继续获取来自客户端的反馈信息，请点击“是”，5秒后会继续弹出信息。否则点“否”。");
+                totalMessageList.add("如果想继续获取来自客户端的反馈信息，请点击“是”，2秒后会继续弹出信息。否则点“否”。");
                 hasFeedbackMsg = false;
                 break;
             }

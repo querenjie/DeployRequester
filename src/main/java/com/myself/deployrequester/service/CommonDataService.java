@@ -307,11 +307,13 @@ public class CommonDataService {
         }
         if (ConfigData.LOCK_ELEMENT_LIST != null) {
             for (LockElement lockElement : ConfigData.LOCK_ELEMENT_LIST) {
-                if (lockElement.getProjectId().shortValue() == projectId.shortValue()
-                        && lockElement.getModuleId().shortValue() == moduleId.shortValue()
-                        && lockElement.getModuleTypeId().shortValue() == moduleTypeId.shortValue()
-                        && lockElement.isLocked()) {
-                    return true;
+                if (lockElement.getProjectId() != null && lockElement.getModuleId() != null && lockElement.getModuleTypeId() != null ) {
+                    if (lockElement.getProjectId().shortValue() == projectId.shortValue()
+                            && lockElement.getModuleId().shortValue() == moduleId.shortValue()
+                            && lockElement.getModuleTypeId().shortValue() == moduleTypeId.shortValue()
+                            && lockElement.isLocked()) {
+                        return true;
+                    }
                 }
             }
         }

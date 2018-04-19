@@ -1,12 +1,19 @@
 import com.myself.deployrequester.biz.config.impl.AbstractDBScriptDeployConfig
 import com.myself.deployrequester.biz.config.spi.Config
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import com.myself.deployrequester.util.Log4jUtil;
 
 /**
  *   Created by QueRenJie on ${date}*/
 class DBScriptDeployConfig extends AbstractDBScriptDeployConfig {
+    /** 日志 */
+    private static final Logger logger = LogManager.getLogger(DBScriptDeployConfig.class);
 
     @Override
     void buildDBScriptDeployConfig() {
+        Log4jUtil.info(logger, "加载DBScriptDeployConfig.groovy...");
+
         //发布数据库脚本到预发和生产的权限配置
         addAllowedIpConfig("172.19.14.144", Config.DEPLOY_DBSCRIPT);
         addAllowedIpConfig("172.19.14.236", Config.DEPLOY_DBSCRIPT);        //正卯

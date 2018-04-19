@@ -31,48 +31,6 @@ public class RabbitMQListener {
     }
 
     public void start() {
-        Log4jUtil.info(logger, "starting listener..");
-        RabbitMQUtil rabbitMQUtil = new RabbitMQUtil(subject);
-        Channel channelForReceiveMsg = null;
-        try {
-            channelForReceiveMsg = rabbitMQUtil.getChannelForReceiveStatusInfo();
-        } catch (IOException e) {
-            Log4jUtil.error(logger, "创建RabbitMQ Channel报错", e);
-        } catch (TimeoutException e) {
-            Log4jUtil.error(logger, "创建RabbitMQ Channel报错", e);
-        }
-        if (channelForReceiveMsg == null) {
-            return;
-        }
-
-        // 创建队列消费者
-        final Consumer consumer = new DefaultConsumer(channelForReceiveMsg) {
-            @Override
-            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-
-                if ("createDbscriptFile".equals(subject)) {
-                    StatusMessageCarrier statusMessageCarrier = (StatusMessageCarrier) SerializationUtils.deserialize(body);
-                    Log4jUtil.info(logger, "主题：" + subject + "|" + statusMessageCarrier.toString());
-                    Log4jUtil.info(logger, " [x] Proccessing... at " + new Date().toLocaleString());
-
-                    //将从客户端发来的消息保存到全局变量中。
-                    RabbitMQReceiveSumForCreateDbscriptFile.add(statusMessageCarrier.getClientIp(), statusMessageCarrier.getMessageList());
-
-                    Log4jUtil.info(logger, " [x] Done! at " + new Date().toLocaleString());
-                }
-            }
-        };
-        //监听消息队列
-        try {
-            rabbitMQUtil.receiveStatusInfoListening(channelForReceiveMsg, consumer);
-        } catch (IOException e) {
-            Log4jUtil.error(logger, "启动RabbitMQ Channel监听报错", e);
-            e.printStackTrace();
-            return;
-        }
-
-        RabbitMQConf rabbitMQConf = ConfigData.SUBJECT_RABBITMQCONF_MAPPING.get(subject);
-        Log4jUtil.info(logger, "RabbitMQ（主题：" + subject + "|队列配置信息：" + rabbitMQConf.toString() + "） is started.");
-
+        new ConsumerOfRabbitMQ(this.subject).start();
     }
 }

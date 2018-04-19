@@ -79,9 +79,21 @@ public class RabbitMQUtil {
         factory.setUsername(rabbitMQConf.getUserName());
         factory.setPassword(rabbitMQConf.getPassword());
         factory.setPort(rabbitMQConf.getRabbitmqPort());
+
+        Log4jUtil.info(logger, "连接RabbitMQ的参数：");
+        Log4jUtil.info(logger, "factory.getHost()=" + factory.getHost());
+        Log4jUtil.info(logger, "factory.getUsername()=" + factory.getUsername());
+        Log4jUtil.info(logger, "factory.getPassword()=" + factory.getPassword());
+        Log4jUtil.info(logger, "factory.getPort()=" + factory.getPort());
+        Log4jUtil.info(logger, "然后执行语句Connection connection = factory.newConnection()");
         // 打开连接和创建频道，与发送端一样
-        Connection connection = factory.newConnection();
+        Connection connection = null;
+        connection = factory.newConnection();
+        Log4jUtil.info(logger, "创建connection对象成功。");
         Channel channel = connection.createChannel();
+        if (channel != null) {
+            Log4jUtil.info(logger, "创建channel对象成功。");
+        }
         return channel;
     }
 
@@ -92,6 +104,8 @@ public class RabbitMQUtil {
      * @throws TimeoutException
      */
     private Channel getChannelForSendBizData() throws IOException, TimeoutException {
+        Log4jUtil.info(logger, "进入RabbitMQUtil.getChannelForSendBizData。");
+
         /**
          * 创建连接连接到MabbitMQ
          */
@@ -113,11 +127,15 @@ public class RabbitMQUtil {
      * @throws TimeoutException
      */
     public void sendBizDataToClient(TotalDBScriptInfoForFileGenerate totalDBScriptInfoForFileGenerate) throws IOException, TimeoutException {
+        Log4jUtil.info(logger, "进入RabbitMQUtil.sendBizDataToClient方法。");
         Channel channel = getChannelForSendBizData();
         if (channel == null) {
+            Log4jUtil.info(logger, "创建channel对象失败。");
             return;
         }
         channel.basicPublish("", rabbitMQConf.getQueueName() + "_" + clientIpAddr, null, SerializationUtils.serialize(totalDBScriptInfoForFileGenerate));
+        Log4jUtil.info(logger, "channel绑定了队列" + rabbitMQConf.getQueueName() + "_" + clientIpAddr + ",并发送信息到队列。");
+        channel.close();
     }
 
     /**
@@ -159,14 +177,16 @@ public class RabbitMQUtil {
      * @return
      */
     public Channel getChannelForReceiveStatusInfo() throws IOException, TimeoutException {
+        Log4jUtil.info(logger, "进入RabbitMQUtil.getChannelForReceiveStatusInfo(),queue name is : " + rabbitMQConf.getQueueName() + "_status_toserver");
         Channel channel = createChannel();
         if (channel == null) {
+            Log4jUtil.info(logger, "创建channel对象失败。");
             return null;
         }
+        Log4jUtil.info(logger, "Channel channel = createChannel()执行成功。");
 
         // 声明队列，主要为了防止消息接收者先运行此程序，队列还不存在时创建队列。
         try {
-            Log4jUtil.info(logger, "RabbitMQUtil.getChannelForReceiveStatusInfo(),queue name is : " + rabbitMQConf.getQueueName() + "_status_toserver");
             channel.queueDeclare(rabbitMQConf.getQueueName() + "_status_toserver", false, false, false, null);
         } catch (IOException e) {
             Log4jUtil.error(logger, "创建channel报错", e);
@@ -187,8 +207,8 @@ public class RabbitMQUtil {
         if (channelForReceiveMsg == null || consumer == null) {
             return;
         }
-        Log4jUtil.info(logger, "RabbitMQUtil.receiveStatusInfoListening(),queue name is : " + rabbitMQConf.getQueueName() + "_status_toserver");
         channelForReceiveMsg.basicConsume(this.rabbitMQConf.getQueueName() + "_status_toserver", true, consumer);
+        Log4jUtil.info(logger, "RabbitMQUtil.receiveStatusInfoListening(),监听的queue name is : " + rabbitMQConf.getQueueName() + "_status_toserver");
     }
 
 
