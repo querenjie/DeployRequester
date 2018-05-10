@@ -87,7 +87,7 @@ public class DBScriptUtil {
             if (line.startsWith("--")) {
                 continue;
             }
-            stringList.add(line);
+            stringList.add(line + " ");
         }
         StringBuffer sb = new StringBuffer();
         for (String line : stringList) {
