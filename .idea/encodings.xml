@@ -3,8 +3,8 @@
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/src/dynamicscript/config/ApplicationDeployConfig.groovy" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/dynamicscript/config/DBScriptDeployConfig.groovy" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/src/dynamicscript/config/ModulesConfig.groovy" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/dynamicscript/config/RabbitMQConfig.groovy" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/dynamicscript/config/_ModulesConfig.groovy" charset="GBK" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

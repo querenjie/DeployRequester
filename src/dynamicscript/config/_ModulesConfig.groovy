@@ -5,9 +5,9 @@ import com.myself.deployrequester.util.Log4jUtil;
 
 /**
  *   Created by QueRenJie on ${date}*/
-class ModulesConfig extends AbstractModulesConfig {
+class _ModulesConfig extends AbstractModulesConfig {
     /** »’÷æ */
-    private static final Logger logger = LogManager.getLogger(ModulesConfig.class);
+    private static final Logger logger = LogManager.getLogger(_ModulesConfig.class);
 
     @Override
     void buildModulesConfig() {
